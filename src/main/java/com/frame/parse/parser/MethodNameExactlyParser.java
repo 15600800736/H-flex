@@ -17,11 +17,16 @@ public class MethodNameExactlyParser implements Parser {
         if (!isSourceValid(source)) {
             throw new ParseException("*.*.*.*", "方法名格式错误");
         }
-        String[] cells = source.split("\\.");
-        String methodName = cells[cells.length - 1];
-        Class<?> methodClazz = getClazzBySource(cells);
+//        String[] cells = source.split("\\.");
+//
+//        Class<?> methodClazz = null;
+//        // 用了alias
+//        if(cells.length == 1) {
+//            methodClazz = getClazzBySource(cells);
+//        }
+//        String methodName = cells[cells.length - 1];
         Parser parser = new OverloadMethodParser();
-        return parser.parse(methodClazz,methodName,paramsName,args);
+        return parser.parse(source,paramsName,args);
 
     }
 
@@ -32,21 +37,22 @@ public class MethodNameExactlyParser implements Parser {
         return matcher.matches();
     }
 
-    private Class<?> getClazzBySource(String[] cells) {
-        StringBuilder clazzPath = new StringBuilder(cells[0]);
-        if (cells.length > 1) {
-            for (int i = 1; i < cells.length - 1; i++) {
-                clazzPath.append(".").append(cells[i]);
-            }
-        }
-        Class<?> methodClazz = null;
-        try {
-            methodClazz = Class.forName(clazzPath.toString());
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-        return null;
-    }
+//
+//    private Class<?> getClazzBySource(String[] cells) {
+//        StringBuilder clazzPath = new StringBuilder(cells[0]);
+//        if (cells.length > 1) {
+//            for (int i = 1; i < cells.length - 1; i++) {
+//                clazzPath.append(".").append(cells[i]);
+//            }
+//        }
+//        Class<?> methodClazz = null;
+//        try {
+//            methodClazz = Class.forName(clazzPath.toString());
+//        } catch (ClassNotFoundException e) {
+//            return null;
+//        }
+//        return null;
+//    }
 
 
 

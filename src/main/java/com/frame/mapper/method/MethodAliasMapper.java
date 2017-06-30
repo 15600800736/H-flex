@@ -19,11 +19,11 @@ public class MethodAliasMapper {
         }
         return instance;
     }
-    void setMethod(String alias, Method method) {
+    public  void setMethod(String alias, Method method) {
         methodAliasMapper.put(alias,method);
     }
 
-    Method getMethod(String alias) {
+    public  Method getMethod(String alias) {
         return methodAliasMapper.get(alias);
     }
 }
