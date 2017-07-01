@@ -139,10 +139,6 @@ public class OverloadMethodParser implements Parser {
         return cells[cells.length - 1];
     }
 
-    private Method getMethodFromClazz() {
-        return null;
-    }
-
     private Boolean checkParamMapper(Method clazzMethod, Map<String,Pair<Class<?>,Object>> offeredValue) {
         // 检查参数匹配
         Parameter[] parameters = clazzMethod.getParameters();

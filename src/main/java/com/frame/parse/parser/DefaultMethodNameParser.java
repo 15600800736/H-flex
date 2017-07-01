@@ -16,7 +16,7 @@ public class DefaultMethodNameParser implements Parser {
         source = source.trim();
         Parser parser = null;
         Method targetMethod = null;
-        if(source.contains("*") || source.contains("?")) {
+        if(source.contains("*") || source.contains("?") || source.contains(".")) {
             parser = new MethodNameFuzzyParser();
         } else {
             parser = new MethodNameExactlyParser();
@@ -28,8 +28,7 @@ public class DefaultMethodNameParser implements Parser {
                 e.printStackTrace();
             }
         }
-        System.out.println(targetMethod);
-        return null;
+        return targetMethod;
     }
 
 }
