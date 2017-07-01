@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,12 +39,32 @@ public class OverloadMethodParser implements Parser {
         }
 
         Method targetMethod = methodAliasMapper.getMethod(source);
-        // 无可奈何时，解析methodName为class与methodName
+        // 无可奈何时，解析methodName为class与methodName，并获取方法
         String[] cells = source.split("\\.");
-        Class<?> methodClass = getClazzBySource(cells);
-        if (targetMethod == null) {
-
+        String methodName = getNameBySource(cells);
+        // 若只有方法名
+        if(cells.length < 2) {
+            throw new ParseException("methodClass.methodName","路径:" + source + "无法解析出方法类");
         }
+        Class<?> methodClass = getClazzBySource(cells);
+        if(methodClass == null) {
+            throw new ParseException("methodClass.methodName","路径:" + source + "无法解析出方法类");
+        }
+
+        if (targetMethod == null) {
+            Method[] clazzMethods = methodClass.getDeclaredMethods();
+            for(Method clazzMethod : clazzMethods) {
+                if(clazzMethod.getName().equals(methodName)) {
+
+                }
+            }
+        }
+
+        // 仍旧找不到方法，报错
+        if(targetMethod == null) {
+            throw new ParseException(null,"找不到需要调用的方法");
+        }
+
 
         return null;
     }
@@ -106,34 +127,21 @@ public class OverloadMethodParser implements Parser {
                     offeredValue.put(paramName, new Pair<>(paramType, value));
                 } else if (field.isAnnotationPresent(ParamObject.class)) {
                     getParametersValue(value.getClass(), value, offeredValue);
+                } else {
+                    offeredValue.put(field.getName(),new Pair<>(field.getType(),value));
                 }
-            }
-        }
-    }
-
-
-    public static void main(String... strings) {
-        Class<?> clazz = null;
-
-        try {
-            clazz = Class.forName("com.frame.parse.parser.OverloadMethodParser");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        if (clazz != null) {
-            Method method = null;
-            try {
-                method = clazz.getMethod("test", String.class, Integer.class);
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-            Annotation[][] annotations = method.getParameterAnnotations();
-            for (Annotation[] annotations1 : annotations) {
-                for (Annotation annotation : annotations1) {
-                    System.out.println(annotation.annotationType().getName());
+            } else {
+                String paramName = null;
+                Class<?> paramType = null;
+                if(field.isAnnotationPresent(Param.class)) {
+                    Param param = field.getAnnotation(Param.class);
+                    paramType = param.paramType();
+                    paramName = param.paramName();
+                } else {
+                    paramName = field.getName();
+                    paramType = field.getType();
                 }
-                System.out.println("______________________");
+                offeredValue.put(paramName,new Pair<>(paramType,null));
             }
         }
     }
@@ -155,5 +163,44 @@ public class OverloadMethodParser implements Parser {
         }
         return null;
     }
+
+    private String getNameBySource(String[] cells) {
+        return cells[cells.length - 1];
+    }
+
+    private Method getMethodFromClazz() {
+        return null;
+    }
+
+    private Boolean checkParamMapper(Method clazzMethod, Map<String,Pair<Class<?>,Object>> offeredValue) {
+        // 检查参数匹配
+        Parameter[] parameters = clazzMethod.getParameters();
+        Integer paramLength = parameters.length;
+        // 若需求的参数数量大于提供的数量
+        if(paramLength > offeredValue.entrySet().size()) {
+            return false;
+        }
+        for(Parameter parameter : parameters) {
+            String paramNameDelegate = null;
+            Class<?> paramTypeDelegate = null;
+            if(parameter.isAnnotationPresent(Param.class)) {
+                Param paramAnnotation = parameter.getAnnotation(Param.class);
+                paramNameDelegate = paramAnnotation.paramName();
+                paramTypeDelegate = paramAnnotation.paramType();
+            } else {
+                paramNameDelegate = parameter.getName();
+                paramTypeDelegate = parameter.getType();
+            }
+            Pair<Class<?>,Object> pair = offeredValue.get(paramNameDelegate);
+            if(pair == null) {
+                return false;
+            }
+            
+        }
+        return true;
+
+
+    }
 }
+
 
