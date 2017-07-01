@@ -5,6 +5,7 @@ import com.frame.exceptions.ParseException;
 import com.frame.annotations.Param;
 import com.frame.annotations.ParamObject;
 import com.frame.mapper.method.MethodAliasMapper;
+import com.frame.parameter.SourceObject;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -26,47 +27,17 @@ public class OverloadMethodParser implements Parser {
     public Object parse(Object... objects) throws ParseException {
         String source = (String) objects[0];
         String paramsName = (String) objects[1];
-        Object[] args = Arrays.copyOfRange(objects, 3, objects.length);
+        Object[] args = (Object[]) objects[2];
         String[] params = paramsName.split(",");
-        Map<String, Pair<Class, Object>> offeredValue = new HashMap<>();
-        for (int i = 0; i < params.length; i++) {
-            Class argClazz = args[i].getClass();
-            if ("%Object".equals(params[i])) {
-                getParametersValue(argClazz, args[i], offeredValue);
-            } else {
-                offeredValue.put(params[i], new Pair<>(argClazz, args[i]));
-            }
-        }
-
+        Map<String, Pair<Class<?>, Object>> offeredValue = new HashMap<>();
+        extractOfferedValue(params,args,offeredValue);
         Method targetMethod = methodAliasMapper.getMethod(source);
-        // 无可奈何时，解析methodName为class与methodName，并获取方法
-        String[] cells = source.split("\\.");
-        String methodName = getNameBySource(cells);
-        // 若只有方法名
-        if(cells.length < 2) {
-            throw new ParseException("methodClass.methodName","路径:" + source + "无法解析出方法类");
-        }
-        Class<?> methodClass = getClazzBySource(cells);
-        if(methodClass == null) {
-            throw new ParseException("methodClass.methodName","路径:" + source + "无法解析出方法类");
-        }
 
+        // 缓存中没有时,则根据source查找该方法
         if (targetMethod == null) {
-            Method[] clazzMethods = methodClass.getDeclaredMethods();
-            for(Method clazzMethod : clazzMethods) {
-                if(clazzMethod.getName().equals(methodName)) {
-
-                }
-            }
+            targetMethod = getMethodFromConcretClazz(source,offeredValue);
         }
-
-        // 仍旧找不到方法，报错
-        if(targetMethod == null) {
-            throw new ParseException(null,"找不到需要调用的方法");
-        }
-
-
-        return null;
+        return targetMethod;
     }
 
     class Pair<T1, T2> {
@@ -98,7 +69,7 @@ public class OverloadMethodParser implements Parser {
         }
     }
 
-    private void getParametersValue(Class<?> argClazz, Object object, Map<String, Pair<Class, Object>> offeredValue) throws ParseException {
+    private void getParametersValue(Class<?> argClazz, Object object, Map<String, Pair<Class<?>, Object>> offeredValue) throws ParseException {
         Field[] fieldsOfArg = argClazz.getDeclaredFields();
         for (Field field : fieldsOfArg) {
             String originalName = field.getName();
@@ -161,7 +132,7 @@ public class OverloadMethodParser implements Parser {
         } catch (ClassNotFoundException e) {
             return null;
         }
-        return null;
+        return methodClazz;
     }
 
     private String getNameBySource(String[] cells) {
@@ -187,20 +158,66 @@ public class OverloadMethodParser implements Parser {
                 Param paramAnnotation = parameter.getAnnotation(Param.class);
                 paramNameDelegate = paramAnnotation.paramName();
                 paramTypeDelegate = paramAnnotation.paramType();
-            } else {
-                paramNameDelegate = parameter.getName();
-                paramTypeDelegate = parameter.getType();
             }
-            Pair<Class<?>,Object> pair = offeredValue.get(paramNameDelegate);
-            if(pair == null) {
+            Pair<Class<?>,Object> offerdPair = offeredValue.get(paramNameDelegate);
+            if(offerdPair == null) {
                 return false;
             }
-            
+            Class<?> offeredType = offerdPair.getFirst();
+            if(!offeredType.equals(paramTypeDelegate)) {
+                return false;
+            }
         }
         return true;
+    }
 
+    private void extractOfferedValue(String[] params, Object[] args, Map<String,Pair<Class<?>,Object>> offeredValue) throws ParseException {
+        for (int i = 0; i < params.length; i++) {
+            Class argClazz = args[i].getClass();
+            if ("%Object".equals(params[i])) {
+                getParametersValue(argClazz, args[i], offeredValue);
+            } else {
+                offeredValue.put(params[i], new Pair<>(argClazz, args[i]));
+            }
+        }
 
     }
+
+    private Method getMethodFromConcretClazz(String source, Map<String, Pair<Class<?>, Object>> offeredValue) throws ParseException {
+        String[] cells = source.split("\\.");
+        String methodName = getNameBySource(cells);
+        // 若只有方法名
+        if(cells.length < 2) {
+            throw new ParseException("methodClass.methodName","路径:" + source + "无法解析出方法类");
+        }
+        Class<?> methodClass = getClazzBySource(cells);
+        if(methodClass == null) {
+            throw new ParseException("methodClass.methodName","路径:" + source + "无法解析出方法类");
+        }
+        Method[] clazzMethods = methodClass.getDeclaredMethods();
+        for(Method clazzMethod : clazzMethods) {
+            if(clazzMethod.getName().equals(methodName)) {
+                Boolean isMatcher = checkParamMapper(clazzMethod,offeredValue);
+                // 若该方法匹配，则找到可以匹配的方法，加入缓存并
+                if(isMatcher) {
+                    // 否则， 将目标方法加入缓存，以便以后调用
+                    // 因为前面已经检查过，所以不会存在覆盖
+                    methodAliasMapper.setMethod(source,clazzMethod);
+                    return clazzMethod;
+                }
+            }
+        }
+
+        // 到这里，必然没有找到符合的方法
+        throw new ParseException(null,"找不到需要调用的方法");
+
+    }
+
+    public static void main(String...strings) throws ParseException {
+        SourceObject sourceObject = new SourceObject();
+        sourceObject.setA("c");
+        sourceObject.setB(2);
+        Parser parser = new DefaultMethodNameParser();
+        Method method = (Method) parser.parse("com.frame.parameter.TargetObject.setB","%Object,b,a",sourceObject, "bbbbb",1);
+    }
 }
-
-

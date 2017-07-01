@@ -6,9 +6,9 @@ import com.frame.annotations.Param;
  * Created by fdh on 2017/5/30.
  */
 public class SourceObject {
-    @Param(paramName = "a", paramType = String.class)
+    @Param(paramName = "c", paramType = String.class)
     private String a;
-    @Param(paramName = "b", paramType = Integer.class)
+    @Param(paramName = "d", paramType = Integer.class)
     private Integer b;
 //    @ParamObject
     private InnerSourceObject innerSourceObject;

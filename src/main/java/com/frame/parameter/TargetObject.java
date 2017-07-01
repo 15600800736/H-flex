@@ -26,7 +26,10 @@ public class TargetObject {
         return b;
     }
 
-    public void setB(String b) {
+    public void setB(@Param(paramName = "b", paramType = String.class) String b,
+                     @Param(paramName = "a", paramType = Integer.class) Integer a,
+                     @Param(paramName = "c", paramType = String.class) Integer c,
+                     @Param(paramName = "d", paramType = Integer.class)Integer d) {
         this.b = b;
     }
 
