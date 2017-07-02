@@ -1,0 +1,11 @@
+<!DOCTYPE frame-haug SYSTEM "frame-haug.dtd">
+
+<frame-haug>
+    <action-classes>
+        <annotation-scan/>        
+        <base-content>
+            <path>com.frame.parameter</path>
+            <path>com.frame.annotations</path>
+        </base-content>
+    </action-classes>
+</frame-haug>
