@@ -5,5 +5,5 @@ import com.frame.exceptions.ParseException;
 
 
 public interface Parser {
-    Object parse(Object... objects) throws ParseException;
+    Object parse() throws ParseException;
 }

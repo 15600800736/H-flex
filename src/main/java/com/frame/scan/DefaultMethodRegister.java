@@ -44,6 +44,8 @@ public class DefaultMethodRegister {
         }
         Element root = document.getRootElement();
         Element actionClasses = root.element("action-classes");
+        Element baseContent = actionClasses.element("base-content");
+        System.out.println(baseContent);
         Element annotationScan = root.element("annotation-scan");
         if(annotationScan != null) {
             if(logger.isDebugEnabled()) {
@@ -69,7 +71,7 @@ public class DefaultMethodRegister {
 
     public static void main(String...strings) {
         try {
-            DefaultMethodRegister register = new DefaultMethodRegister("G:\\test.xml");
+            DefaultMethodRegister register = new DefaultMethodRegister("G:\\xml\\test.xml");
         } catch (ScanException e) {
             e.printStackTrace();
         }

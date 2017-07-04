@@ -3,27 +3,33 @@ package com.frame.parse.parser;
 
 import com.frame.exceptions.ParseException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 public class DefaultMethodNameParser implements Parser {
+
+    private String source;
+    private String paramsName;
+    private Object[] args;
+
+    public DefaultMethodNameParser(String source, String paramsName, Object[] args) {
+        this.source = source;
+        this.paramsName = paramsName;
+        this.args = args;
+    }
+
     @Override
-    public Object parse(Object... objects) {
-        String source = (String) objects[0];
-        String paramsName = (String) objects[1];
-        Object[] args = Arrays.copyOfRange(objects, 2, objects.length);
+    public Object parse() {
         source = source.trim();
         Parser parser = null;
         Method targetMethod = null;
-        if(source.contains("*") || source.contains("?") || source.contains(".")) {
-            parser = new MethodNameFuzzyParser();
+        if(source.contains("*") || source.contains("?")) {
+            parser = new MethodNameFuzzyParser(source,paramsName,args);
         } else {
-            parser = new MethodNameExactlyParser();
+            parser = new MethodNameExactlyParser(source,paramsName,args);
         }
         if(parser != null) {
             try {
-                targetMethod = (Method) parser.parse(source, paramsName, args);
+                targetMethod = (Method) parser.parse();
             } catch (ParseException e) {
                 e.printStackTrace();
             }

@@ -2,10 +2,14 @@
 
 <frame-haug>
     <action-classes>
-        <annotation-scan/>        
+        <annotation-scan/>
         <base-content>
             <path>com.frame.parameter</path>
             <path>com.frame.annotations</path>
         </base-content>
+        <!--<action-class>-->
+            <!--<path>com.frame.annotations.Param</path>-->
+            <!--<path>com.frame.annotations.Action</path>-->
+        <!--</action-class>-->
     </action-classes>
 </frame-haug>

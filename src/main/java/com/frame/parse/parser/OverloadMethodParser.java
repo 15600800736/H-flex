@@ -23,11 +23,17 @@ public class OverloadMethodParser implements Parser {
 
     MethodAliasMapper methodAliasMapper = MethodAliasMapper.getInstance();
 
+    private String source;
+    private String paramsName;
+    private Object[] args;
+    public OverloadMethodParser(String source, String paramsName, Object[] args) {
+        this.source = source;
+        this.paramsName = paramsName;
+        this.args = args;
+    }
+
     @Override
-    public Object parse(Object... objects) throws ParseException {
-        String source = (String) objects[0];
-        String paramsName = (String) objects[1];
-        Object[] args = (Object[]) objects[2];
+    public Object parse() throws ParseException {
         String[] params = paramsName.split(",");
         Map<String, Pair<Class<?>, Object>> offeredValue = new HashMap<>();
         extractOfferedValue(params,args,offeredValue);
@@ -213,7 +219,7 @@ public class OverloadMethodParser implements Parser {
         SourceObject sourceObject = new SourceObject();
         sourceObject.setA("c");
         sourceObject.setB(2);
-        Parser parser = new DefaultMethodNameParser();
-        Method method = (Method) parser.parse("com.frame.parameter.TargetObject.setB","%Object,b,a",sourceObject, "bbbbb",1);
+        Parser parser = new DefaultMethodNameParser("com.frame.parameter.TargetObject.setB","%Object,b,a",new Object[]{sourceObject, "bbbbb",1});
+        Method method = (Method) parser.parse();
     }
 }
