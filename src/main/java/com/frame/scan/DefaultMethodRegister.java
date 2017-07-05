@@ -1,6 +1,8 @@
 package com.frame.scan;
 
 import com.frame.exceptions.ScanException;
+import com.frame.validor.ResourceValidor;
+import com.frame.validor.Validor;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -26,55 +28,11 @@ public class DefaultMethodRegister {
 
     public DefaultMethodRegister(String path) throws ScanException {
         this.path = path;
-        initParseXml();
+        initScanXml();
     }
 
-    private void initParseXml() throws ScanException {
-        Boolean isValid = isPathValid();
-        if(!isValid) {
-            throw new ScanException();
-        }
-        SAXReader reader = new SAXReader();
-        Document document = null;
-        try {
-            document = reader.read(new File(path));
-        } catch (DocumentException e) {
-            System.out.println(e);
-            throw new ScanException();
-        }
-        Element root = document.getRootElement();
-        Element actionClasses = root.element("action-classes");
-        Element baseContent = actionClasses.element("base-content");
-        System.out.println(baseContent);
-        Element annotationScan = root.element("annotation-scan");
-        if(annotationScan != null) {
-            if(logger.isDebugEnabled()) {
-                logger.debug("annotation scan is enabled");
-            }
+    private void initScanXml() throws ScanException {
 
-        } else {
-            if(logger.isDebugEnabled()) {
-                logger.debug("annotation scan is disabled");
-            }
-        }
-    }
-
-    private Boolean isPathValid() {
-        Pattern pattern = Pattern.compile("^([A-Z]:\\\\)?[^\\\\/:*?\"<>|]+?(\\\\[^\\\\/:*?\"<>|]+?)*\\.xml");
-        Matcher matcher = pattern.matcher(path);
-        return matcher.matches();
-    }
-
-    private List<String> getClassPathListByScan(List<String> pathList) {
-        return null;
-    }
-
-    public static void main(String...strings) {
-        try {
-            DefaultMethodRegister register = new DefaultMethodRegister("G:\\xml\\test.xml");
-        } catch (ScanException e) {
-            e.printStackTrace();
-        }
     }
 
 

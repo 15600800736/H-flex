@@ -1,9 +1,8 @@
 package com.frame.parse.parser;
 
 import com.frame.exceptions.ParseException;
-import com.frame.parse.infoholder.XmlConfiguration;
+import com.frame.info.XmlConfiguration;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class ConfigurationParser implements Parser {
         }
         List<Element> pathList = root.elements("path");
         for(Element path : pathList) {
-            configuration.addActionClass(path.getText());
+            configuration.addClassPath(path.getText());
         }
     }
     public void registerBaseContent(Element base_content, XmlConfiguration configuration) {

@@ -1,9 +1,7 @@
 
-package com.frame.parameter.injector;
+package com.frame.injector;
 
 import com.frame.exceptions.InjectException;
-
-import java.lang.reflect.Method;
 
 public interface ParameterInjector {
 	void inject(boolean multiSource,Object o1,Object...o2) throws InjectException;

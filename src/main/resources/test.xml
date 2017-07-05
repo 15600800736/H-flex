@@ -3,10 +3,10 @@
 <frame-haug>
     <action-classes>
         <annotation-scan/>
-        <base-content>
+        <base-contents>
             <path>com.frame.parameter</path>
             <path>com.frame.annotations</path>
-        </base-content>
+        </base-contents>
         <!--<action-class>-->
             <!--<path>com.frame.annotations.Param</path>-->
             <!--<path>com.frame.annotations.Action</path>-->

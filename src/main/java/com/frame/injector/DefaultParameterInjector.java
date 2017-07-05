@@ -1,5 +1,5 @@
 
-package com.frame.parameter.injector;
+package com.frame.injector;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

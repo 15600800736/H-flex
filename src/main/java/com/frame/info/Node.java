@@ -1,0 +1,29 @@
+package com.frame.info;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by fdh on 2017/7/5.
+ */
+public abstract class Node {
+    public abstract String getText();
+
+    public abstract <T extends Node> T getChild(String name);
+
+    public abstract <T extends Node> List<T> getChildren(String name);
+
+    public abstract <T extends Node> List<T> getAllChildren();
+
+    public abstract String getAttributeText(String name);
+
+    public abstract Map<String, String> getAllAttributes();
+
+    public abstract ConfigurationNode getParent();
+
+    public abstract Boolean isRoot();
+
+    public abstract Boolean isHasChild();
+
+    public abstract Boolean isHasAttribute();
+}
