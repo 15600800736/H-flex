@@ -1,10 +1,13 @@
 package com.frame.scan;
 
+import com.frame.exceptions.ParseException;
 import com.frame.info.ConfigurationNode;
 import com.frame.info.XmlConfiguration;
 import org.dom4j.Element;
 
 import javax.security.auth.login.Configuration;
+import java.io.File;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,26 +16,79 @@ import java.util.List;
  */
 public class BaseContentScanner implements Scanner {
     private ConfigurationNode base_contents;
+    private XmlConfiguration xmlConfiguration;
 
-    public BaseContentScanner(ConfigurationNode base_contents) {
+    public BaseContentScanner(ConfigurationNode base_contents, XmlConfiguration xmlConfiguration) {
+        this.xmlConfiguration = xmlConfiguration;
         this.base_contents = base_contents;
     }
     @Override
-    public XmlConfiguration scan() {
-        List<ConfigurationNode> pathNodeList = base_contents.getChildren("path");
-        List<String> paths = new LinkedList<>();
-        for(ConfigurationNode pathNode : pathNodeList) {
-            String text = pathNode.getText();
-
-            paths.add(text);
+    public XmlConfiguration scan() throws ParseException {
+        ConfigurationNode root = xmlConfiguration.getRoot();
+        if(root == null || xmlConfiguration.getAnnotationScan() == null) {
+            throw new ParseException(null,"无法获取<annotation-scan/>状态");
         }
-        for(String path : paths) {
+        if(xmlConfiguration.getAnnotationScan() == null) {
+            ConfigurationNode annotationScan = root.getChild("annotation-scan");
 
         }
-        return null;
+        if(xmlConfiguration.getAnnotationScan()) {
+            List<ConfigurationNode> pathNodeList = base_contents.getChildren("path");
+            List<String> paths = new LinkedList<>();
+            for (ConfigurationNode pathNode : pathNodeList) {
+                String text = pathNode.getText();
+                paths.add(text);
+            }
+            List<String> actionClasses = getClassesPath(paths);
+            xmlConfiguration.setClassesPath(actionClasses);
+            return xmlConfiguration;
+        }
+        throw new ParseException("<annotation-scan/>", "未开启目录扫描");
     }
 
-    private List<Class<?>> getClassInPath(List<String> paths) {
-        return null;
+    private List<String> getClassesPath(List<String> paths) throws ParseException {
+        List<String> classesPath = new LinkedList<>();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        for(String path : paths) {
+            String pathName = path.replace(".","/");
+            URL url = loader.getResource(pathName);
+            if(url != null) {
+                String type = url.getProtocol();
+                if(type.equals("file")) {
+                    classesPath = getClassesFrom(pathName, paths);
+                } else if(type.equals("jar")) {
+
+                } else {
+                    throw new ParseException(null,"无法解析类包");
+                }
+            }
+        }
+        return classesPath;
+    }
+
+    public static List<String> getClassesFrom(String pathName, List<String> classesPath) {
+        File file = new File(pathName);
+        if(file != null) {
+            File[] children = file.listFiles();
+            for(File child : children) {
+                if(child.isDirectory()) {
+                    getClassesFrom(child.getPath(), classesPath);
+                } else {
+                    String absolutePath = child.getAbsolutePath();
+                    if(absolutePath.endsWith(".java") || absolutePath.endsWith(".class")) {
+                        classesPath.add(absolutePath);
+                    }
+                }
+            }
+        }
+        return classesPath;
+    }
+
+    public static void main(String...strings) {
+        List<String> list = new LinkedList<>();
+        List<String> result = BaseContentScanner.getClassesFrom("F:\\javaProject\\meiyuekeji\\src\\main\\java\\com\\meiyue", list);
+        for(String string : result) {
+            System.out.println(string);
+        }
     }
 }

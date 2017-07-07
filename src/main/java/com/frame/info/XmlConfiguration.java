@@ -14,8 +14,18 @@ public class XmlConfiguration {
     private List<String> classesPath;
 
 
-    public XmlConfiguration(ConfigurationNode root) {
+    public void setClassesPath(List<String> classesPath) {
+        this.classesPath = classesPath;
+    }
+
+    public void setRoot(ConfigurationNode root) {
+
         this.root = root;
+    }
+
+    public ConfigurationNode getRoot() {
+
+        return root;
     }
 
     public void setAnnotationScan(Boolean annotationScan) {
