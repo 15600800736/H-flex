@@ -48,20 +48,9 @@ public class BaseContentScanner implements Scanner {
 
     private List<String> getClassesPath(List<String> paths) throws ParseException {
         List<String> classesPath = new LinkedList<>();
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
         for(String path : paths) {
             String pathName = path.replace(".","/");
-            URL url = loader.getResource(pathName);
-            if(url != null) {
-                String type = url.getProtocol();
-                if(type.equals("file")) {
-                    classesPath = getClassesFrom(pathName, paths);
-                } else if(type.equals("jar")) {
-
-                } else {
-                    throw new ParseException(null,"无法解析类包");
-                }
-            }
+            classesPath.addAll(getClassesFrom(pathName, paths));
         }
         return classesPath;
     }
@@ -85,10 +74,6 @@ public class BaseContentScanner implements Scanner {
     }
 
     public static void main(String...strings) {
-        List<String> list = new LinkedList<>();
-        List<String> result = BaseContentScanner.getClassesFrom("F:\\javaProject\\meiyuekeji\\src\\main\\java\\com\\meiyue", list);
-        for(String string : result) {
-            System.out.println(string);
-        }
+
     }
 }
