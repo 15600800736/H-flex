@@ -7,33 +7,34 @@ import java.util.List;
  */
 public class XmlConfiguration {
     // 根节点
-    private ConfigurationNode root;
+    private Node root;
     // 是否开启了注解扫描
-    private Boolean isAnnotationScan;
+    private Boolean annotationScan;
     // 扫描的类列表
     private List<String> classesPath;
-
+    // 扫描得到的方法名称列表
+    private List<String> actionName;
 
     public void setClassesPath(List<String> classesPath) {
         this.classesPath = classesPath;
     }
 
-    public void setRoot(ConfigurationNode root) {
+    public void setRoot(Node root) {
 
         this.root = root;
     }
 
-    public ConfigurationNode getRoot() {
+    public Node getRoot() {
 
         return root;
     }
 
     public void setAnnotationScan(Boolean annotationScan) {
-        isAnnotationScan = annotationScan;
+        this.annotationScan = annotationScan;
     }
 
-    public Boolean getAnnotationScan() {
-        return isAnnotationScan;
+    public Boolean isAnnotationScan() {
+        return annotationScan;
     }
 
     public List<String> getClassesPath() {

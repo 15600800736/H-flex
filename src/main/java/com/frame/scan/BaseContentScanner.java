@@ -2,13 +2,11 @@ package com.frame.scan;
 
 import com.frame.exceptions.ParseException;
 import com.frame.info.ConfigurationNode;
+import com.frame.info.Node;
 import com.frame.info.XmlConfiguration;
-import org.dom4j.Element;
 
-import javax.security.auth.login.Configuration;
 import java.io.File;
-import java.net.URL;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,52 +15,56 @@ import java.util.List;
  */
 public class BaseContentScanner implements Scanner {
     private ConfigurationNode base_contents;
-    private XmlConfiguration xmlConfiguration;
 
-    public BaseContentScanner(ConfigurationNode base_contents, XmlConfiguration xmlConfiguration) {
-        this.xmlConfiguration = xmlConfiguration;
+    private final String ANNOTATION_SCAN = "annotation-scan";
+    private final String PATH = "path";
+    public BaseContentScanner(ConfigurationNode base_contents) {
         this.base_contents = base_contents;
     }
     @Override
-    public XmlConfiguration scan() throws ParseException {
-        ConfigurationNode root = xmlConfiguration.getRoot();
-        if(root == null || xmlConfiguration.getAnnotationScan() == null) {
+    public void scan(XmlConfiguration configuration) throws ParseException {
+        Node root = configuration.getRoot();
+        if(root == null && configuration.isAnnotationScan() == null) {
             throw new ParseException(null,"无法获取<annotation-scan/>状态");
         }
-        if(xmlConfiguration.getAnnotationScan() == null) {
-            ConfigurationNode annotationScan = root.getChild("annotation-scan");
-
+        if(root == null) {
+            // what to do?
         }
-        if(xmlConfiguration.getAnnotationScan()) {
-            List<ConfigurationNode> pathNodeList = base_contents.getChildren("path");
-            List<String> paths = new LinkedList<>();
-            for (ConfigurationNode pathNode : pathNodeList) {
-                String text = pathNode.getText();
-                paths.add(text);
+        if(configuration.isAnnotationScan() == null) {
+            ConfigurationNode annotationScan = root.getChild(ANNOTATION_SCAN);
+            if (annotationScan == null) {
+                configuration.setAnnotationScan(false);
+            } else {
+                configuration.setAnnotationScan(true);
             }
-            List<String> actionClasses = getClassesPath(paths);
-            xmlConfiguration.setClassesPath(actionClasses);
-            return xmlConfiguration;
         }
+        if(configuration.isAnnotationScan()) {
+            List<ConfigurationNode> pathNodeList = base_contents.getChildren(PATH);
+            List<String> paths = new LinkedList<>();
+            pathNodeList.forEach(p -> {
+                String text = p.getText();
+                paths.add(text);
+            });
+
+            List<String> actionClasses = new ArrayList<>(64);
+            paths.forEach(path -> {
+                String classpath = System.getProperty("user.dir");
+                String pathName = classpath + "\\src\\main\\java\\" + path.replace(".","\\");
+                getClassesFromClasspath(pathName,actionClasses);
+            });
+            configuration.setClassesPath(actionClasses);
+        }
+        configuration.getClassesPath().forEach(System.out::println);
         throw new ParseException("<annotation-scan/>", "未开启目录扫描");
     }
 
-    private List<String> getClassesPath(List<String> paths) throws ParseException {
-        List<String> classesPath = new LinkedList<>();
-        for(String path : paths) {
-            String pathName = path.replace(".","/");
-            classesPath.addAll(getClassesFrom(pathName, paths));
-        }
-        return classesPath;
-    }
-
-    public static List<String> getClassesFrom(String pathName, List<String> classesPath) {
+    public static List<String> getClassesFromClasspath(String pathName, List<String> classesPath) {
         File file = new File(pathName);
         if(file != null) {
             File[] children = file.listFiles();
             for(File child : children) {
                 if(child.isDirectory()) {
-                    getClassesFrom(child.getPath(), classesPath);
+                    getClassesFromClasspath(child.getPath(), classesPath);
                 } else {
                     String absolutePath = child.getAbsolutePath();
                     if(absolutePath.endsWith(".java") || absolutePath.endsWith(".class")) {
@@ -72,9 +74,5 @@ public class BaseContentScanner implements Scanner {
             }
         }
         return classesPath;
-    }
-
-    public static void main(String...strings) {
-
     }
 }

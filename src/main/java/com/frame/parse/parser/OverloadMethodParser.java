@@ -4,6 +4,7 @@ import com.frame.annotations.Action;
 import com.frame.exceptions.ParseException;
 import com.frame.annotations.Param;
 import com.frame.annotations.ParamObject;
+import com.frame.info.ActionInfoHolder;
 import com.frame.mapper.method.MethodAliasMapper;
 import com.frame.parameter.SourceObject;
 
@@ -33,7 +34,7 @@ public class OverloadMethodParser implements Parser {
     }
 
     @Override
-    public Object parse() throws ParseException {
+    public Object parse(ActionInfoHolder actionInfo) throws ParseException {
         String[] params = paramsName.split(",");
         Map<String, Pair<Class<?>, Object>> offeredValue = new HashMap<>();
         extractOfferedValue(params,args,offeredValue);
@@ -213,13 +214,5 @@ public class OverloadMethodParser implements Parser {
         // 到这里，必然没有找到符合的方法
         throw new ParseException(null,"找不到需要调用的方法");
 
-    }
-
-    public static void main(String...strings) throws ParseException {
-        SourceObject sourceObject = new SourceObject();
-        sourceObject.setA("c");
-        sourceObject.setB(2);
-        Parser parser = new DefaultMethodNameParser("com.frame.parameter.TargetObject.setB","%Object,b,a",new Object[]{sourceObject, "bbbbb",1});
-        Method method = (Method) parser.parse();
     }
 }

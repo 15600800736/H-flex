@@ -2,6 +2,7 @@
 package com.frame.parse.parser;
 
 import com.frame.exceptions.ParseException;
+import com.frame.info.ActionInfoHolder;
 
 import java.lang.reflect.Method;
 
@@ -18,7 +19,7 @@ public class DefaultMethodNameParser implements Parser {
     }
 
     @Override
-    public Object parse() {
+    public Object parse(ActionInfoHolder actionInfo) {
         source = source.trim();
         Parser parser = null;
         Method targetMethod = null;
@@ -29,7 +30,7 @@ public class DefaultMethodNameParser implements Parser {
         }
         if(parser != null) {
             try {
-                targetMethod = (Method) parser.parse();
+                targetMethod = (Method) parser.parse(actionInfo);
             } catch (ParseException e) {
                 e.printStackTrace();
             }

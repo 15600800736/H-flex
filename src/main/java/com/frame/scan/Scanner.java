@@ -7,5 +7,5 @@ import com.frame.info.XmlConfiguration;
  * Created by fdh on 2017/6/17.
  */
 public interface Scanner {
-    XmlConfiguration scan() throws ParseException;
+    void scan(XmlConfiguration configuration) throws ParseException;
 }

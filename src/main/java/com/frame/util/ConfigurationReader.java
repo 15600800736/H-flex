@@ -1,4 +1,4 @@
-package com.frame.scan;
+package com.frame.util;
 
 import com.frame.exceptions.ParseException;
 import com.frame.info.ConfigurationNode;

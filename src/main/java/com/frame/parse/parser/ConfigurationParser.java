@@ -1,6 +1,7 @@
 package com.frame.parse.parser;
 
 import com.frame.exceptions.ParseException;
+import com.frame.info.ActionInfoHolder;
 import com.frame.info.XmlConfiguration;
 import org.dom4j.Element;
 
@@ -19,7 +20,7 @@ public class ConfigurationParser implements Parser {
         this.configuration = configuration;
     }
     @Override
-    public Object parse() throws ParseException {
+    public Object parse(ActionInfoHolder actionInfo) throws ParseException {
         registerActionClass(root.element("action-class"), configuration);
         registerBaseContent(root.element("base-content"), configuration);
         return null;

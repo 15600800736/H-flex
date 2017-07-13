@@ -3,13 +3,17 @@
 <frame-haug>
     <annotation-scan/>
     <action-classes>
-        <action-class class-name="">
-            <path></path>
-        </action-class>
+        <base-contents>
+            <path>com.frame</path>
+        </base-contents>
     </action-classes>
 
     <actions>
-        <action action-path=""></action>
+        <action action-path="">
+            <arg-type index="0">java.lang.String</arg-type>
+            <arg-type index="1">java.lang.Integer </arg-type>
+            <arg-type name="arg1">java.lang.String</arg-type>
+        </action>
         <action action-path=""></action>
         <action action-path="" action-alias=""></action>
     </actions>
