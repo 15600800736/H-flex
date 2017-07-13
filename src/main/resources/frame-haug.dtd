@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!ELEMENT frame-haug (action-classes)>
-<!ELEMENT action-classes (action-class|(annotation-scan,base-contents))>
+<!ELEMENT frame-haug (annotation-scan?,action-classes?,actions?)>
+
+<!ELEMENT action-classes (action-class|base-contents)>
 <!ELEMENT action-class (path+)>
-<!ATTLIST action-class class-name CDATA #IMPLIED>
+<!ATTLIST action-class class-name CDATA #REQUIRED>
 <!ELEMENT path (#PCDATA)>
+
 <!ELEMENT base-contents (path+)>
 <!ELEMENT annotation-scan EMPTY>
+
+<!ELEMENT actions (action+)>
+<!ELEMENT action (#PCDATA)>
+
+<!ATTLIST action action-path CDATA #REQUIRED>
+<!ATTLIST action action-alias CDATA #IMPLIED>

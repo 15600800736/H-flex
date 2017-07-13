@@ -1,15 +1,18 @@
 <!DOCTYPE frame-haug SYSTEM "frame-haug.dtd">
 
 <frame-haug>
+    <annotation-scan/>
     <action-classes>
-        <annotation-scan/>
-        <base-contents>
-            <path>com.frame.parameter</path>
-            <path>com.frame.annotations</path>
-        </base-contents>
-        <!--<action-class>-->
-            <!--<path>com.frame.annotations.Param</path>-->
-            <!--<path>com.frame.annotations.Action</path>-->
-        <!--</action-class>-->
+        <action-class class-name="">
+            <path></path>
+        </action-class>
     </action-classes>
+
+    <actions>
+        <action action-path=""></action>
+        <action action-path=""></action>
+        <action action-path="" action-alias=""></action>
+    </actions>
+
+
 </frame-haug>
