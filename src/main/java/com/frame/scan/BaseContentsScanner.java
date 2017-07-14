@@ -13,14 +13,11 @@ import java.util.List;
 /**
  * Created by fdh on 2017/7/2.
  */
-public class BaseContentScanner implements Scanner {
-    private ConfigurationNode base_contents;
-
+public class BaseContentsScanner implements Scanner {
+    private final String ACTION_REGISTER = "action-register";
+    private final String BASE_CONTENTS = "base-contents";
     private final String ANNOTATION_SCAN = "annotation-scan";
     private final String PATH = "path";
-    public BaseContentScanner(ConfigurationNode base_contents) {
-        this.base_contents = base_contents;
-    }
     @Override
     public void scan(XmlConfiguration configuration) throws ParseException {
         Node root = configuration.getRoot();
@@ -39,6 +36,10 @@ public class BaseContentScanner implements Scanner {
             }
         }
         if(configuration.isAnnotationScan()) {
+            ConfigurationNode base_contents = root.getChild(ACTION_REGISTER).getChild(BASE_CONTENTS);
+            if(base_contents ==null) {
+                throw new ParseException("<base-contents></base-contents>","缺少<base-contents>元素");
+            }
             List<ConfigurationNode> pathNodeList = base_contents.getChildren(PATH);
             List<String> paths = new LinkedList<>();
             pathNodeList.forEach(p -> {
@@ -55,19 +56,18 @@ public class BaseContentScanner implements Scanner {
             configuration.setClassesPath(actionClasses);
         }
         configuration.getClassesPath().forEach(System.out::println);
-        throw new ParseException("<annotation-scan/>", "未开启目录扫描");
     }
 
     public static List<String> getClassesFromClasspath(String pathName, List<String> classesPath) {
         File file = new File(pathName);
-        if(file != null) {
+        if (file != null) {
             File[] children = file.listFiles();
-            for(File child : children) {
-                if(child.isDirectory()) {
+            for (File child : children) {
+                if (child.isDirectory()) {
                     getClassesFromClasspath(child.getPath(), classesPath);
                 } else {
                     String absolutePath = child.getAbsolutePath();
-                    if(absolutePath.endsWith(".java") || absolutePath.endsWith(".class")) {
+                    if (absolutePath.endsWith(".java") || absolutePath.endsWith(".class")) {
                         classesPath.add(absolutePath);
                     }
                 }

@@ -8,9 +8,8 @@ import java.lang.annotation.Target;
 /**
  * Created by fdh on 2017/7/14.
  */
-@Target(ElementType.TYPE)
+@Target(value = {ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ActionGroup {
-    String prefix() default "";
-    String suffix() default "";
+public @interface ActionClass {
+    String className() default "";
 }

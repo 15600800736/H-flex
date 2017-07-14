@@ -12,6 +12,19 @@ public class XmlConfiguration {
     private Boolean annotationScan;
     // 扫描的类列表
     private List<String> classesPath;
+
+    public Boolean getAnnotationScan() {
+        return annotationScan;
+    }
+
+    public List<String> getActionName() {
+        return actionName;
+    }
+
+    public void setActionName(List<String> actionName) {
+        this.actionName = actionName;
+    }
+
     // 扫描得到的方法名称列表
     private List<String> actionName;
 
@@ -20,7 +33,6 @@ public class XmlConfiguration {
     }
 
     public void setRoot(Node root) {
-
         this.root = root;
     }
 

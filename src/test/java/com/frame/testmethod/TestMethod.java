@@ -1,7 +1,9 @@
 package com.frame.testmethod;
 
 import com.frame.annotations.Action;
+import com.frame.annotations.ActionClass;
 import com.frame.annotations.ActionGroup;
+import com.frame.process.DefaultProcessor;
 
 /**
  * Created by fdh on 2017/7/13.
@@ -10,7 +12,8 @@ import com.frame.annotations.ActionGroup;
 public class TestMethod  {
     @Action(alias = "findBookIdByName")
     private Integer bookId;
-
+    @Action(alias = "insertBook",processors = DefaultProcessor.class)
+    private Integer insertNumber;
 
     public Integer getBookId(Object...args) {
         return bookId;
@@ -35,4 +38,11 @@ class Test {
     }
 }
 
+@ActionClass
+class AA {
+    @Action(alias = "findBookIdByName")
+    public Integer findBookIdByName(String name) {
+        return null;
+    }
+}
 

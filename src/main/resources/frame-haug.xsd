@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.haug.org/frame"
+            elementFormDefault="qualified">
+    <xsd:element name="frame-haug">
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element name="action-groups">
+                    <xsd:complexType>
+                        <xsd:all>
+                            <xsd:element name="action-classes">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:element name="action-class" maxOccurs="unbounded">
+                                            <xsd:complexType>
+                                                <xsd:sequence>
+                                                    <xsd:element name="action" maxOccurs="unbounded">
+                                                        <xsd:complexType>
+                                                            <xsd:simpleContent>
+                                                                <xsd:extension base="xsd:string">
+                                                                    <xsd:attribute name="alias" type="xsd:string"
+                                                                                   use="required"/>
+                                                                    <xsd:attribute name="processors" type="xsd:string"/>
+                                                                </xsd:extension>
+                                                            </xsd:simpleContent>
+                                                        </xsd:complexType>
+                                                    </xsd:element>
+                                                </xsd:sequence>
+                                                <xsd:attribute name="class-name" type="xsd:string"/>
+                                                <xsd:attribute name="class-path" type="xsd:string" use="required"/>
+                                                <xsd:attribute name="prefix" type="xsd:string"/>
+                                                <xsd:attribute name="suffix" type="xsd:string"/>
+
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:all>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="action-register">
+                    <xsd:complexType>
+                        <xsd:all>
+                            <xsd:element name="action-classes">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:element name="action-class" maxOccurs="unbounded">
+                                            <xsd:complexType>
+                                                <xsd:sequence>
+                                                    <xsd:element name="action" maxOccurs="unbounded">
+                                                        <xsd:complexType>
+                                                            <xsd:simpleContent>
+                                                                <xsd:extension base="xsd:string">
+                                                                    <xsd:attribute name="alias" type="xsd:string"/>
+                                                                </xsd:extension>
+                                                            </xsd:simpleContent>
+                                                        </xsd:complexType>
+                                                    </xsd:element>
+                                                </xsd:sequence>
+                                                <xsd:attribute name="class-name" type="xsd:string"/>
+                                                <xsd:attribute name="class-path" type="xsd:string" use="required"/>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="annotation-scan"/>
+                            <xsd:element name="base-contents">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:element name="path" maxOccurs="unbounded"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:all>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

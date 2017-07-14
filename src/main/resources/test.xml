@@ -1,22 +1,37 @@
-<!DOCTYPE frame-haug SYSTEM "frame-haug.dtd">
+<frame-haug xmlns="http://www.haug.org/frame"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.haug.org/frame frame-haug.xsd ">
+    <action-groups>
+        <action-classes>
+            <action-class class-name="TestMethod" class-path="com.frame">
+                <action alias="findBookIdByName">bookId</action>
+                <action alias="insertBook" processors="com.frame.process.DefaultProcessor">insertNumber</action>
+            </action-class>
+            <action-class class-name="Test2" class-path="com.frame.process" prefix="findBook" suffix="hahaha">
+                <action alias="byId">bookId</action>
+            </action-class>
+        </action-classes>
+    </action-groups>
 
-<frame-haug>
-    <annotation-scan/>
-    <action-classes>
+    <action-register>
+        <annotation-scan/>
+        <action-classes>
+            <action-class class-name="" class-path="com.frame.process.DefaultProcessor">
+                <action alias="">xxxxx</action>
+                <action alias="">XXXXX</action>
+            </action-class>
+            <action-class class-name="" class-path="com.frame.info.ActionInfoHolder">
+                <action alias="">XXXX</action>
+                <action alias="">XXXX</action>
+                <action alias="">XXXXX</action>
+            </action-class>
+        </action-classes>
+
+
         <base-contents>
-            <path>com.frame</path>
+            <path>com.frame.info</path>
+            <path>com.frame.injector</path>
+            <path>com.frame.process</path>
         </base-contents>
-    </action-classes>
-
-    <actions>
-        <action action-path="">
-            <arg-type index="0">java.lang.String</arg-type>
-            <arg-type index="1">java.lang.Integer </arg-type>
-            <arg-type name="arg1">java.lang.String</arg-type>
-        </action>
-        <action action-path=""></action>
-        <action action-path="" action-alias=""></action>
-    </actions>
-
-
+    </action-register>
 </frame-haug>

@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Repeatable(value = Actions.class)
 public @interface Action {
     String alias() default "";
-    Class<? extends Processor> processor() default DefaultProcessor.class;
+    Class<? extends Processor>[] processors() default DefaultProcessor.class;
 }
 
 
