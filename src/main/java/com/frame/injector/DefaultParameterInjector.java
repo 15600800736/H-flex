@@ -11,8 +11,6 @@ import java.util.Map;
 import com.frame.enums.exceptions.ExceptionType;
 import com.frame.exceptions.InjectException;
 import com.frame.annotations.Param;
-import com.frame.proxy.Proxy;
-import net.sf.cglib.proxy.Enhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,14 +152,7 @@ public class DefaultParameterInjector implements ParameterInjector {
             }
         }
     }
-    public static void main(String... strings) {
-        Proxy proxy = new Proxy();
-        Enhancer enhancer = new Enhancer();
-        enhancer.setCallback(proxy);
-        enhancer.setSuperclass(DefaultParameterInjector.class);
-        DefaultParameterInjector defaultParameterInjector = (DefaultParameterInjector) enhancer.create();
-        defaultParameterInjector.test("a",1);
-    }
+
 
     public void test(String a,Integer b) {
     }

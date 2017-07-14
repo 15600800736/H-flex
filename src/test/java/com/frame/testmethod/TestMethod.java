@@ -1,22 +1,38 @@
 package com.frame.testmethod;
 
 import com.frame.annotations.Action;
-import com.frame.annotations.ActionChain;
-import com.frame.annotations.ActionChains;
+import com.frame.annotations.ActionGroup;
 
 /**
  * Created by fdh on 2017/7/13.
  */
-@Action
+@ActionGroup
 public class TestMethod  {
-    @ActionChain(actionName = "method1")
-    @ActionChain(actionName = "method2")
-    @ActionChain(actionName = "method3")
-    @ActionChain(actionName = "method4")
-    public void methodGroup(@Action(alias = "method1")Object[] method1args,
-                            @Action(alias = "method2")Object[] method2args,
-                            @Action(alias = "method3")Object[] method3args,
-                            @Action(alias = "method4")Object[] method4args) {
+    @Action(alias = "findBookIdByName")
+    private Integer bookId;
+
+
+    public Integer getBookId(Object...args) {
+        return bookId;
+    }
+
+
+    public static void main(String...strings) {
+        Integer bookId = new TestMethod().getBookId("name");
 
     }
 }
+
+@ActionGroup(prefix = "findBookId")
+class Test {
+    @Action(alias = "byName")
+    @Action(alias = "byISBN")
+    private Integer bookId;
+
+
+    public Integer getBookId(String alias,Object...args) {
+        return bookId;
+    }
+}
+
+
