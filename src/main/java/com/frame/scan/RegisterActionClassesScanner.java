@@ -27,7 +27,11 @@ public class RegisterActionClassesScanner implements Scanner{
         }
         List<ConfigurationNode> actionClassList = action_classes.getChildren(ACTION_CLASS);
         List<String> classesPath = new ArrayList<>(64);
-        actionClassList.forEach(n -> classesPath.add(n.getText()));
+        actionClassList.forEach(n -> classesPath.add(n));
         configuration.setClassesPath(classesPath);
+        actionClassList.forEach(n -> {
+
+        });
+
     }
 }

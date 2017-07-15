@@ -21,6 +21,17 @@ public class ClassPathScanner implements Scanner {
     @Override
     public void scan(XmlConfiguration configuration) throws ParseException {
         List<String> classesPath = configuration.getClassesPath();
+        List<String> methodsPath = new ArrayList<>(128);
+        classesPath.forEach(cp ->{
+            Class<?> methodClass = null;
+            try {
+                methodClass = Class.forName(cp);
+            } catch (ClassNotFoundException e) {
+                // how to do
+            }
+            if(methodClass != null) {
 
+            }
+        });
     }
 }

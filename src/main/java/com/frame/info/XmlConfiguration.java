@@ -1,6 +1,7 @@
 package com.frame.info;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by fdh on 2017/7/3.
@@ -11,26 +12,18 @@ public class XmlConfiguration {
     // 是否开启了注解扫描
     private Boolean annotationScan;
     // 扫描的类列表
-    private List<String> classesPath;
+    private Map<String,String> classesPath;
+
+    // 扫描得到的方法名称映射
+    private Map<String,String> actions;
+    // 方法名对应的类名映射
+    private Map<String,String> actionClassMapper;
 
     public Boolean getAnnotationScan() {
         return annotationScan;
     }
 
-    public List<String> getActionName() {
-        return actionName;
-    }
 
-    public void setActionName(List<String> actionName) {
-        this.actionName = actionName;
-    }
-
-    // 扫描得到的方法名称列表
-    private List<String> actionName;
-
-    public void setClassesPath(List<String> classesPath) {
-        this.classesPath = classesPath;
-    }
 
     public void setRoot(Node root) {
         this.root = root;
@@ -49,13 +42,35 @@ public class XmlConfiguration {
         return annotationScan;
     }
 
-    public List<String> getClassesPath() {
+    public Map<String, String> getClassesPath() {
         return classesPath;
     }
 
-    public void addClassPath(String classPath) {
-        if(classPath != null) {
-            classesPath.add(classPath);
-        }
+    public void setClassesPath(Map<String, String> classesPath) {
+        this.classesPath = classesPath;
+    }
+
+    public Map<String, String> getActions() {
+        return actions;
+    }
+
+    public void setActions(Map<String, String> actions) {
+        this.actions = actions;
+    }
+
+    public Map<String, String> getActionClassMapper() {
+        return actionClassMapper;
+    }
+
+    public void setActionClassMapper(Map<String, String> actionClassMapper) {
+        this.actionClassMapper = actionClassMapper;
+    }
+
+    public String getActionAbsolutePath(String alias) {
+        return actions.get(alias);
+    }
+
+    public String getActionClassAbsolutePath(String alias) {
+        return actionClassMapper.get(alias);
     }
 }
