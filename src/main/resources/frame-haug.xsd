@@ -66,6 +66,7 @@
                                                     <xsd:element name="action" maxOccurs="unbounded">
                                                         <xsd:complexType>
                                                             <xsd:attribute name="alias" type="xsd:string"/>
+                                                            <xsd:attribute name="id" type="xsd:string"/>
                                                             <xsd:attribute name="name" type="xsd:string" use="required"/>
                                                         </xsd:complexType>
                                                     </xsd:element>

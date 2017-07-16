@@ -30,7 +30,7 @@ public class Configuration {
     private Lock appendClassesMapLock = new ReentrantLock();
     private Lock appendActionsMapLock = new ReentrantLock();
     private Lock appendActionClassMapLock = new ReentrantLock();
-    private Lock appendAliasMap = new ReentrantLock();
+    private Lock appendAliasMapLock = new ReentrantLock();
     public void setRoot(Node root) {
         this.root = root;
     }
@@ -38,7 +38,6 @@ public class Configuration {
     public Node getRoot() {
         return root;
     }
-
     public void setAnnotationScan(Boolean annotationScan) {
         this.annotationScan.set(annotationScan);
     }
@@ -48,22 +47,52 @@ public class Configuration {
     }
 
     public void appendClassesPath(Map<String, String> classesPath) {
-        if(appendClassesMapLock.tryLock())
+        appendClassesMapLock.lock();
         this.classesPath.putAll(classesPath);
+        appendClassesMapLock.unlock();
     }
 
     public void appendActions(Map<String, String> actions) {
+        appendActionsMapLock.lock();
         this.actions.putAll(actions);
+        appendActionsMapLock.unlock();
     }
 
     public void appendActionClassMapper(Map<String, String> actionClassMapper) {
+        appendActionClassMapLock.lock();
         this.actionClassMapper.putAll(actionClassMapper);
+        appendActionClassMapLock.unlock();
     }
 
     public void appendAliasMapper(Map<String,String> aliasMapper) {
+        appendAliasMapLock.lock();
         this.aliasMapper.putAll(aliasMapper);
+        appendAliasMapLock.unlock();
     }
 
+    public void appendClass(String name, String path) {
+        appendClassesMapLock.lock();
+        this.actionClassMapper.put(name,path);
+        appendClassesMapLock.unlock();
+    }
+
+    public void appendAction(String id, String path) {
+        appendActionsMapLock.lock();
+        this.actions.put(id,path);
+        appendActionsMapLock.unlock();
+    }
+
+    public void appendActionClass(String id, String classPath) {
+        appendActionClassMapLock.lock();
+        this.actionClassMapper.put(id, classPath);
+        appendActionClassMapLock.unlock();
+    }
+
+    public void appendAlias(String alias, String id) {
+        appendAliasMapLock.lock();
+        this.aliasMapper.put(alias, id);
+        appendAliasMapLock.unlock();
+    }
     public void setAnnotationScan(AtomicBoolean annotationScan) {
         this.annotationScan = annotationScan;
     }

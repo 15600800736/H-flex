@@ -21,13 +21,13 @@
         <annotation-scan/>
         <action-classes>
             <action-class name="" path="com.frame.process.DefaultProcessor">
-                <action alias="" name=""></action>
-                <action alias="" name=""></action>
+                <action alias="" name="" id=""></action>
+                <action alias="" name="" id=""></action>
             </action-class>
             <action-class name="" path="com.frame.info.ActionInfoHolder">
-                <action alias="" name=""></action>
-                <action alias="" name=""></action>
-                <action alias="" name=""></action>
+                <action alias="" name="" id=""></action>
+                <action alias="" name="" id=""></action>
+                <action alias="" name="" id=""></action>
             </action-class>
         </action-classes>
 
