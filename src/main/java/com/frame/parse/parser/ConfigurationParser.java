@@ -2,7 +2,7 @@ package com.frame.parse.parser;
 
 import com.frame.exceptions.ParseException;
 import com.frame.info.ActionInfoHolder;
-import com.frame.info.XmlConfiguration;
+import com.frame.info.Configuration;
 import org.dom4j.Element;
 
 import java.util.List;
@@ -13,9 +13,9 @@ import java.util.List;
 public class ConfigurationParser implements Parser {
 
     private Element root;
-    private XmlConfiguration configuration;
+    private Configuration configuration;
 
-    public ConfigurationParser(Element root, XmlConfiguration configuration) {
+    public ConfigurationParser(Element root, Configuration configuration) {
         this.root = root;
         this.configuration = configuration;
     }
@@ -26,19 +26,15 @@ public class ConfigurationParser implements Parser {
         return null;
     }
 
-    public void registerActionClass(Element action_class, XmlConfiguration configuration) throws ParseException {
+    public void registerActionClass(Element action_class, Configuration configuration) throws ParseException {
         if(action_class == null) {
             return;
         }
         if(configuration == null) {
             throw new ParseException(null,"configuration为空");
         }
-        List<Element> pathList = root.elements("path");
-        for(Element path : pathList) {
-            configuration.addClassPath(path.getText());
-        }
     }
-    public void registerBaseContent(Element base_content, XmlConfiguration configuration) {
+    public void registerBaseContent(Element base_content, Configuration configuration) {
 
     }
 }

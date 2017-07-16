@@ -1,8 +1,8 @@
 package com.frame.scan;
 
 import com.frame.exceptions.ParseException;
+import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
-import com.frame.info.XmlConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class RegisterScanner implements Scanner {
     }
 
     @Override
-    public void scan(XmlConfiguration configuration) throws ParseException {
+    public void scan(Configuration configuration) throws ParseException {
         if(action_register == null) {
             throw new ParseException("<action-register></action-register>","未定义<action-register>");
         }

@@ -1,9 +1,9 @@
 package com.frame.scan;
 
 import com.frame.exceptions.ParseException;
+import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 import com.frame.info.Node;
-import com.frame.info.XmlConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class BaseContentsScanner implements Scanner {
     private final String ANNOTATION_SCAN = "annotation-scan";
     private final String PATH = "path";
     @Override
-    public void scan(XmlConfiguration configuration) throws ParseException {
+    public void scan(Configuration configuration) throws ParseException {
         Node root = configuration.getRoot();
         if(root == null && configuration.isAnnotationScan() == null) {
             throw new ParseException(null,"无法获取<annotation-scan/>状态");
@@ -53,9 +53,7 @@ public class BaseContentsScanner implements Scanner {
                 String pathName = classpath + "\\src\\main\\java\\" + path.replace(".","\\");
                 getClassesFromClasspath(pathName,actionClasses);
             });
-            configuration.setClassesPath(actionClasses);
         }
-        configuration.getClassesPath().forEach(System.out::println);
     }
 
     public static List<String> getClassesFromClasspath(String pathName, List<String> classesPath) {

@@ -3,12 +3,16 @@
             xsi:schemaLocation="http://www.haug.org/frame frame-haug.xsd ">
     <action-groups>
         <action-classes>
-            <action-class class-name="TestMethod" class-path="com.frame">
-                <action alias="findBookIdByName">bookId</action>
-                <action alias="insertBook" processors="com.frame.process.DefaultProcessor">insertNumber</action>
+            <action-class name="TestMethod" path="com.frame.info.ActionInfoHolder">
+                <action alias="findBookIdByName" name="bookId"/>
+                <action alias="insertBook" name="insertBook">
+                    <processor path="" type="pre-processor"></processor>
+                    <processor path="" type="post-processor"></processor>
+                </action>
+
             </action-class>
-            <action-class class-name="Test2" class-path="com.frame.process" prefix="findBook" suffix="hahaha">
-                <action alias="byId">bookId</action>
+            <action-class name="Test2" path="com.frame.process.DefaultProcessor" prefix="findBook" suffix="hahaha">
+                <action alias="byId" name="bookId"/>
             </action-class>
         </action-classes>
     </action-groups>
@@ -16,14 +20,14 @@
     <action-register>
         <annotation-scan/>
         <action-classes>
-            <action-class class-name="" class-path="com.frame.process.DefaultProcessor">
-                <action alias="">xxxxx</action>
-                <action alias="">XXXXX</action>
+            <action-class name="" path="com.frame.process.DefaultProcessor">
+                <action alias="" name=""></action>
+                <action alias="" name=""></action>
             </action-class>
-            <action-class class-name="" class-path="com.frame.info.ActionInfoHolder">
-                <action alias="">XXXX</action>
-                <action alias="">XXXX</action>
-                <action alias="">XXXXX</action>
+            <action-class name="" path="com.frame.info.ActionInfoHolder">
+                <action alias="" name=""></action>
+                <action alias="" name=""></action>
+                <action alias="" name=""></action>
             </action-class>
         </action-classes>
 
