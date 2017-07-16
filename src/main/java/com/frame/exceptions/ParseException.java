@@ -1,7 +1,7 @@
 
 package com.frame.exceptions;
 
-public class ParseException extends Throwable {
+public class ParseException extends Exception {
     private String example;
     private String message;
 

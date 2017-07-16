@@ -8,28 +8,35 @@ import org.dom4j.Element;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by fdh on 2017/7/3.
  */
-public class ConfigurationNode extends Node{
+public class ConfigurationNode extends Node {
     private final String rootName = "frame-haug";
 
     private Element element;
 
-    private Boolean root;
-
-    private Boolean hasChild;
-
-    private Boolean hasAttribute;
+    // 是否是根节点
+    private AtomicBoolean root;
+    // 是否有子节点
+    private AtomicBoolean hasChild;
+    // 是否有属性
+    private AtomicBoolean hasAttribute;
 
     public ConfigurationNode(Element element) {
         this.element = element;
         if (element != null) {
-            this.root = this.element.getName().equals(rootName);
-            this.hasChild = this.element.elements().size() > 0;
-            this.hasAttribute = this.element.attributes().size() > 0;
+            this.root.set(this.element.getName().equals(rootName));
+            this.hasChild.set(this.element.elements().size() > 0);
+            this.hasAttribute.set(this.element.attributes().size() > 0);
         }
+    }
+
+    @Override
+    public String getName() {
+        return element.getName();
     }
 
     @Override
@@ -78,17 +85,27 @@ public class ConfigurationNode extends Node{
 
     @Override
     public Boolean isRoot() {
-        return root;
+        return root.get();
     }
 
     @Override
-    public Boolean isHasChild() {
-        return hasChild;
+    public Boolean hasChild() {
+        return hasChild.get();
     }
 
     @Override
-    public Boolean isHasAttribute() {
-        return hasAttribute;
+    public Boolean hasAttribute() {
+        return hasAttribute.get();
+    }
+
+    @Override
+    public Boolean hasChild(String name) {
+        return element.element(name) != null;
+    }
+
+    @Override
+    public Boolean hasAttribute(String name) {
+        return element.attribute(name) != null;
     }
 
     private List<ConfigurationNode> decorate(List<Element> original) {

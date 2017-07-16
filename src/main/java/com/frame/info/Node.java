@@ -7,6 +7,8 @@ import java.util.Map;
  * Created by fdh on 2017/7/5.
  */
 public abstract class Node {
+    public abstract String getName();
+
     public abstract String getText();
 
     public abstract <T extends Node> T getChild(String name);
@@ -23,7 +25,11 @@ public abstract class Node {
 
     public abstract Boolean isRoot();
 
-    public abstract Boolean isHasChild();
+    public abstract Boolean hasChild();
 
-    public abstract Boolean isHasAttribute();
+    public abstract Boolean hasAttribute();
+
+    public abstract Boolean hasChild(String name);
+
+    public abstract Boolean hasAttribute(String name);
 }
