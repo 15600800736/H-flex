@@ -6,12 +6,12 @@
             <action-class name="TestMethod" path="com.frame.info.ActionInfoHolder">
                 <action alias="findBookIdByName" name="bookId"/>
                 <action alias="insertBook" name="insertBook">
-                    <processor path="" type="pre-processor"></processor>
-                    <processor path="" type="post-processor"></processor>
+                    <processor path="com.frame.execute.process.DefaultProcessor" type="pre-processor"/>
+                    <processor path="com.frame.execute.process.Processor" type="post-processor"/>
                 </action>
 
             </action-class>
-            <action-class name="Test2" path="com.frame.process.DefaultProcessor" prefix="findBook" suffix="hahaha">
+            <action-class name="Test2" path="com.frame.execute.process.DefaultProcessor" prefix="findBook" suffix="hahaha">
                 <action alias="byId" name="bookId"/>
             </action-class>
         </action-classes>
@@ -20,21 +20,21 @@
     <action-register>
         <annotation-scan/>
         <action-classes>
-            <action-class name="" path="com.frame.process.DefaultProcessor">
-                <action alias="" name="" id=""></action>
-                <action alias="" name="" id=""></action>
+            <action-class name="proc" path="com.frame.execute.process.DefaultProcessor">
+                <action alias="a,b" name="test1" id="1"/>
+                <action alias="c,d" name="test2" id="2"/>
             </action-class>
             <action-class name="" path="com.frame.info.ActionInfoHolder">
-                <action alias="" name="" id=""></action>
-                <action alias="" name="" id=""></action>
-                <action alias="" name="" id=""></action>
+                <action alias="e,f" name="test3" id="3"/>
+                <action alias="g" name="test4" id="4"/>
+                <action alias="h,i,j" name="test5" id="5"/>
             </action-class>
         </action-classes>
 
 
         <base-contents>
             <path>com.frame.info</path>
-            <path>com.frame.injector</path>
+            <path>com.frame.inject</path>
             <path>com.frame.process</path>
         </base-contents>
     </action-register>

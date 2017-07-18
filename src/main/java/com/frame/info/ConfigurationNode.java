@@ -1,7 +1,8 @@
 package com.frame.info;
 
-import com.frame.transform.ElementTransformer;
-import com.frame.transform.Transformer;
+import com.frame.context.Resource;
+import com.frame.execute.transform.ElementTransformer;
+import com.frame.execute.transform.Transformer;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 
@@ -13,7 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Created by fdh on 2017/7/3.
  */
-public class ConfigurationNode extends Node {
+public class ConfigurationNode extends Node
+                    implements Resource {
     private final String rootName = "frame-haug";
 
     private Element element;
@@ -28,9 +30,9 @@ public class ConfigurationNode extends Node {
     public ConfigurationNode(Element element) {
         this.element = element;
         if (element != null) {
-            this.root.set(this.element.getName().equals(rootName));
-            this.hasChild.set(this.element.elements().size() > 0);
-            this.hasAttribute.set(this.element.attributes().size() > 0);
+            this.root = new AtomicBoolean(this.element.getName().equals(rootName));
+            this.hasChild = new AtomicBoolean(this.element.elements().size() > 0);
+            this.hasAttribute = new AtomicBoolean(this.element.attributes().size() > 0);
         }
     }
 
@@ -47,7 +49,7 @@ public class ConfigurationNode extends Node {
     @Override
     public ConfigurationNode getChild(String name) {
         Element child = element.element(name);
-        return new ConfigurationNode(child);
+        return child == null ? null : new ConfigurationNode(child);
     }
 
     @Override
@@ -65,22 +67,21 @@ public class ConfigurationNode extends Node {
     @Override
     public String getAttributeText(String name) {
         Attribute attribute = element.attribute(name);
-        return attribute.getText();
+        return attribute == null ? null : attribute.getText();
     }
 
     @Override
     public Map<String, String> getAllAttributes() {
         List<Attribute> attributes = element.attributes();
-        Map attributesMap = new HashMap();
-        for (Attribute attribute : attributes) {
-            attributesMap.put(attribute.getName(), attribute.getValue());
-        }
+        Map<String, String> attributesMap = new HashMap<>();
+        attributes.forEach( attribute -> attributesMap.put(attribute.getName(), attribute.getValue()));
         return attributesMap;
     }
 
     @Override
     public ConfigurationNode getParent() {
-        return new ConfigurationNode(element.getParent());
+        Element parent = element.getParent();
+        return parent == null ? null : new ConfigurationNode(parent);
     }
 
     @Override
@@ -111,5 +112,10 @@ public class ConfigurationNode extends Node {
     private List<ConfigurationNode> decorate(List<Element> original) {
         Transformer<List<ConfigurationNode>> transformer = new ElementTransformer(original);
         return transformer.transform();
+    }
+
+    @Override
+    public Map<String, Object> getInformation() {
+        return null;
     }
 }

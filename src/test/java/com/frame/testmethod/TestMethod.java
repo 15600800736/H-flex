@@ -3,7 +3,7 @@ package com.frame.testmethod;
 import com.frame.annotations.Action;
 import com.frame.annotations.ActionClass;
 import com.frame.annotations.ActionGroup;
-import com.frame.process.DefaultProcessor;
+import com.frame.execute.process.DefaultProcessor;
 
 /**
  * Created by fdh on 2017/7/13.

@@ -19,13 +19,12 @@ public class Configuration {
 
     // 扫描的类列表 name -> path
     private Map<String,String> classesPath = new HashMap<>(64);
-    // 扫描得到的方法名称映射 name -> path
+    // 扫描得到的方法名称映射 id -> name
     private Map<String,String> actions = new HashMap<>(256);
-    // 方法名对应的类名映射 name -> classname
+    // 方法名对应的类名映射 id -> classname
     private Map<String,String> actionClassMapper = new HashMap<>(256);
-    // 别名映射 alias -> name
+    // 别名映射 alias -> id
     private Map<String,String> aliasMapper = new HashMap<>(512);
-
     // 增加映射的锁
     private Lock appendClassesMapLock = new ReentrantLock();
     private Lock appendActionsMapLock = new ReentrantLock();
@@ -76,9 +75,9 @@ public class Configuration {
         appendClassesMapLock.unlock();
     }
 
-    public void appendAction(String id, String path) {
+    public void appendAction(String id, String name) {
         appendActionsMapLock.lock();
-        this.actions.put(id,path);
+        this.actions.put(id,name);
         appendActionsMapLock.unlock();
     }
 
@@ -116,3 +115,4 @@ public class Configuration {
         return aliasMapper.get(alias);
     }
 }
+

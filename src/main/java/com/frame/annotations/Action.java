@@ -1,8 +1,7 @@
 package com.frame.annotations;
 
-import com.frame.process.DefaultProcessor;
-import com.frame.process.Processor;
-import com.frame.transform.Transformer;
+import com.frame.execute.process.DefaultProcessor;
+import com.frame.execute.process.Processor;
 
 import java.lang.annotation.*;
 
