@@ -10,7 +10,7 @@ import com.frame.execute.process.DefaultProcessor;
  */
 @ActionGroup
 public class TestMethod  {
-    @Action(alias = "findBookIdByName")
+    @Action(alias = "findBookIdByName", processors = DefaultProcessor.class)
     private Integer bookId;
     @Action(alias = "insertBook",processors = DefaultProcessor.class)
     private Integer insertNumber;
@@ -32,11 +32,13 @@ class Test {
     @Action(alias = "byISBN")
     private Integer bookId;
 
-
-    public Integer getBookId(String alias,Object...args) {
+    @Action(alias="getBookId")
+    public Integer getBookId(Object...args) {
         return bookId;
     }
 }
+
+
 
 @ActionClass
 class AA {

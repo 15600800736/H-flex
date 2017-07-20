@@ -33,9 +33,7 @@
 
 
         <base-contents>
-            <path>com.frame.info</path>
-            <path>com.frame.inject</path>
-            <path>com.frame.process</path>
+            <path>com.frame</path>
         </base-contents>
     </action-register>
 </frame-haug>

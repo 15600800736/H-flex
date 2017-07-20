@@ -15,7 +15,7 @@ public class Configuration {
     // 根节点
     private Node root;
     // 是否开启了注解扫描
-    private AtomicBoolean annotationScan;
+    private AtomicBoolean annotationScan = new AtomicBoolean();
 
     // 扫描的类列表 name -> path
     private Map<String,String> classesPath = new HashMap<>(64);
@@ -42,6 +42,9 @@ public class Configuration {
     }
 
     public Boolean isAnnotationScan() {
+        if(annotationScan == null) {
+            return null;
+        }
         return annotationScan.get();
     }
 
@@ -114,5 +117,71 @@ public class Configuration {
     public String getActionName(String alias) {
         return aliasMapper.get(alias);
     }
+
+
+    public AtomicBoolean getAnnotationScan() {
+        return annotationScan;
+    }
+
+    public Map<String, String> getClassesPath() {
+        return classesPath;
+    }
+
+    public void setClassesPath(Map<String, String> classesPath) {
+        this.classesPath = classesPath;
+    }
+
+    public Map<String, String> getActions() {
+        return actions;
+    }
+
+    public void setActions(Map<String, String> actions) {
+        this.actions = actions;
+    }
+
+    public Map<String, String> getActionClassMapper() {
+        return actionClassMapper;
+    }
+
+    public void setActionClassMapper(Map<String, String> actionClassMapper) {
+        this.actionClassMapper = actionClassMapper;
+    }
+
+    public Map<String, String> getAliasMapper() {
+        return aliasMapper;
+    }
+
+    public Lock getAppendClassesMapLock() {
+        return appendClassesMapLock;
+    }
+
+    public void setAppendClassesMapLock(Lock appendClassesMapLock) {
+        this.appendClassesMapLock = appendClassesMapLock;
+    }
+
+    public Lock getAppendActionsMapLock() {
+        return appendActionsMapLock;
+    }
+
+    public void setAppendActionsMapLock(Lock appendActionsMapLock) {
+        this.appendActionsMapLock = appendActionsMapLock;
+    }
+
+    public Lock getAppendActionClassMapLock() {
+        return appendActionClassMapLock;
+    }
+
+    public void setAppendActionClassMapLock(Lock appendActionClassMapLock) {
+        this.appendActionClassMapLock = appendActionClassMapLock;
+    }
+
+    public Lock getAppendAliasMapLock() {
+        return appendAliasMapLock;
+    }
+
+    public void setAppendAliasMapLock(Lock appendAliasMapLock) {
+        this.appendAliasMapLock = appendAliasMapLock;
+    }
 }
+
 

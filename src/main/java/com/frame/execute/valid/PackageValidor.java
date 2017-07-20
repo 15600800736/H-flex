@@ -1,6 +1,8 @@
 package com.frame.execute.valid;
 
+import com.frame.annotations.Actions;
 import com.frame.exceptions.ParseException;
+import com.frame.execute.scan.BaseContentsScanner;
 import com.frame.info.Configuration;
 import com.frame.execute.scan.RegisterScanner;
 import com.frame.execute.scan.Scanner;
@@ -41,9 +43,10 @@ public class PackageValidor implements Validor {
         Configuration configuration = new Configuration();
         Scanner scanner = null;
         if(reader != null) {
-             scanner = new RegisterScanner(reader.getRoot().getChild("action-register"));
+             scanner = new BaseContentsScanner();
         }
         configuration.setRoot(reader.getRoot());
+        configuration.setAnnotationScan(true);
         if(scanner != null) {
             try {
                 scanner.scan(configuration);
