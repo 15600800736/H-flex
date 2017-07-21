@@ -5,13 +5,16 @@ package com.frame.info;
  * Created by fdh on 2017/7/17.
  */
 
+import com.frame.context.MapperResource;
+import com.frame.context.Resource;
+
 import java.util.List;
 
 /**
  * ActionInfo is a delegate of xml tag <action></action>
  * include all attributes and child nodes.
  */
-public class ActionInfo{
+public class ActionInfo extends MapperResource{
     // <alias></alias>
     private List<String> aliases;
     // <name></name>
@@ -41,5 +44,15 @@ public class ActionInfo{
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public <T extends Resource> Boolean split(T[] resources) {
+        return null;
+    }
+
+    @Override
+    public <T extends Resource> Integer join(T resource) {
+        return null;
     }
 }

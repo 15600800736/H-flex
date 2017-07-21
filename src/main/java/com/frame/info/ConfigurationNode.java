@@ -14,8 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Created by fdh on 2017/7/3.
  */
-public class ConfigurationNode extends Node
-                    implements Resource {
+public class ConfigurationNode extends Node {
     private final String rootName = "frame-haug";
 
     private Element element;
@@ -112,10 +111,5 @@ public class ConfigurationNode extends Node
     private List<ConfigurationNode> decorate(List<Element> original) {
         Transformer<List<ConfigurationNode>> transformer = new ElementTransformer(original);
         return transformer.transform();
-    }
-
-    @Override
-    public Map<String, Object> getInformation() {
-        return null;
     }
 }
