@@ -13,7 +13,12 @@ import java.util.Map;
 /**
  * Created by fdh on 2017/7/15.
  */
-@SuppressWarnings("FieldCanBeLocal")
+
+/**
+ * The RegisterActionClassesScanner is used for resolve the tag <action-classes></action-classes>
+ * It will extract the action classes you configured in xml file and mapped the class name to its path
+ * Then create a action register to scan the actions you configured under the class.
+ */
 public class RegisterActionClassesScanner implements Scanner {
 
     private final String ACTION_CLASSES = "action-classes";
@@ -37,7 +42,6 @@ public class RegisterActionClassesScanner implements Scanner {
         List<ConfigurationNode> actionClassList = actionClasses.getChildren(ACTION_CLASS);
         Map<String, String> classMapper = new HashMap<>(64);
         ActionRegisterScanner scanner = new ActionRegisterScanner();
-
         registerAction(actionClassList,classMapper,scanner,configuration);
         configuration.appendClassesPath(classMapper);
     }

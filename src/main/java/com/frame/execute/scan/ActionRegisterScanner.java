@@ -12,9 +12,12 @@ import java.util.List;
 /**
  * Created by fdh on 2017/7/13.
  */
+
+/**
+ * The class ActionRegisterScanner is used for register a action
+ * include alias,name and id attributes
+ */
 public class ActionRegisterScanner implements Scanner {
-
-
     private final String ACTION = "action";
     private final String ALIAS_ATTRIBUTE = "alias";
     private final String NAME_ATTRIBUTE = "name";

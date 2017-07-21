@@ -30,8 +30,6 @@
                 <action alias="h,i,j" name="test5" id="5"/>
             </action-class>
         </action-classes>
-
-
         <base-contents>
             <path>com.frame</path>
         </base-contents>

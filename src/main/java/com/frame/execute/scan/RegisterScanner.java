@@ -10,6 +10,15 @@ import java.util.Map;
 /**
  * Created by fdh on 2017/7/14.
  */
+
+/**
+ * The RegisterScanner is used for register all of the configuration like actions or action groups
+ * It will be called to collect the information from xml or annotations if it is enabled when the frame starts
+ * You can configure both <action-classes></action-classes> to specify the path of a method
+ * and <base-contents></base-contents> to let the frame scan the class with annotation @ActionClasses
+ * under the path. You also can configure <action-groups></action-groups> to register your action groups to call
+ * in your program.
+ */
 public class RegisterScanner implements Scanner {
 
     private ConfigurationNode actionRegister;
@@ -64,6 +73,11 @@ public class RegisterScanner implements Scanner {
 
     }
 
+    /**
+     * return the scanner according to the tag's name
+     * @param scannerType
+     * @return
+     */
     private Scanner createScanner(String scannerType) {
         Class<? extends Scanner> scannerClass = creatorMapper.get(scannerType);
         Scanner scanner = null;
@@ -79,6 +93,9 @@ public class RegisterScanner implements Scanner {
         return scanner;
     }
 
+    /**
+     * map the scanner to the tag's name
+     */
     private void initCreatorMapper() {
         creatorMapper.put(BASE_CONTENTS, BaseContentsScanner.class);
         creatorMapper.put(ACTION_CLASSES, RegisterActionClassesScanner.class);
