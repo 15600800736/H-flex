@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.annotations.ActionClass;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
@@ -49,26 +50,34 @@ public class BaseContentsScanner
 
         @Override
         public void run() {
-            
+            String classpath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+            paths.forEach(p->{
+                String pathName = classpath + p.replace("." , "\\");
+                getClassesFromClasspath(pathName,p);
+            });
         }
     }
 
     class TakeThread extends Thread {
-
         private Configuration configuration;
         @Override
         public void run() {
-//            ClassLoader loader = ClassLoader.getSystemClassLoader();
-//            try {
-//                 get the class's full name
-//
-//                Class<?> actionClass = loader.loadClass(classPath);
-//                if (actionClass.isAnnotationPresent(ActionClass.class)) {
-//                    actionClasses.add(actionClass);
-//                }
-//            } catch (ClassNotFoundException e) {
-//                e.printStackTrace();
 
+            ClassLoader loader = ClassLoader.getSystemClassLoader();
+            try {
+//              get the class's full name
+                String classFullName = classesQueue.take();
+                Class<?> actionClass = loader.loadClass(classFullName);
+                if (actionClass.isAnnotationPresent(ActionClass.class)) {
+//                    configuration.appendClass();
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                if (logger.isErrorEnabled()) {
+                    logger.error("scanning has been cancelled.");
+                }
+            }
         }
     }
 
@@ -129,9 +138,9 @@ public class BaseContentsScanner
                     String className = child.getName();
                     if (className.endsWith(".class")) {
                         // add it to classes queue
-                        String classPath = packageName + "." + className.substring(0, className.length() - CLASS_SUFFIX_LENGTH);
+                        String classFullName = packageName + "." + className.substring(0, className.length() - CLASS_SUFFIX_LENGTH);
                         try {
-                            classesQueue.put(classPath);
+                            classesQueue.put(classFullName);
                         } catch (InterruptedException e) {
                             if(logger.isErrorEnabled()) {
                                 logger.error("The scanning has been cancelled");
