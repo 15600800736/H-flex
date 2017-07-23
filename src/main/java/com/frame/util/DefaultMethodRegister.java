@@ -1,6 +1,6 @@
 package com.frame.util;
 
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +15,12 @@ public class DefaultMethodRegister {
     //  日志
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public DefaultMethodRegister(String path) throws ParseException {
+    public DefaultMethodRegister(String path) throws ScanException {
         this.path = path;
         initScanXml();
     }
 
-    private void initScanXml() throws ParseException {
+    private void initScanXml() throws ScanException {
 
     }
 

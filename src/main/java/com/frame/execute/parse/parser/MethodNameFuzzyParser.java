@@ -2,7 +2,7 @@
 package com.frame.execute.parse.parser;
 
 
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.info.ActionInfoHolder;
 import com.frame.execute.valid.MethodFuzzyNameValidor;
 import com.frame.execute.valid.Validor;
@@ -19,10 +19,10 @@ public class MethodNameFuzzyParser implements Parser {
         this.args = args;
     }
     @Override
-    public Object parse(ActionInfoHolder actionInfo) throws ParseException {
+    public Object parse(ActionInfoHolder actionInfo) throws ScanException {
         Validor validor = new MethodFuzzyNameValidor(source);
         if(!validor.valid()) {
-            throw new ParseException("c?m.f*me.p?rse.Parse", "方法名无法解析");
+            throw new ScanException("c?m.f*me.p?rse.Parse", "方法名无法解析");
         }
 
 

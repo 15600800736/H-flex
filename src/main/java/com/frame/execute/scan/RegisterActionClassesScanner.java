@@ -1,7 +1,7 @@
 package com.frame.execute.scan;
 
 import com.frame.enums.ConfigurationStringPool;
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 import com.frame.info.Node;
@@ -24,15 +24,15 @@ public class RegisterActionClassesScanner implements Scanner {
 
 
     @Override
-    public void scan(Configuration configuration) throws ParseException {
+    public void scan(Configuration configuration) throws ScanException {
         Node root = configuration.getRoot();
         if (root == null) {
-            throw new ParseException("<frame-haug></frame-haug>", "缺少根节点");
+            throw new ScanException("<frame-haug></frame-haug>", "缺少根节点");
         }
         // get the action-classes node
         ConfigurationNode actionClasses = root.getChild(ConfigurationStringPool.ACTION_REGISTER).getChild(ConfigurationStringPool.ACTION_CLASSES);
         if (actionClasses == null) {
-            throw new ParseException("<action-classes></action-classes>", "缺少<action-classes>元素");
+            throw new ScanException("<action-classes></action-classes>", "缺少<action-classes>元素");
         }
         // get all of the action-class
         List<ConfigurationNode> actionClassList = actionClasses.getChildren(ConfigurationStringPool.ACTION_CLASS);
@@ -52,7 +52,7 @@ public class RegisterActionClassesScanner implements Scanner {
             }
             try {
                 actionScanner.scan(configuration);
-            } catch (ParseException e) {
+            } catch (ScanException e) {
                 ExceptionUtil.doThrow(e);
             }
         });

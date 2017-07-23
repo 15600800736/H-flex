@@ -1,6 +1,6 @@
 package com.frame.execute.parse.parser;
 
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.annotations.Param;
 import com.frame.annotations.ParamObject;
 import com.frame.info.ActionInfoHolder;
@@ -31,7 +31,7 @@ public class OverloadMethodParser implements Parser {
     }
 
     @Override
-    public Object parse(ActionInfoHolder actionInfo) throws ParseException {
+    public Object parse(ActionInfoHolder actionInfo) throws ScanException {
         String[] params = paramsName.split(",");
         Map<String, Pair<Class<?>, Object>> offeredValue = new HashMap<>();
         extractOfferedValue(params,args,offeredValue);
@@ -88,7 +88,7 @@ public class OverloadMethodParser implements Parser {
         }
     }
 
-    private void getParametersValue(Class<?> argClazz, Object object, Map<String, Pair<Class<?>, Object>> offeredValue) throws ParseException {
+    private void getParametersValue(Class<?> argClazz, Object object, Map<String, Pair<Class<?>, Object>> offeredValue) throws ScanException {
         Field[] fieldsOfArg = argClazz.getDeclaredFields();
         for (Field field : fieldsOfArg) {
             String originalName = field.getName();
@@ -97,7 +97,7 @@ public class OverloadMethodParser implements Parser {
             try {
                 getter = argClazz.getMethod(getterName);
             } catch (NoSuchMethodException e) {
-                throw new ParseException("getXXXX()", argClazz.getName() + "类缺少" + originalName + "域的getter方法");
+                throw new ScanException("getXXXX()", argClazz.getName() + "类缺少" + originalName + "域的getter方法");
             }
             Object value = null;
             if (getter != null) {
@@ -186,7 +186,7 @@ public class OverloadMethodParser implements Parser {
         return true;
     }
 
-    private void extractOfferedValue(String[] params, Object[] args, Map<String,Pair<Class<?>,Object>> offeredValue) throws ParseException {
+    private void extractOfferedValue(String[] params, Object[] args, Map<String,Pair<Class<?>,Object>> offeredValue) throws ScanException {
         for (int i = 0; i < params.length; i++) {
             Class argClazz = args[i].getClass();
             if ("%Object".equals(params[i])) {
@@ -198,16 +198,16 @@ public class OverloadMethodParser implements Parser {
 
     }
 
-    private Method getMethodFromConcretClazz(String source, Map<String, Pair<Class<?>, Object>> offeredValue) throws ParseException {
+    private Method getMethodFromConcretClazz(String source, Map<String, Pair<Class<?>, Object>> offeredValue) throws ScanException {
         String[] cells = source.split("\\.");
         String methodName = getNameBySource(cells);
         // 若只有方法名
         if(cells.length < 2) {
-            throw new ParseException("methodClass.methodName","路径:" + source + "无法解析出方法类");
+            throw new ScanException("methodClass.methodName","路径:" + source + "无法解析出方法类");
         }
         Class<?> methodClass = getClazzBySource(cells);
         if(methodClass == null) {
-            throw new ParseException("methodClass.methodName","路径:" + source + "无法解析出方法类");
+            throw new ScanException("methodClass.methodName","路径:" + source + "无法解析出方法类");
         }
         Method[] clazzMethods = methodClass.getDeclaredMethods();
         for(Method clazzMethod : clazzMethods) {
@@ -224,7 +224,7 @@ public class OverloadMethodParser implements Parser {
         }
 
         // 到这里，必然没有找到符合的方法
-        throw new ParseException(null,"找不到需要调用的方法");
+        throw new ScanException(null,"找不到需要调用的方法");
 
     }
 }

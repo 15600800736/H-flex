@@ -1,6 +1,6 @@
 package com.frame.execute.scan;
 
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.execute.Executor;
 import com.frame.info.Configuration;
 
@@ -17,5 +17,5 @@ import com.frame.info.Configuration;
  * @author Haug
  */
 public interface Scanner extends Executor{
-    void scan(Configuration configuration) throws ParseException;
+    void scan(Configuration configuration) throws ScanException;
 }

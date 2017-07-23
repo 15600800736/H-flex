@@ -1,7 +1,7 @@
 
 package com.frame.execute.parse.parser;
 
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.info.ActionInfoHolder;
 import com.frame.info.Configuration;
 
@@ -32,7 +32,7 @@ public class DefaultMethodNameParser implements Parser {
         if(parser != null) {
             try {
                 targetMethod = (Method) parser.parse(actionInfo);
-            } catch (ParseException e) {
+            } catch (ScanException e) {
                 e.printStackTrace();
             }
         }

@@ -1,10 +1,8 @@
 package com.frame.execute.valid;
 
-import com.frame.annotations.Actions;
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.BaseContentsScanner;
 import com.frame.info.Configuration;
-import com.frame.execute.scan.RegisterScanner;
 import com.frame.execute.scan.Scanner;
 import com.frame.util.ConfigurationReader;
 import java.util.List;
@@ -37,7 +35,7 @@ public class PackageValidor implements Validor {
         ConfigurationReader reader = null;
         try {
             reader = new ConfigurationReader("G:\\test.xml");
-        } catch (ParseException e) {
+        } catch (ScanException e) {
             e.printStackTrace();
         }
         Configuration configuration = new Configuration();
@@ -50,7 +48,7 @@ public class PackageValidor implements Validor {
         if(scanner != null) {
             try {
                 scanner.scan(configuration);
-            } catch (ParseException e) {
+            } catch (ScanException e) {
                 e.printStackTrace();
             }
         }

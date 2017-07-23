@@ -1,11 +1,11 @@
 
 package com.frame.exceptions;
 
-public class ParseException extends Exception {
+public class ScanException extends Exception {
     private String example;
     private String message;
 
-    public ParseException(String example, String message) {
+    public ScanException(String example, String message) {
         this.example = example;
         this.message = message;
     }

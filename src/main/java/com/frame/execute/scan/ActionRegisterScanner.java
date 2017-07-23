@@ -1,7 +1,7 @@
 package com.frame.execute.scan;
 
 import com.frame.enums.ConfigurationStringPool;
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 import com.frame.util.ExceptionUtil;
@@ -28,14 +28,14 @@ public class ActionRegisterScanner implements Scanner {
     }
 
     @Override
-    public void scan(Configuration configuration) throws ParseException {
+    public void scan(Configuration configuration) throws ScanException {
         if(actionClass == null) {
-            throw new ParseException("<action-class></action-class>","缺少<action-class>标签");
+            throw new ScanException("<action-class></action-class>","缺少<action-class>标签");
         }
         List<ConfigurationNode> actionList = actionClass.getChildren(ConfigurationStringPool.ACTION);
         actionList.forEach((ConfigurationNode al) -> {
             if(!al.hasAttribute(ConfigurationStringPool.NAME_ATTRIBUTE)) {
-                ExceptionUtil.doThrow(new ParseException("<action path='xxx'></action>","标签" + al.getName() + "缺少属性" + ConfigurationStringPool.NAME_ATTRIBUTE));
+                ExceptionUtil.doThrow(new ScanException("<action path='xxx'></action>","标签" + al.getName() + "缺少属性" + ConfigurationStringPool.NAME_ATTRIBUTE));
             }
             String name = null;
             String id = null;
@@ -53,7 +53,7 @@ public class ActionRegisterScanner implements Scanner {
             String methodPath = classPath + "." + name;
             Validor validor = new MethodExactlyNameValidor(methodPath);
             if(!validor.valid()) {
-                ExceptionUtil.doThrow(new ParseException("com.frame.test.Test.testMethod","方法名格式错误"));
+                ExceptionUtil.doThrow(new ScanException("com.frame.test.Test.testMethod","方法名格式错误"));
             }
             if(id == null) {
                 id = methodPath;

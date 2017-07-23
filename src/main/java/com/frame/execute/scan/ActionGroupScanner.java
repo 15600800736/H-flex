@@ -1,6 +1,6 @@
 package com.frame.execute.scan;
 
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
 
 /**
@@ -18,7 +18,7 @@ public class ActionGroupScanner implements Scanner {
     }
 
     @Override
-    public void scan(Configuration configuration) throws ParseException {
+    public void scan(Configuration configuration) throws ScanException {
 
     }
 }

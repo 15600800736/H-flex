@@ -1,7 +1,7 @@
 
 package com.frame.execute.parse.parser;
 
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.info.ActionInfoHolder;
 import com.frame.execute.valid.MethodExactlyNameValidor;
 import com.frame.execute.valid.Validor;
@@ -19,10 +19,10 @@ public class MethodNameExactlyParser implements Parser {
         this.args = args;
     }
     @Override
-    public Object parse(ActionInfoHolder actionInfo) throws ParseException {
+    public Object parse(ActionInfoHolder actionInfo) throws ScanException {
         Validor validor = new MethodExactlyNameValidor(source);
         if (!validor.valid()) {
-            throw new ParseException("*.*.*.*", "方法名格式错误");
+            throw new ScanException("*.*.*.*", "方法名格式错误");
         }
         Parser parser = new OverloadMethodParser(source,paramsName,args);
         return parser.parse(actionInfo);

@@ -1,7 +1,7 @@
 package com.frame.execute.scan;
 
 import com.frame.enums.ConfigurationStringPool;
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 
@@ -35,9 +35,9 @@ public class RegisterScanner implements Scanner {
     }
 
     @Override
-    public void scan(Configuration configuration) throws ParseException {
+    public void scan(Configuration configuration) throws ScanException {
         if (actionRegister == null) {
-            throw new ParseException("<action-register></action-register>", "未定义<action-register>");
+            throw new ScanException("<action-register></action-register>", "未定义<action-register>");
         }
         // register actions
         // get all of the child node
@@ -47,7 +47,7 @@ public class RegisterScanner implements Scanner {
         Boolean canRegisterAction = (actionClasses != null) || (annotationScan != null && baseContents != null);
 
         if (!canRegisterAction) {
-            throw new ParseException("<action-classes></action-classes> 或 <annotation-scan/><base-contents></base-contents>"
+            throw new ScanException("<action-classes></action-classes> 或 <annotation-scan/><base-contents></base-contents>"
                     , "没有可供注册的方法");
         }
         Scanner scanner = null;

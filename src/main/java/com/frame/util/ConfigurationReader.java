@@ -1,6 +1,6 @@
 package com.frame.util;
 
-import com.frame.exceptions.ParseException;
+import com.frame.exceptions.ScanException;
 import com.frame.info.ConfigurationNode;
 import com.frame.info.Node;
 import org.dom4j.Document;
@@ -12,11 +12,11 @@ import java.io.File;
 public class ConfigurationReader {
     private Document document;
 
-    public ConfigurationReader(String path) throws ParseException {
+    public ConfigurationReader(String path) throws ScanException {
         init(path);
     }
 
-    public void init(String path) throws ParseException {
+    public void init(String path) throws ScanException {
         SAXReader reader = new SAXReader();
         try {
             this.document = reader.read(new File(path));
@@ -24,7 +24,7 @@ public class ConfigurationReader {
             e.printStackTrace();
         }
         if(document == null) {
-            throw new ParseException("G:\\test.xml","无法打开配置文件");
+            throw new ScanException("G:\\test.xml","无法打开配置文件");
         }
     }
 
