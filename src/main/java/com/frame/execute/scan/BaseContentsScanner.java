@@ -35,6 +35,7 @@ public class BaseContentsScanner
     private final BlockingQueue<String> classesQueue = new LinkedBlockingQueue<>(256);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /**
      * <p>The put-thread is used for scanning all of the classpath, and put the string-type class name
      * to the blocking queue</p>
@@ -48,6 +49,15 @@ public class BaseContentsScanner
 
         @Override
         public void run() {
+            
+        }
+    }
+
+    class TakeThread extends Thread {
+
+        private Configuration configuration;
+        @Override
+        public void run() {
 //            ClassLoader loader = ClassLoader.getSystemClassLoader();
 //            try {
 //                 get the class's full name
@@ -58,15 +68,6 @@ public class BaseContentsScanner
 //                }
 //            } catch (ClassNotFoundException e) {
 //                e.printStackTrace();
-            }
-        }
-    }
-
-    class TakeThread extends Thread {
-
-        private Configuration configuration;
-        @Override
-        public void run() {
 
         }
     }
