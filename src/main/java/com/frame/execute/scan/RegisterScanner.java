@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ParseException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
@@ -23,10 +24,6 @@ public class RegisterScanner implements Scanner {
 
     private ConfigurationNode actionRegister;
     private ConfigurationNode actionGroups;
-    private final String ACTION_CLASSES = "action-classes";
-    private final String ANNOTATION_SCAN = "annotation-scan";
-    private final String BASE_CONTENTS = "base-contents";
-    private final String ACTION_GROUPS = "action-groups";
 
     private final Map<String, Class<? extends Scanner>> creatorMapper = new HashMap<>(8);
 
@@ -44,9 +41,9 @@ public class RegisterScanner implements Scanner {
         }
         // register actions
         // get all of the child node
-        ConfigurationNode actionClasses = actionRegister.getChild(ACTION_CLASSES);
-        ConfigurationNode annotationScan = actionRegister.getChild(ANNOTATION_SCAN);
-        ConfigurationNode baseContents = actionRegister.getChild(BASE_CONTENTS);
+        ConfigurationNode actionClasses = actionRegister.getChild(ConfigurationStringPool.ACTION_CLASSES);
+        ConfigurationNode annotationScan = actionRegister.getChild(ConfigurationStringPool.ANNOTATION_SCAN);
+        ConfigurationNode baseContents = actionRegister.getChild(ConfigurationStringPool.BASE_CONTENTS);
         Boolean canRegisterAction = (actionClasses != null) || (annotationScan != null && baseContents != null);
 
         if (!canRegisterAction) {
@@ -57,12 +54,12 @@ public class RegisterScanner implements Scanner {
 
         // register scan by xml
         if (actionClasses != null) {
-            scanner = createScanner(ACTION_CLASSES);
+            scanner = createScanner(ConfigurationStringPool.ACTION_CLASSES);
             scanner.scan(configuration);
         }
         // register scan by annotations
         if (baseContents != null) {
-            scanner = createScanner(BASE_CONTENTS);
+            scanner = createScanner(ConfigurationStringPool.BASE_CONTENTS);
             scanner.scan(configuration);
         }
         // register action groups
@@ -97,9 +94,9 @@ public class RegisterScanner implements Scanner {
      * map the scanner to the tag's name
      */
     private void initCreatorMapper() {
-        creatorMapper.put(BASE_CONTENTS, BaseContentsScanner.class);
-        creatorMapper.put(ACTION_CLASSES, RegisterActionClassesScanner.class);
-        creatorMapper.put(ACTION_GROUPS, ActionGroupScanner.class);
+        creatorMapper.put(ConfigurationStringPool.BASE_CONTENTS, BaseContentsScanner.class);
+        creatorMapper.put(ConfigurationStringPool.ACTION_CLASSES, RegisterActionClassesScanner.class);
+        creatorMapper.put(ConfigurationStringPool.ACTION_GROUPS, ActionGroupScanner.class);
     }
 
     @Override

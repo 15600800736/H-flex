@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ParseException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
@@ -21,11 +22,6 @@ import java.util.Map;
  */
 public class RegisterActionClassesScanner implements Scanner {
 
-    private final String ACTION_CLASSES = "action-classes";
-    private final String ACTION_CLASS = "action-class";
-    private final String NAME_ATTRIBUTE = "name";
-    private final String PATH_ATTRIBUTE = "path";
-    private final String ACTION_REGISTER = "action-register";
 
     @Override
     public void scan(Configuration configuration) throws ParseException {
@@ -34,12 +30,12 @@ public class RegisterActionClassesScanner implements Scanner {
             throw new ParseException("<frame-haug></frame-haug>", "缺少根节点");
         }
         // get the action-classes node
-        ConfigurationNode actionClasses = root.getChild(ACTION_REGISTER).getChild(ACTION_CLASSES);
+        ConfigurationNode actionClasses = root.getChild(ConfigurationStringPool.ACTION_REGISTER).getChild(ConfigurationStringPool.ACTION_CLASSES);
         if (actionClasses == null) {
             throw new ParseException("<action-classes></action-classes>", "缺少<action-classes>元素");
         }
         // get all of the action-class
-        List<ConfigurationNode> actionClassList = actionClasses.getChildren(ACTION_CLASS);
+        List<ConfigurationNode> actionClassList = actionClasses.getChildren(ConfigurationStringPool.ACTION_CLASS);
         Map<String, String> classMapper = new HashMap<>(64);
         ActionRegisterScanner scanner = new ActionRegisterScanner();
         registerAction(actionClassList,classMapper,scanner,configuration);
@@ -48,8 +44,8 @@ public class RegisterActionClassesScanner implements Scanner {
 
     private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, Scanner actionScanner, Configuration configuration) {
         actionClassList.forEach(n -> {
-            String className = n.getAttributeText(NAME_ATTRIBUTE);
-            String classPath = n.getAttributeText(PATH_ATTRIBUTE);
+            String className = n.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
+            String classPath = n.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
             classMapper.put(className, classPath);
             if(actionScanner instanceof ActionRegisterScanner) {
                 ((ActionRegisterScanner)actionScanner).setActionClass(n);

@@ -2,6 +2,7 @@ package com.frame.execute.scan;
 
 import com.frame.annotations.ActionClass;
 import com.frame.annotations.ActionGroup;
+import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ParseException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
@@ -19,10 +20,6 @@ import java.util.List;
  * Created by fdh on 2017/7/2.
  */
 public class BaseContentsScanner implements Scanner {
-    private final String ACTION_REGISTER = "action-register";
-    private final String BASE_CONTENTS = "base-contents";
-    private final String ANNOTATION_SCAN = "annotation-scan";
-    private final String PATH = "path";
     private final Integer CLASS_SUFFIX_LENGTH = 6;
 
     @Override
@@ -37,7 +34,7 @@ public class BaseContentsScanner implements Scanner {
         }
         // check if annotation-scan is on
         if (configuration.isAnnotationScan() == null) {
-            ConfigurationNode annotationScan = root.getChild(ANNOTATION_SCAN);
+            ConfigurationNode annotationScan = root.getChild(ConfigurationStringPool.ANNOTATION_SCAN);
             if (annotationScan == null) {
                 configuration.setAnnotationScan(false);
             } else {
@@ -46,12 +43,12 @@ public class BaseContentsScanner implements Scanner {
         }
 
         if (configuration.isAnnotationScan()) {
-            ConfigurationNode baseContents = root.getChild(ACTION_REGISTER).getChild(BASE_CONTENTS);
+            ConfigurationNode baseContents = root.getChild(ConfigurationStringPool.ACTION_REGISTER).getChild(ConfigurationStringPool.BASE_CONTENTS);
             if (baseContents == null) {
                 throw new ParseException("<base-contents></base-contents>", "缺少<base-contents>元素");
             }
             // get all path to check
-            List<ConfigurationNode> pathNodeList = baseContents.getChildren(PATH);
+            List<ConfigurationNode> pathNodeList = baseContents.getChildren(ConfigurationStringPool.PATH);
             List<String> paths = new LinkedList<>();
             pathNodeList.forEach(p -> {
                 String text = p.getText();

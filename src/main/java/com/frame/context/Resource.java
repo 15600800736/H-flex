@@ -1,5 +1,7 @@
 package com.frame.context;
 
+import com.frame.info.Information;
+
 import java.util.Map;
 
 /**
@@ -13,8 +15,9 @@ import java.util.Map;
  */
 public interface Resource {
     /**
-     * split information in the resource into different resources
-     * @param resources
+     * Split information in the resource into different resources, after split,
+     * the original resource stays as the same.
+     * @param resources the resources that receive the info from original resource.
      * @return if the Resource can't be split, it will return false, if it can, true.
      */
     <T extends Resource> Boolean split(T...resources);
@@ -22,13 +25,13 @@ public interface Resource {
     /**
      * Inject the information in this resource to another resource
      * There is no guarantee that all of information of this resource can be injected
-     * @param resource
+     * @param resource the resource that this one is about to join in.
      * @return the count of information injected
      */
     <T extends Resource> Integer join(T resource);
 
     /**
-     * @param name
+     * @param name the name of information
      * @return whether the resource has the specify information
      */
     Boolean hasInformation(String name);
@@ -38,13 +41,12 @@ public interface Resource {
      * @param name
      * @return
      */
-    Object getInformation(String name);
+    Information getInformation(String name);
 
     /**
      * get the specify information with specify class
      * @param name
      * @param infoClass
-     * @param <T>
      * @return
      */
     <T> T getInformation(String name, Class<T> infoClass);
@@ -63,4 +65,17 @@ public interface Resource {
      * @param infoClass
      */
     <T> void setInformation(String name, Object value, Class<T> infoClass);
+
+    /**
+     * get the resource class's name
+     * @return
+     */
+    String getType();
+
+    /**
+     *  This method is used to transform the given resources to specify order that can be
+     *  execute
+     * @param resources
+     */
+    Resource[] transformResourcesToSpecificOrder(Resource...resources);
 }

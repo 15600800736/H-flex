@@ -8,6 +8,16 @@ import com.frame.context.Resource;
  */
 public class ActionGroupInfo extends MapperResource {
     @Override
+    protected void initResourceOrder() {
+
+    }
+
+    @Override
+    protected void initInformationRequired() {
+
+    }
+
+    @Override
     public <T extends Resource> Boolean split(T[] resources) {
         return null;
     }

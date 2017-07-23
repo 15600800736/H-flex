@@ -7,6 +7,7 @@ package com.frame.info;
 
 import com.frame.context.MapperResource;
 import com.frame.context.Resource;
+import com.frame.enums.ConfigurationStringPool;
 
 import java.util.List;
 
@@ -16,18 +17,18 @@ import java.util.List;
  */
 public class ActionInfo extends MapperResource{
     // <alias></alias>
-    private List<String> aliases;
+    private List<String> alias;
     // <name></name>
     private String name;
     // <id></id>
     private String id;
 
-    public List<String> getAliases() {
-        return aliases;
+    public List<String> getAlias() {
+        return alias;
     }
 
-    public void setAliases(List<String> aliases) {
-        this.aliases = aliases;
+    public void setAlias(List<String> alias) {
+        this.alias = alias;
     }
 
     public String getName() {
@@ -47,12 +48,19 @@ public class ActionInfo extends MapperResource{
     }
 
     @Override
-    public <T extends Resource> Boolean split(T[] resources) {
+    public Boolean extract(Resource resource) {
         return null;
     }
 
     @Override
-    public <T extends Resource> Integer join(T resource) {
-        return null;
+    protected void initResourceOrder() {
+
+    }
+
+    @Override
+    protected void initInformationRequired() {
+        informationRequired.put(ConfigurationStringPool.ALIAS_ATTRIBUTE, String.class);
+        informationRequired.put(ConfigurationStringPool.NAME_ATTRIBUTE, String.class);
+        informationRequired.put(ConfigurationStringPool.ID_ATTRIBUTE, String.class);
     }
 }

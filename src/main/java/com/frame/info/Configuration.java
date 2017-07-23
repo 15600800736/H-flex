@@ -1,6 +1,5 @@
 package com.frame.info;
 
-import com.frame.annotations.ActionGroup;
 import com.frame.context.MapperResource;
 import com.frame.context.Resource;
 import org.slf4j.Logger;
@@ -15,23 +14,48 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by fdh on 2017/7/3.
  */
+
+/**
+ * <p>The configuration records all information you can configured, no matter in xml or java code.
+ * So, it extends the abstract class MapperSource, So it can offer information as resource, use
+ * {@code setInformation} or {@code getInformation}, It also can be split by {@link ActionInfo} and
+ * {@link ActionGroupInfo}</p>
+ * <p>The information of Configuration also can be extract from other resource because it implements Extractor</p>
+ */
 public class Configuration extends MapperResource {
-    // 根节点
+    // root node
     private Node root;
-    // 是否开启了注解扫描
+    // whether the annotation-scanning is enabled
     private AtomicBoolean annotationScan = new AtomicBoolean();
-    // 扫描的类列表 name -> path
+    // the class of action mapper: name -> path
     private Map<String, String> classesPath = new HashMap<>(64);
-    // 扫描得到的方法名称映射 id -> name
+    // the action's name mapper: id -> name
     private Map<String, String> actions = new HashMap<>(256);
-    // 方法名对应的类名映射 id -> classname
+    // the name of action's class mapper: id -> classname
     private Map<String, String> actionClassMapper = new HashMap<>(256);
-    // 别名映射 alias -> id
+    // the action's alias mapper: alias -> id
     private Map<String, String> aliasMapper = new HashMap<>(512);
+    // the count of the direct child node (<action-groups/><action-register/>)
+    private Integer countOfResourcesType = 2;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // 增加映射的锁
+    public Configuration() {
+        initResourceOrder();
+        initInformationRequired();
+    }
+    protected void initResourceOrder() {
+        resourcesOrder.put(ActionInfoHolder.class, 0);
+        resourcesOrder.put(ActionGroupInfo.class, 1);
+    }
+
+    @Override
+    protected void initInformationRequired() {
+        // wait to fix
+
+    }
+
+    // setter lock
     private Lock appendClassesMapLock = new ReentrantLock();
     private Lock appendActionsMapLock = new ReentrantLock();
     private Lock appendActionClassMapLock = new ReentrantLock();
@@ -104,113 +128,38 @@ public class Configuration extends MapperResource {
         appendAliasMapLock.unlock();
     }
 
-    public void setAnnotationScan(AtomicBoolean annotationScan) {
-        this.annotationScan = annotationScan;
-    }
-
-    public void setAliasMapper(Map<String, String> aliasMapper) {
-        this.aliasMapper = aliasMapper;
-    }
-
-    public String getActionClassAbsolutePath(String name) {
-        return actionClassMapper.get(name);
-    }
-
-    public String getActionAbsolutePath(String name) {
-        return actions.get(name);
-    }
-
-    public String getClassPath(String name) {
-        return actions.get(name);
-    }
-
-    public String getActionName(String alias) {
-        return aliasMapper.get(alias);
-    }
-
-
-    public AtomicBoolean getAnnotationScan() {
-        return annotationScan;
-    }
-
-    public Map<String, String> getClassesPath() {
-        return classesPath;
-    }
-
-    public void setClassesPath(Map<String, String> classesPath) {
-        this.classesPath = classesPath;
-    }
-
-    public Map<String, String> getActions() {
-        return actions;
-    }
-
-    public void setActions(Map<String, String> actions) {
-        this.actions = actions;
-    }
-
-    public Map<String, String> getActionClassMapper() {
-        return actionClassMapper;
-    }
-
-    public void setActionClassMapper(Map<String, String> actionClassMapper) {
-        this.actionClassMapper = actionClassMapper;
-    }
-
-    public Map<String, String> getAliasMapper() {
-        return aliasMapper;
-    }
-
-    public Lock getAppendClassesMapLock() {
-        return appendClassesMapLock;
-    }
-
-    public void setAppendClassesMapLock(Lock appendClassesMapLock) {
-        this.appendClassesMapLock = appendClassesMapLock;
-    }
-
-    public Lock getAppendActionsMapLock() {
-        return appendActionsMapLock;
-    }
-
-    public void setAppendActionsMapLock(Lock appendActionsMapLock) {
-        this.appendActionsMapLock = appendActionsMapLock;
-    }
-
-    public Lock getAppendActionClassMapLock() {
-        return appendActionClassMapLock;
-    }
-
-    public void setAppendActionClassMapLock(Lock appendActionClassMapLock) {
-        this.appendActionClassMapLock = appendActionClassMapLock;
-    }
-
-    public Lock getAppendAliasMapLock() {
-        return appendAliasMapLock;
-    }
-
-    public void setAppendAliasMapLock(Lock appendAliasMapLock) {
-        this.appendAliasMapLock = appendAliasMapLock;
-    }
-
     @Override
     public <T extends Resource> Boolean split(T[] resources) {
-        Boolean canSplit = resources.length > 1 &&
-                ((resources[0] instanceof ActionInfo && resources[1] instanceof ActionGroupInfo) ||
-                        (resources[0] instanceof ActionGroup && resources[1] instanceof ActionInfo));
+        Boolean canSplit = resources != null && resources.length == 2 &&
+                ((resources[0] instanceof ActionInfoHolder && resources[1] instanceof ActionGroupInfo) ||
+                        (resources[0] instanceof ActionGroupInfo && resources[1] instanceof ActionInfoHolder));
         if(canSplit) {
+            // get the split type and instance
+            Resource[] orderedResources = transformResourcesToSpecificOrder(resources);
+            ActionInfoHolder actionInfoHolder = (ActionInfoHolder) orderedResources[resourcesOrder.get(ActionInfoHolder.class)];
+            ActionGroupInfo actionGroupInfo = (ActionGroupInfo) orderedResources[resourcesOrder.get(ActionGroupInfo.class)];
 
         } else {
             if(logger.isWarnEnabled()) {
-                logger.warn("configuration can't be split by ");
+                StringBuilder errorMessage = new StringBuilder("configuration can't be split by ");
+                for (T resource : resources) {
+                    errorMessage.append(resource.getType() + " ");
+                }
             }
         }
         return canSplit;
     }
-
     @Override
-    public <T extends Resource> Integer join(T resource) {
-        return null;
+    public Resource[] transformResourcesToSpecificOrder(Resource... resources) {
+        Resource[] orderedResource = new Resource[countOfResourcesType];
+        for (Resource resource : resources) {
+            Integer index = resourcesOrder.get(resource.getClass());
+            if(index == null) {
+                return null;
+            }
+            orderedResource[index] = resource;
+        }
+        return orderedResource;
     }
 }
 
