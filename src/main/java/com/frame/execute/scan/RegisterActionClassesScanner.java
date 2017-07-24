@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.annotations.ActionClass;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
@@ -20,6 +21,7 @@ import java.util.Map;
  * It will extract the action classes you configured in xml file and mapped the class name to its path
  * Then create a action register to scan the actions you configured under the class.
  */
+@ActionClass(className = "d")
 public class RegisterActionClassesScanner implements Scanner {
 
 
@@ -39,7 +41,7 @@ public class RegisterActionClassesScanner implements Scanner {
         Map<String, String> classMapper = new HashMap<>(64);
         ActionRegisterScanner scanner = new ActionRegisterScanner();
         registerAction(actionClassList,classMapper,scanner,configuration);
-        configuration.appendClassesPath(classMapper);
+        configuration.appendClass(classMapper);
     }
 
     private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, Scanner actionScanner, Configuration configuration) {

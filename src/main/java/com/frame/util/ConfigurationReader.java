@@ -1,6 +1,7 @@
 package com.frame.util;
 
 import com.frame.exceptions.ScanException;
+import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 import com.frame.info.Node;
 import org.dom4j.Document;
@@ -31,5 +32,11 @@ public class ConfigurationReader {
     public Node getRoot() {
         return new ConfigurationNode(document.getRootElement());
     }
-
+    public Configuration createConfiguration() {
+        Configuration configuration = new Configuration();
+        configuration.setRoot(getRoot());
+        // todo
+        configuration.setAnnotationScan(true);
+        return configuration;
+    }
 }

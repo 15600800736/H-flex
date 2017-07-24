@@ -24,7 +24,7 @@
                 <action alias="a,b" name="test1" id="1"/>
                 <action alias="c,d" name="test2" id="2"/>
             </action-class>
-            <action-class name="" path="com.frame.info.ActionInfoHolder">
+            <action-class name="action" path="com.frame.info.ActionInfoHolder">
                 <action alias="e,f" name="test3" id="3"/>
                 <action alias="g" name="test4" id="4"/>
                 <action alias="h,i,j" name="test5" id="5"/>

@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.annotations.ActionClass;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
@@ -20,8 +21,8 @@ import java.util.Map;
  * under the path. You also can configure <action-groups></action-groups> to register your action groups to call
  * in your program.
  */
+@ActionClass(className = "e")
 public class RegisterScanner implements Scanner {
-
     private ConfigurationNode actionRegister;
     private ConfigurationNode actionGroups;
 

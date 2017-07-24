@@ -6,6 +6,8 @@ import com.frame.info.Configuration;
 import com.frame.execute.scan.Scanner;
 import com.frame.util.ConfigurationReader;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CyclicBarrier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,29 +33,6 @@ public class PackageValidor implements Validor {
         return true;
     }
 
-    public static void main(String...strings) {
-        ConfigurationReader reader = null;
-        try {
-            reader = new ConfigurationReader("G:\\test.xml");
-        } catch (ScanException e) {
-            e.printStackTrace();
-        }
-        Configuration configuration = new Configuration();
-        Scanner scanner = null;
-        if(reader != null) {
-             scanner = new BaseContentsScanner();
-        }
-        configuration.setRoot(reader.getRoot());
-        configuration.setAnnotationScan(true);
-        if(scanner != null) {
-            try {
-                scanner.scan(configuration);
-            } catch (ScanException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
 
     @Override
     public void prepareForExecute() {

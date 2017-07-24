@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.annotations.ActionClass;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
@@ -18,6 +19,7 @@ import java.util.List;
  * The class ActionRegisterScanner is used for register a action
  * include alias,name and id attributes
  */
+@ActionClass(className = "b")
 public class ActionRegisterScanner implements Scanner {
 
     private ConfigurationNode actionClass;

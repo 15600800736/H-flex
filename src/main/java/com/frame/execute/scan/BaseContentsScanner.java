@@ -6,6 +6,7 @@ import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 import com.frame.info.Node;
+import com.frame.thread.ScanThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -26,6 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * and putting them into a blocking queue, the other thread takes charge of instantiating class and check if
  * it is a action class and register it.</p>
  */
+@ActionClass(className = "c")
 public class BaseContentsScanner
         implements Scanner {
     private final Integer CLASS_SUFFIX_LENGTH = 6;
@@ -35,47 +39,109 @@ public class BaseContentsScanner
      */
     private final BlockingQueue<String> classesQueue = new LinkedBlockingQueue<>(256);
 
+    /**
+     * <p>The flag field represents the states of putting-thread's work.
+     * When it finished, it will update the field into true. While the taking-thread
+     * will keep checking the field, when it has been changed into true and the block queue is empty,
+     * the taking-thread will return to finish the whole scanning progress.
+     * </p>
+     */
+    private volatile Boolean flag = false;
+
+    /**
+     * <p>Total num of starting threads in this class</p>
+     */
+    private final int threadNumber = 2;
+    /**
+     * <p>This barrier is assigned from RegisterScanner, represents the scanning progress's endpoint</p>
+     */
+    private final CyclicBarrier cyclicBarrier;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    public BaseContentsScanner(CyclicBarrier cyclicBarrier) {
+        this.cyclicBarrier = cyclicBarrier;
+    }
 
     /**
      * <p>The put-thread is used for scanning all of the classpath, and put the string-type class name
-     * to the blocking queue</p>
+     * to the blocking queue, it will wait for other scanner thread </p>
      */
-    class PutThread extends Thread {
+    class PutThread extends ScanThread {
         private List<String> paths;
 
-        public void setPaths(List<String> paths) {
+        public PutThread(List<String> paths, CyclicBarrier cyclicBarrier) {
+            super(cyclicBarrier);
             this.paths = paths;
         }
 
         @Override
         public void run() {
             String classpath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-            paths.forEach(p->{
-                String pathName = classpath + p.replace("." , "\\");
-                getClassesFromClasspath(pathName,p);
+            paths.forEach(p -> {
+                String pathName = classpath + p.replace(".", "\\");
+                getClassesFromClasspath(pathName, p);
             });
+            flag = true;
+            try {
+                scannerBarrier.await();
+            } catch (InterruptedException e) {
+                if (logger.isErrorEnabled()) {
+                    logger.error("The scanning thread has been interrupt");
+                }
+            } catch (BrokenBarrierException e) {
+                if (logger.isErrorEnabled()) {
+                    logger.error("Some thread has reset the scannerBarrier");
+                }
+            }
         }
     }
 
-    class TakeThread extends Thread {
+    /**
+     * The taking thread is for checking if a class is a action class and register it into configuration
+     */
+    class TakeThread extends ScanThread {
         private Configuration configuration;
+
+        public TakeThread(Configuration configuration, CyclicBarrier cyclicBarrier) {
+            super(cyclicBarrier);
+            this.configuration = configuration;
+        }
+
         @Override
         public void run() {
-
             ClassLoader loader = ClassLoader.getSystemClassLoader();
-            try {
-//              get the class's full name
-                String classFullName = classesQueue.take();
-                Class<?> actionClass = loader.loadClass(classFullName);
-                if (actionClass.isAnnotationPresent(ActionClass.class)) {
-//                    configuration.appendClass();
+            while (true) {
+                if (flag && classesQueue.size() == 0) {
+                    flag = false;
+                    try {
+                        scannerBarrier.await();
+                    } catch (InterruptedException e) {
+                        if (logger.isErrorEnabled()) {
+                            logger.error("The scanning thread has been interrupt");
+                        }
+                    } catch (BrokenBarrierException e) {
+                        if (logger.isErrorEnabled()) {
+                            logger.error("Some thread has reset the scannerBarrier");
+                        }
+                    }
+                    return;
                 }
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("scanning has been cancelled.");
+                try {
+//              get the class's full name
+                    String classFullName = classesQueue.take();
+                    Class<?> actionClass = loader.loadClass(classFullName);
+                    if (actionClass.isAnnotationPresent(ActionClass.class)) {
+                        ActionClass annotation = actionClass.getAnnotation(ActionClass.class);
+                        configuration.appendClass(annotation.className(), classFullName);
+                    }
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    if (logger.isErrorEnabled()) {
+                        logger.error("scanning has been cancelled.");
+                    }
                 }
             }
         }
@@ -114,6 +180,22 @@ public class BaseContentsScanner
                 paths.add(text);
             });
 
+            Thread pathScanThread = new PutThread(paths, cyclicBarrier);
+            Thread classRegisterThread = new TakeThread(configuration, cyclicBarrier);
+
+            pathScanThread.start();
+            classRegisterThread.start();
+            try {
+                cyclicBarrier.await();
+            } catch (InterruptedException e) {
+                if (logger.isErrorEnabled()) {
+                    logger.error("The scanning thread has been interrupt");
+                }
+            } catch (BrokenBarrierException e) {
+                if (logger.isErrorEnabled()) {
+                    logger.error("Some thread has reset the scannerBarrier");
+                }
+            }
         }
     }
 
@@ -142,7 +224,7 @@ public class BaseContentsScanner
                         try {
                             classesQueue.put(classFullName);
                         } catch (InterruptedException e) {
-                            if(logger.isErrorEnabled()) {
+                            if (logger.isErrorEnabled()) {
                                 logger.error("The scanning has been cancelled");
                             }
                             return;
@@ -165,30 +247,6 @@ public class BaseContentsScanner
 
 
     public static void main(String... strings) {
-        BlockingQueue<String> blockingQueue = new LinkedBlockingQueue<>(64);
-        Object lock = new Object();
-        Thread t1 = new Thread(() -> {
-            int i = 0;
-            while (true) {
-                i++;
-                try {
-                    synchronized (lock) {
-                        System.out.println("putting " + i);
-                        System.out.println("thread 1");
-                        blockingQueue.put(String.valueOf(i));
-                        Thread.sleep(1000);
-                    }
-                } catch (InterruptedException e) {
-                    return;
-                }
-            }
-        });
-
-        Thread t2 = new Thread(() -> {
-            t1.interrupt();
-        });
-        t1.start();
-        t2.start();
     }
 }
 

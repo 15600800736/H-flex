@@ -28,7 +28,7 @@ public class Configuration extends MapperResource {
     // whether the annotation-scanning is enabled
     private AtomicBoolean annotationScan = new AtomicBoolean();
     // the class of action mapper: name -> path
-    private Map<String, String> classesPath = new HashMap<>(64);
+    private Map<String, String> classesPathMapper = new HashMap<>(64);
     // the action's name mapper: id -> name
     private Map<String, String> actions = new HashMap<>(256);
     // the name of action's class mapper: id -> classname
@@ -80,13 +80,13 @@ public class Configuration extends MapperResource {
         return annotationScan.get();
     }
 
-    public void appendClassesPath(Map<String, String> classesPath) {
+    public void appendClass(Map<String, String> classesPath) {
         appendClassesMapLock.lock();
-        this.classesPath.putAll(classesPath);
+        this.classesPathMapper.putAll(classesPath);
         appendClassesMapLock.unlock();
     }
 
-    public void appendActions(Map<String, String> actions) {
+    public void appendAction(Map<String, String> actions) {
         appendActionsMapLock.lock();
         this.actions.putAll(actions);
         appendActionsMapLock.unlock();
@@ -106,7 +106,7 @@ public class Configuration extends MapperResource {
 
     public void appendClass(String name, String path) {
         appendClassesMapLock.lock();
-        this.actionClassMapper.put(name, path);
+        this.classesPathMapper.put(name, path);
         appendClassesMapLock.unlock();
     }
 
@@ -160,6 +160,10 @@ public class Configuration extends MapperResource {
             orderedResource[index] = resource;
         }
         return orderedResource;
+    }
+
+    public Map<String, String> getClassesPath() {
+        return classesPathMapper;
     }
 }
 
