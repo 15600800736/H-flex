@@ -5,8 +5,8 @@ package com.frame.info;
  * Created by fdh on 2017/7/17.
  */
 
-import com.frame.context.MapperResource;
-import com.frame.context.Resource;
+import com.frame.context.resource.MapperResource;
+import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 
 import java.util.List;

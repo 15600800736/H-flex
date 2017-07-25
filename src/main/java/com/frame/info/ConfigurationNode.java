@@ -1,6 +1,5 @@
 package com.frame.info;
 
-import com.frame.context.Resource;
 import com.frame.execute.transform.ElementTransformer;
 import com.frame.execute.transform.Transformer;
 import org.dom4j.Attribute;

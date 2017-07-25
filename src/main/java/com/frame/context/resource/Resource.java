@@ -1,8 +1,6 @@
-package com.frame.context;
+package com.frame.context.resource;
 
 import com.frame.info.Information;
-
-import java.util.Map;
 
 /**
  * Created by fdh on 2017/7/17.

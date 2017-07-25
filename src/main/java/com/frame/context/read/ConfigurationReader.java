@@ -1,5 +1,7 @@
-package com.frame.util;
+package com.frame.context.read;
 
+import com.frame.context.resource.MapperResource;
+import com.frame.context.resource.Resource;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
@@ -10,7 +12,8 @@ import org.dom4j.io.SAXReader;
 
 import java.io.File;
 
-public class ConfigurationReader {
+public class ConfigurationReader extends MapperResource
+        implements Reader{
     private Document document;
 
     public ConfigurationReader(String path) throws ScanException {
@@ -29,6 +32,11 @@ public class ConfigurationReader {
         }
     }
 
+    @Override
+    public void fromResource(Resource resource) {
+
+    }
+
     public Node getRoot() {
         return new ConfigurationNode(document.getRootElement());
     }
@@ -38,5 +46,15 @@ public class ConfigurationReader {
         // todo
         configuration.setAnnotationScan(true);
         return configuration;
+    }
+
+    @Override
+    protected void initResourceOrder() {
+
+    }
+
+    @Override
+    protected void initInformationRequired() {
+
     }
 }

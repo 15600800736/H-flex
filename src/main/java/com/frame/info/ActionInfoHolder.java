@@ -1,7 +1,7 @@
 package com.frame.info;
 
-import com.frame.context.MapperResource;
-import com.frame.context.Resource;
+import com.frame.context.resource.MapperResource;
+import com.frame.context.resource.Resource;
 import com.frame.exceptions.ScanException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

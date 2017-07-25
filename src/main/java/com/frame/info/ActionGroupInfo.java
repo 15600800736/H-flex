@@ -1,7 +1,7 @@
 package com.frame.info;
 
-import com.frame.context.MapperResource;
-import com.frame.context.Resource;
+import com.frame.context.resource.MapperResource;
+import com.frame.context.resource.Resource;
 
 /**
  * Created by fdh on 2017/7/22.

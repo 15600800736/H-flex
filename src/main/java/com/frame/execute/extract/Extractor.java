@@ -1,6 +1,6 @@
 package com.frame.execute.extract;
 
-import com.frame.context.Resource;
+import com.frame.context.resource.Resource;
 import com.frame.execute.Executor;
 
 /**

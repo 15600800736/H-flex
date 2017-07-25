@@ -1,4 +1,4 @@
-package com.frame.context;
+package com.frame.context.resource;
 
 import com.frame.enums.exceptions.ExtractorExceptionType;
 import com.frame.exceptions.CastException;
