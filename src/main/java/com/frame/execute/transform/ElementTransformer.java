@@ -1,5 +1,6 @@
 package com.frame.execute.transform;
 
+import com.frame.context.resource.Resource;
 import com.frame.info.ConfigurationNode;
 
 import org.dom4j.Element;
@@ -35,7 +36,12 @@ public class ElementTransformer extends Transformer<List<ConfigurationNode>> {
     }
 
     @Override
-    public void postProcessForExccute() {
+    public void postProcessForExceute() {
 
+    }
+
+    @Override
+    public Resource[] getResources() {
+        return new Resource[0];
     }
 }

@@ -1,6 +1,7 @@
 package com.frame.execute.scan;
 
 import com.frame.annotations.ActionClass;
+import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
@@ -13,10 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 /**
  * Created by fdh on 2017/7/2.
@@ -53,16 +51,15 @@ public class BaseContentsScanner
      */
     private final int threadNumber = 2;
     /**
-     * <p>This barrier is assigned from RegisterScanner, represents the scanning progress's endpoint</p>
+     * <p>represents the scanning progress's endpoint</p>
      */
-    private final CyclicBarrier cyclicBarrier;
+    private final CountDownLatch scannerLatch = new CountDownLatch(2);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    public BaseContentsScanner(CyclicBarrier cyclicBarrier, Configuration configuration) {
+    public BaseContentsScanner(Configuration configuration) {
         super(configuration);
-        this.cyclicBarrier = cyclicBarrier;
     }
 
     /**
@@ -72,8 +69,8 @@ public class BaseContentsScanner
     class PutThread extends ScanThread {
         private List<String> paths;
 
-        public PutThread(List<String> paths, CyclicBarrier cyclicBarrier) {
-            super(cyclicBarrier);
+        public PutThread(List<String> paths, CountDownLatch scannerLatch) {
+            super(scannerLatch);
             this.paths = paths;
         }
 
@@ -85,17 +82,7 @@ public class BaseContentsScanner
                 getClassesFromClasspath(pathName, p);
             });
             flag = true;
-            try {
-                scannerBarrier.await();
-            } catch (InterruptedException e) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("The scanning thread has been interrupt");
-                }
-            } catch (BrokenBarrierException e) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("Some thread has reset the scannerBarrier");
-                }
-            }
+            scannerLatch.countDown();
         }
     }
 
@@ -105,8 +92,8 @@ public class BaseContentsScanner
     class TakeThread extends ScanThread {
         private Configuration configuration;
 
-        public TakeThread(Configuration configuration, CyclicBarrier cyclicBarrier) {
-            super(cyclicBarrier);
+        public TakeThread(Configuration configuration, CountDownLatch scannerLatch) {
+            super(scannerLatch);
             this.configuration = configuration;
         }
 
@@ -116,17 +103,7 @@ public class BaseContentsScanner
             while (true) {
                 if (flag && classesQueue.size() == 0) {
                     flag = false;
-                    try {
-                        scannerBarrier.await();
-                    } catch (InterruptedException e) {
-                        if (logger.isErrorEnabled()) {
-                            logger.error("The scanning thread has been interrupt");
-                        }
-                    } catch (BrokenBarrierException e) {
-                        if (logger.isErrorEnabled()) {
-                            logger.error("Some thread has reset the scannerBarrier");
-                        }
-                    }
+                    scannerLatch.countDown();
                     return;
                 }
                 try {
@@ -181,21 +158,20 @@ public class BaseContentsScanner
                 paths.add(text);
             });
 
-            Thread pathScanThread = new PutThread(paths, cyclicBarrier);
-            Thread classRegisterThread = new TakeThread(configuration, cyclicBarrier);
-
-            pathScanThread.start();
-            classRegisterThread.start();
+            // ThreadPool
+            ExecutorService ex = Executors.newCachedThreadPool();
+            Thread pathScanThread = new PutThread(paths, scannerLatch);
+            Thread classRegisterThread = new TakeThread(configuration, scannerLatch);
+            ex.execute(pathScanThread);
+            ex.execute(classRegisterThread);
             try {
-                cyclicBarrier.await();
+                scannerLatch.await();
             } catch (InterruptedException e) {
                 if (logger.isErrorEnabled()) {
                     logger.error("The scanning thread has been interrupt");
                 }
-            } catch (BrokenBarrierException e) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("Some thread has reset the scannerBarrier");
-                }
+            } finally {
+                ex.shutdown();
             }
         }
         return true;
@@ -243,12 +219,13 @@ public class BaseContentsScanner
     }
 
     @Override
-    public void postProcessForExccute() {
-
+    public Resource[] getResources() {
+        return new Resource[0];
     }
 
+    @Override
+    public void postProcessForExceute() {
 
-    public static void main(String... strings) {
     }
 }
 

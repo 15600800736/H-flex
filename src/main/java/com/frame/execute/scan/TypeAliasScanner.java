@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.info.Configuration;
 import com.frame.info.Node;
@@ -29,7 +30,12 @@ public class TypeAliasScanner extends Scanner {
     }
 
     @Override
-    public void postProcessForExccute() {
+    public void postProcessForExceute() {
 
+    }
+
+    @Override
+    public Resource[] getResources() {
+        return new Resource[0];
     }
 }

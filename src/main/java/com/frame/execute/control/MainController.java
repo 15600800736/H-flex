@@ -5,77 +5,108 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
+import com.frame.context.Task;
+import com.frame.context.resource.Resource;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.BaseContentsScanner;
 import com.frame.execute.scan.Scanner;
 import com.frame.info.Configuration;
 import com.frame.context.read.ConfigurationReader;
 
-import java.util.Map;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * The main controller takes charge of all processes and states
+ * <p>The main controller takes charge of all processes and states.
+ * There is a {@link Task} queue in the controller, and the main controller will loop check
+ * if the current task is finished and the field {@code state}, if false, the controller will yield to let other threads
+ * work, otherwise, it will call {@code step()} to get next task to execute until the state equals finished</p>
  */
 public class MainController extends Controller<Boolean> {
     /**
-     * <p>singleton barrier, used for controlling progress.</p>
-     */
-    private volatile CyclicBarrier progressBarrier;
-
-    /**
      * <p>Reader is used for reading resources and transform it to a tree with returning its root</p>
      */
-    private ConfigurationReader reader;
+    private volatile ConfigurationReader reader;
 
+    /**
+     * <p>currentTask represents the currentTask in the taskQueue</p>
+     */
+    private volatile Task currentTask;
+
+    /**
+     * <p>state represents what progress the controller has made.
+     * <ol>
+     * <li>0 represents not start</li>
+     * <li>1 represents doing work</li>
+     * <li>2 represents initialization finished</li>
+     * <li>3 represents frame is ready to be used</li>
+     * <li>4 represents something wrong has happened</li>
+     * </ol>
+     * </p>
+     */
+    private AtomicInteger state = new AtomicInteger(0);
     /**
      * <p>Configuration is the main configure file of the frame</p>
      */
     private Configuration configuration;
+
     /**
-     * <p>stage field indicates what the period in on.</p>
-     * <ol>
-     *     <li>0 - 0 represents nothing happens, usually at the beginning as default value</li>
-     *     <li>1 - 1 represents the frame is ready for starting initialization</li>
-     *     <li>2 - 2 represents the scanning is on</li>
-     *     <li>3 - 3 represents the scanning has finished</li>
-     * </ol>
+     * <p>Task queue contains all of the work should be done, every time the controller
+     * will take the head task to execute util the state is finished. If there are no tasks,
+     * The thread will wait until another task is put in. So every thing the frame want to do should put an
+     * executor in it and let it do it.</p>
      */
-    private volatile AtomicInteger stage = new AtomicInteger(0);
+    private BlockingQueue<Task> taskQueue = new LinkedBlockingQueue<>();
+
+    /**
+     * <p>The singleService is used for start a new thread to execute task, the single guarantee the task will be
+     * execute by its order in queue. Starting a new thread is for the main thread do other works instead of waiting the
+     * task finished. If you want to know if the task has finished, call {@code Boolean isFinished = currentTask.isDone()}</p>
+     */
+    private ExecutorService singleService = Executors.newSingleThreadExecutor();
+
     @Override
     public void prepareForExecute() {
+
         reader = createConfigurationReader("G:\\test.xml");
         configuration = reader.createConfiguration();
-        initProgressCyclicBarrier(3);
         registerExecutor();
         step();
     }
 
+    private void initTaskQueue() {
+
+    }
+
     @Override
-    public void postProcessForExccute() {
+    public Resource[] getResources() {
+        return new Resource[0];
+    }
+
+    @Override
+    public void postProcessForExceute() {
 
     }
 
     /**
      * <p>The controller that controls the whole process of initialization.
      * It will </p>
-     *
      */
     @Override
     public Boolean execute() throws Exception {
         // if the frame is ready for initialize
-        if(1 == getStage()) {
-            Scanner scanner = null;
-            if (reader != null) {
-                scanner = new BaseContentsScanner(progressBarrier,configuration);
-            }
-            if (scanner != null) {
-                try {
-                    scanner.execute();
-                } catch (ScanException e) {
-                    e.printStackTrace();
-                }
+        Scanner scanner = null;
+        if (reader != null) {
+            scanner = new BaseContentsScanner(configuration);
+        }
+        if (scanner != null) {
+            try {
+                scanner.execute();
+            } catch (ScanException e) {
+                e.printStackTrace();
             }
         }
         return true;
@@ -83,6 +114,7 @@ public class MainController extends Controller<Boolean> {
 
     /**
      * create the configuration reader with specify path
+     *
      * @param configurationPath
      * @return
      */
@@ -96,31 +128,13 @@ public class MainController extends Controller<Boolean> {
         return reader;
     }
 
-    /**
-     * <p>singleton factory for producing the barrier</p>
-     * @param number
-     */
-    private void initProgressCyclicBarrier(Integer number) {
-        synchronized (this) {
-            if(progressBarrier == null) {
-                progressBarrier = new CyclicBarrier(number, this::step);
-            }
-        }
-    }
 
     /**
      * <p>When this method is invoked, the frame's initialization will become the next stage</p>
      */
     private void step() {
-        stage.incrementAndGet();
     }
 
-    /**
-     * @return the stage of the frame
-     */
-    private Integer getStage() {
-        return stage.get();
-    }
 
     /**
      * <p>Register the handler to initialize the frame,
@@ -128,20 +142,5 @@ public class MainController extends Controller<Boolean> {
      */
     private void registerExecutor() {
 
-    }
-
-    public static void main(String...strings) {
-        MainController mainController = new MainController();
-
-        try {
-            mainController.prepareForExecute();
-            mainController.execute();
-            mainController.postProcessForExccute();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Configuration configuration = mainController.configuration;
-        Map<String,String> classes = configuration.getClassesPath();
-        System.out.println(classes.size());
     }
 }

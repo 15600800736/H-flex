@@ -1,5 +1,7 @@
 package com.frame.execute.valid;
 
+import com.frame.context.resource.Resource;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +27,12 @@ public class ResourceValidor extends Validor {
     }
 
     @Override
-    public void postProcessForExccute() {
+    public Resource[] getResources() {
+        return new Resource[0];
+    }
+
+    @Override
+    public void postProcessForExceute() {
 
     }
 }

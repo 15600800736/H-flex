@@ -1,15 +1,16 @@
-package com.frame.execute.process;
+package com.frame.execute;
 
 import com.frame.context.resource.Resource;
 
 /**
- * Created by fdh on 2017/7/14.
+ * Created by fdh on 2017/7/27.
  */
-public class DefaultProcessor<T> extends Processor<T> {
+public class EndExecutor implements Executor<Object> {
     @Override
-    public T execute() {
+    public Object execute() throws Exception {
         return null;
     }
+
     @Override
     public void prepareForExecute() {
 
@@ -22,6 +23,6 @@ public class DefaultProcessor<T> extends Processor<T> {
 
     @Override
     public Resource[] getResources() {
-        return null;
+        return new Resource[0];
     }
 }

@@ -62,7 +62,7 @@
                                     <xsd:sequence>
                                         <xsd:element name="action-class" maxOccurs="unbounded">
                                             <xsd:complexType>
-                                                <xsd:sequence>
+                                                <xsd:choice>
                                                     <xsd:element name="action" maxOccurs="unbounded">
                                                         <xsd:complexType>
                                                             <xsd:sequence>
@@ -71,9 +71,18 @@
                                                             <xsd:attribute name="alias" type="xsd:string"/>
                                                             <xsd:attribute name="id" type="xsd:string"/>
                                                             <xsd:attribute name="name" type="xsd:string" use="required"/>
+                                                            <xsd:attribute name="overload">
+                                                                <xsd:simpleType>
+                                                                    <xsd:restriction>
+                                                                        <xsd:enumeration value="true"/>
+                                                                        <xsd:enumeration value="false"/>
+                                                                    </xsd:restriction>
+                                                                </xsd:simpleType>
+                                                            </xsd:attribute>
                                                         </xsd:complexType>
                                                     </xsd:element>
-                                                </xsd:sequence>
+                                                    <xsd:element name="all"/>
+                                                </xsd:choice>
                                                 <xsd:attribute name="name" type="xsd:string"/>
                                                 <xsd:attribute name="path" type="xsd:string" use="required"/>
                                             </xsd:complexType>

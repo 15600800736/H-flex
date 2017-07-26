@@ -1,6 +1,7 @@
 package com.frame.execute.scan;
 
 import com.frame.annotations.ActionClass;
+import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
@@ -71,7 +72,12 @@ public class ActionClassesScanner extends Scanner {
     }
 
     @Override
-    public void postProcessForExccute() {
+    public Resource[] getResources() {
+        return new Resource[0];
+    }
+
+    @Override
+    public void postProcessForExceute() {
 
     }
 }

@@ -1,6 +1,7 @@
 package com.frame.execute.scan;
 
 import com.frame.annotations.ActionClass;
+import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
@@ -26,14 +27,10 @@ public class RegisterScanner extends Scanner {
     private ConfigurationNode actionRegister;
     private ConfigurationNode actionGroups;
 
-    private final Map<String, Class<? extends Scanner>> creatorMapper = new HashMap<>(8);
-
     public RegisterScanner(ConfigurationNode actionRegister, ConfigurationNode actionGroups, Configuration configuration) {
         super(configuration);
         this.actionRegister = actionRegister;
         this.actionGroups = actionGroups;
-        // register scanner
-        initCreatorMapper();
     }
 
     @Override
@@ -56,44 +53,15 @@ public class RegisterScanner extends Scanner {
 
         // register scan by xml
         if (actionClasses != null) {
-            scanner = createScanner(ConfigurationStringPool.ACTION_CLASSES);
+            scanner = new ActionClassesScanner(configuration);
             scanner.execute();
         }
         // register scan by annotations
         if (baseContents != null) {
-            scanner = createScanner(ConfigurationStringPool.BASE_CONTENTS);
+            scanner = new BaseContentsScanner(configuration);
             scanner.execute();
         }
         return true;
-    }
-
-    /**
-     * return the scanner according to the tag's name
-     * @param scannerType
-     * @return
-     */
-    private Scanner createScanner(String scannerType) {
-        Class<? extends Scanner> scannerClass = creatorMapper.get(scannerType);
-        Scanner scanner = null;
-        if (scannerClass != null) {
-            try {
-                scanner = scannerClass.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        return scanner;
-    }
-
-    /**
-     * map the scanner to the tag's name
-     */
-    private void initCreatorMapper() {
-        creatorMapper.put(ConfigurationStringPool.BASE_CONTENTS, BaseContentsScanner.class);
-        creatorMapper.put(ConfigurationStringPool.ACTION_CLASSES, ActionClassesScanner.class);
-        creatorMapper.put(ConfigurationStringPool.ACTION_GROUPS, ActionGroupScanner.class);
     }
 
     @Override
@@ -102,7 +70,12 @@ public class RegisterScanner extends Scanner {
     }
 
     @Override
-    public void postProcessForExccute() {
+    public Resource[] getResources() {
+        return new Resource[0];
+    }
+
+    @Override
+    public void postProcessForExceute() {
 
     }
 }
