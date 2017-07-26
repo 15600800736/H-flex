@@ -6,17 +6,15 @@ import java.util.regex.Pattern;
 /**
  * Created by fdh on 2017/7/4.
  */
-public class ResourceValidor implements Validor {
+public class ResourceValidor extends Validor {
 
-    String resourcePath;
-
-    public ResourceValidor(String resourcePath) {
-        this.resourcePath = resourcePath;
+    public ResourceValidor(String validable) {
+        super(validable);
     }
     @Override
-    public Boolean valid() {
+    public Boolean execute() {
         Pattern pattern = Pattern.compile("^([A-Z]:\\\\)?[^\\\\/:*?\"<>|]+?(\\\\[^\\\\/:*?\"<>|]+?)*\\.xml");
-        Matcher matcher = pattern.matcher(resourcePath);
+        Matcher matcher = pattern.matcher(validable);
         return matcher.matches();
 
     }

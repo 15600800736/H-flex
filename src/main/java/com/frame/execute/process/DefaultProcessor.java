@@ -3,12 +3,11 @@ package com.frame.execute.process;
 /**
  * Created by fdh on 2017/7/14.
  */
-public class DefaultProcessor implements Processor {
+public class DefaultProcessor<T> extends Processor<T> {
     @Override
-    public Object process(Object o) {
-        return o;
+    public T execute() {
+        return null;
     }
-
     @Override
     public void prepareForExecute() {
 

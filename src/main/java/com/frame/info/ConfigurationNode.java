@@ -51,15 +51,27 @@ public class ConfigurationNode extends Node {
     }
 
     @Override
-    public List<ConfigurationNode> getChildren(String name) {
+    public List<ConfigurationNode> getChildren(String name){
         List<Element> elements = element.elements(name);
-        return decorate(elements);
+        List<ConfigurationNode> children = null;
+        try {
+            children = decorate(elements);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return children;
     }
 
     @Override
-    public List<ConfigurationNode> getAllChildren() {
+    public List<ConfigurationNode> getAllChildren(){
         List<Element> elements = element.elements();
-        return decorate(elements);
+        List<ConfigurationNode> children = null;
+        try {
+            children = decorate(elements);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return children;
     }
 
     @Override
@@ -107,8 +119,8 @@ public class ConfigurationNode extends Node {
         return element.attribute(name) != null;
     }
 
-    private List<ConfigurationNode> decorate(List<Element> original) {
+    private List<ConfigurationNode> decorate(List<Element> original) throws Exception {
         Transformer<List<ConfigurationNode>> transformer = new ElementTransformer(original);
-        return transformer.transform();
+        return transformer.execute();
     }
 }

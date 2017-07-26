@@ -16,5 +16,5 @@ public class ConfigurationStringPool {
     public static final String ACTION_CLASS = "action-class";
     public static final String ACTION_REGISTER = "action-register";
     public static final String PATH = "path";
-
+    public static final String TYPE_ALIAS = "type-alias";
 }

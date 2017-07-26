@@ -1,6 +1,5 @@
 package com.frame.execute.scan;
 
-import com.frame.exceptions.ScanException;
 import com.frame.execute.Executor;
 import com.frame.info.Configuration;
 
@@ -16,6 +15,10 @@ import com.frame.info.Configuration;
  * @see Configuration
  * @author Haug
  */
-public interface Scanner extends Executor{
-    void scan(Configuration configuration) throws ScanException;
+public abstract class Scanner implements Executor<Boolean> {
+    protected final Configuration configuration;
+
+    protected Scanner(Configuration configuration) {
+        this.configuration = configuration;
+    }
 }

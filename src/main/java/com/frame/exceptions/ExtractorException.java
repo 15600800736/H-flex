@@ -5,7 +5,7 @@ import com.frame.enums.exceptions.ExtractorExceptionType;
 /**
  * Created by fdh on 2017/7/23.
  */
-public class ExtractorException extends RuntimeException {
+public class ExtractorException extends Exception {
     // the name of the object that is being extracted
     private String required;
     // the class which is being extracted

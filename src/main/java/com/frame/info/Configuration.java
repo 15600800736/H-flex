@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -23,20 +24,39 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>The information of Configuration also can be extract from other resource because it implements Extractor</p>
  */
 public class Configuration extends MapperResource {
-    // root node
+    /**
+     * root node
+     */
     private Node root;
-    // whether the annotation-scanning is enabled
+    /**
+     * whether the annotation-scanning is enabled
+     */
     private AtomicBoolean annotationScan = new AtomicBoolean();
-    // the class of action mapper: name -> path
+    /**
+     * the class of action mapper: name -> path
+     */
     private Map<String, String> classesPathMapper = new HashMap<>(64);
-    // the action's name mapper: id -> name
+    /**
+     * the action's name mapper: id -> name
+     */
     private Map<String, String> actions = new HashMap<>(256);
-    // the name of action's class mapper: id -> classname
+    /**
+     * the name of action's class mapper: id -> classname
+     */
     private Map<String, String> actionClassMapper = new HashMap<>(256);
-    // the action's alias mapper: alias -> id
+    /**
+     * the action's alias mapper: alias -> id
+     */
     private Map<String, String> aliasMapper = new HashMap<>(512);
-    // the count of the direct child node (<action-groups/><action-register/>)
+    /**
+     * Map type to its alias: alias -> type
+     */
+    private Map<String, String> typeAliasMapper = new HashMap<>(64);
+    /**
+     * the count of the direct child node (<action-groups/><action-register/>)
+     */
     private Integer countOfResourcesType = 2;
+
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,6 +64,7 @@ public class Configuration extends MapperResource {
         initResourceOrder();
         initInformationRequired();
     }
+
     protected void initResourceOrder() {
         resourcesOrder.put(ActionInfoHolder.class, 0);
         resourcesOrder.put(ActionGroupInfo.class, 1);
@@ -60,6 +81,7 @@ public class Configuration extends MapperResource {
     private Lock appendActionsMapLock = new ReentrantLock();
     private Lock appendActionClassMapLock = new ReentrantLock();
     private Lock appendAliasMapLock = new ReentrantLock();
+    private Lock appendTypeAliasMapLock = new ReentrantLock();
 
     public void setRoot(Node root) {
         this.root = root;
@@ -92,16 +114,21 @@ public class Configuration extends MapperResource {
         appendActionsMapLock.unlock();
     }
 
-    public void appendActionClassMapper(Map<String, String> actionClassMapper) {
+    public void appendActionClass(Map<String, String> actionClassMapper) {
         appendActionClassMapLock.lock();
         this.actionClassMapper.putAll(actionClassMapper);
         appendActionClassMapLock.unlock();
     }
 
-    public void appendAliasMapper(Map<String, String> aliasMapper) {
+    public void appendAlias(Map<String, String> aliasMapper) {
         appendAliasMapLock.lock();
         this.aliasMapper.putAll(aliasMapper);
         appendAliasMapLock.unlock();
+    }
+    public void appendTypeAlias(Map<String, String> typeAliasMapper) {
+        appendTypeAliasMapLock.lock();
+        this.aliasMapper.putAll(typeAliasMapper);
+        appendTypeAliasMapLock.unlock();
     }
 
     public void appendClass(String name, String path) {
@@ -128,19 +155,24 @@ public class Configuration extends MapperResource {
         appendAliasMapLock.unlock();
     }
 
+    public void appendTypeAlias(String alias, String name) {
+        appendTypeAliasMapLock.lock();
+        this.aliasMapper.put(alias, name);
+        appendTypeAliasMapLock.unlock();
+    }
     @Override
     public <T extends Resource> Boolean split(T[] resources) {
         Boolean canSplit = resources != null && resources.length == 2 &&
                 ((resources[0] instanceof ActionInfoHolder && resources[1] instanceof ActionGroupInfo) ||
                         (resources[0] instanceof ActionGroupInfo && resources[1] instanceof ActionInfoHolder));
-        if(canSplit) {
+        if (canSplit) {
             // get the split type and instance
             Resource[] orderedResources = transformResourcesToSpecificOrder(resources);
             ActionInfoHolder actionInfoHolder = (ActionInfoHolder) orderedResources[resourcesOrder.get(ActionInfoHolder.class)];
             ActionGroupInfo actionGroupInfo = (ActionGroupInfo) orderedResources[resourcesOrder.get(ActionGroupInfo.class)];
 
         } else {
-            if(logger.isWarnEnabled()) {
+            if (logger.isWarnEnabled()) {
                 StringBuilder errorMessage = new StringBuilder("configuration can't be split by ");
                 for (T resource : resources) {
                     errorMessage.append(resource.getType() + " ");
@@ -149,12 +181,13 @@ public class Configuration extends MapperResource {
         }
         return canSplit;
     }
+
     @Override
     public Resource[] transformResourcesToSpecificOrder(Resource... resources) {
         Resource[] orderedResource = new Resource[countOfResourcesType];
         for (Resource resource : resources) {
             Integer index = resourcesOrder.get(resource.getClass());
-            if(index == null) {
+            if (index == null) {
                 return null;
             }
             orderedResource[index] = resource;

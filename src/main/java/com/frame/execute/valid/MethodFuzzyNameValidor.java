@@ -6,17 +6,16 @@ import java.util.regex.Pattern;
 /**
  * Created by fdh on 2017/7/4.
  */
-public class MethodFuzzyNameValidor implements Validor {
+public class MethodFuzzyNameValidor extends Validor {
 
-    private String source;
 
-    public MethodFuzzyNameValidor(String source) {
-        this.source = source;
+    public MethodFuzzyNameValidor(String validable) {
+        super(validable);
     }
     @Override
-    public Boolean valid() {
+    public Boolean execute() {
         Pattern methodFuzzyNamePattern = Pattern.compile("^[A-Za-z0-9*?][A-Za-z0-9_*?]*(\\.[A-Za-z0-9_*?]*)+$");
-        Matcher matcher = methodFuzzyNamePattern.matcher(source);
+        Matcher matcher = methodFuzzyNamePattern.matcher(validable);
         return matcher.matches();
     }
 

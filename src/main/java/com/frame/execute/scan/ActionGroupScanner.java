@@ -8,7 +8,11 @@ import com.frame.info.Configuration;
  * Created by fdh on 2017/7/20.
  */
 @ActionClass(className = "a")
-public class ActionGroupScanner implements Scanner {
+public class ActionGroupScanner extends Scanner {
+    protected ActionGroupScanner(Configuration configuration) {
+        super(configuration);
+    }
+
     @Override
     public void prepareForExecute() {
 
@@ -20,7 +24,7 @@ public class ActionGroupScanner implements Scanner {
     }
 
     @Override
-    public void scan(Configuration configuration) throws ScanException {
-
+    public Boolean execute() throws Exception {
+        return true;
     }
 }

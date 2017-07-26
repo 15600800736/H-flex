@@ -31,7 +31,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @ActionClass(className = "c")
 public class BaseContentsScanner
-        implements Scanner {
+        extends Scanner {
     private final Integer CLASS_SUFFIX_LENGTH = 6;
 
     /**
@@ -60,7 +60,8 @@ public class BaseContentsScanner
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    public BaseContentsScanner(CyclicBarrier cyclicBarrier) {
+    public BaseContentsScanner(CyclicBarrier cyclicBarrier, Configuration configuration) {
+        super(configuration);
         this.cyclicBarrier = cyclicBarrier;
     }
 
@@ -148,14 +149,14 @@ public class BaseContentsScanner
     }
 
     @Override
-    public void scan(Configuration configuration) throws ScanException {
+    public Boolean execute() throws Exception {
         Node root = configuration.getRoot();
         if (root == null && configuration.isAnnotationScan() == null) {
             throw new ScanException(null, "无法获取<annotation-scan/>状态");
         }
         if (root == null) {
             // todo
-            return;
+            return false;
         }
         // check if annotation-scan is on
         if (configuration.isAnnotationScan() == null) {
@@ -197,6 +198,7 @@ public class BaseContentsScanner
                 }
             }
         }
+        return true;
     }
 
     private void getClassesFromClasspath(String pathName, String packageName) {

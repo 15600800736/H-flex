@@ -27,8 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * own version.</p>
  * <p>Also, the {@code initInformationRequired} will define what information is required when extract from others</p>
  */
-public abstract class MapperResource
-        implements Resource,Extractor {
+public abstract class MapperResource implements Resource {
     // map the information to its name: name -> information
     protected Map<String, Information> infoMapper = new HashMap<>(256);
     // setter lock
@@ -54,7 +53,7 @@ public abstract class MapperResource
     }
 
     @Override
-    public <T> T getInformation(String name, Class<T> infoClass) {
+    public <T> T getInformation(String name, Class<T> infoClass) throws Exception {
         Information information = infoMapper.get(name);
         if (information == null || information.getValue() == null) {
             return null;
@@ -132,38 +131,4 @@ public abstract class MapperResource
     public Resource[] transformResourcesToSpecificOrder(Resource... resources) {
         return resources;
     }
-
-    @Override
-    public Boolean extract(Resource resource) {
-        informationRequired.entrySet().forEach(ir -> {
-            String infoName = ir.getKey();
-            Class<?> infoClass = ir.getValue();
-            Information information = resource.getInformation(infoName);
-            if(information == null) {
-                throw new ExtractorException(infoName, resource.getClass(), ExtractorExceptionType.NOT_EXIST);
-            }
-            if(infoClass == null) {
-                infoMapper.put(infoName, information);
-            } else  {
-                if(infoClass == information.getValueClass()){
-                    infoMapper.put(infoName,information);
-                } else {
-                    throw new ExtractorException(infoName, resource.getClass(), ExtractorExceptionType.TYPE_ERROR);
-                }
-            }
-        });
-        return true;
-    }
-
-    @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExccute() {
-
-    }
-
-
 }

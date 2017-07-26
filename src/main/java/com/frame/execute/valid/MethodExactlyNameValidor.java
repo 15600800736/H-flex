@@ -6,18 +6,16 @@ import java.util.regex.Pattern;
 /**
  * Created by fdh on 2017/7/4.
  */
-public class MethodExactlyNameValidor implements Validor {
+public class MethodExactlyNameValidor extends Validor {
 
-    private String source;
-
-    public MethodExactlyNameValidor(String source) {
-        this.source = source;
+    public MethodExactlyNameValidor(String validable) {
+        super(validable);
     }
     @Override
-    public Boolean valid() {
-        source = source.trim();
+    public Boolean execute() {
+        validable = validable.trim();
         Pattern methodCompleteNamePattern = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9_]*(\\.[A-Za-z0-9_]*)+$");
-        Matcher matcher = methodCompleteNamePattern.matcher(source);
+        Matcher matcher = methodCompleteNamePattern.matcher(validable);
         return matcher.matches();
     }
 

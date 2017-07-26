@@ -3,7 +3,7 @@ package com.frame.exceptions;
 /**
  * Created by fdh on 2017/7/21.
  */
-public class CastException extends RuntimeException{
+public class CastException extends Exception{
     // the offered type
     private Class<?> offeredType;
     // the type that the the object required

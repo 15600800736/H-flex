@@ -11,13 +11,14 @@ import com.frame.execute.scan.Scanner;
 import com.frame.info.Configuration;
 import com.frame.context.read.ConfigurationReader;
 
+import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The main controller takes charge of all processes and states
  */
-public class MainController implements Controller {
+public class MainController extends Controller<Boolean> {
     /**
      * <p>singleton barrier, used for controlling progress.</p>
      */
@@ -47,6 +48,7 @@ public class MainController implements Controller {
         reader = createConfigurationReader("G:\\test.xml");
         configuration = reader.createConfiguration();
         initProgressCyclicBarrier(3);
+        registerExecutor();
         step();
     }
 
@@ -61,21 +63,22 @@ public class MainController implements Controller {
      *
      */
     @Override
-    public void control() {
+    public Boolean execute() throws Exception {
         // if the frame is ready for initialize
         if(1 == getStage()) {
             Scanner scanner = null;
             if (reader != null) {
-                scanner = new BaseContentsScanner(progressBarrier);
+                scanner = new BaseContentsScanner(progressBarrier,configuration);
             }
             if (scanner != null) {
                 try {
-                    scanner.scan(configuration);
+                    scanner.execute();
                 } catch (ScanException e) {
                     e.printStackTrace();
                 }
             }
         }
+        return true;
     }
 
     /**
@@ -117,5 +120,28 @@ public class MainController implements Controller {
      */
     private Integer getStage() {
         return stage.get();
+    }
+
+    /**
+     * <p>Register the handler to initialize the frame,
+     * include Scanner, Parser etc.</p>
+     */
+    private void registerExecutor() {
+
+    }
+
+    public static void main(String...strings) {
+        MainController mainController = new MainController();
+
+        try {
+            mainController.prepareForExecute();
+            mainController.execute();
+            mainController.postProcessForExccute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Configuration configuration = mainController.configuration;
+        Map<String,String> classes = configuration.getClassesPath();
+        System.out.println(classes.size());
     }
 }

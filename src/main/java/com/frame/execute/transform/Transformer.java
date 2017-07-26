@@ -5,6 +5,5 @@ import com.frame.execute.Executor;
 /**
  * Created by fdh on 2017/7/4.
  */
-public interface Transformer<T> extends Executor{
-    T transform();
+public abstract class Transformer<T> implements Executor<T> {
 }

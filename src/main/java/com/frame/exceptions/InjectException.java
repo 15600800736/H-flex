@@ -5,7 +5,7 @@ import com.frame.enums.exceptions.ExceptionType;
 /**
  * Created by fdh on 2017/5/30.
  */
-public class InjectException extends Throwable{
+public class InjectException extends RuntimeException {
     private ExceptionType exceptionType;
     private String info;
     private Throwable cause;

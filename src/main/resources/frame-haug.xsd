@@ -65,6 +65,9 @@
                                                 <xsd:sequence>
                                                     <xsd:element name="action" maxOccurs="unbounded">
                                                         <xsd:complexType>
+                                                            <xsd:sequence>
+                                                                <xsd:element name="param" maxOccurs="unbounded" minOccurs="0" type="xsd:string"/>
+                                                            </xsd:sequence>
                                                             <xsd:attribute name="alias" type="xsd:string"/>
                                                             <xsd:attribute name="id" type="xsd:string"/>
                                                             <xsd:attribute name="name" type="xsd:string" use="required"/>
@@ -87,6 +90,18 @@
                                 </xsd:complexType>
                             </xsd:element>
                         </xsd:all>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="type-alias" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="type" maxOccurs="unbounded">
+                                <xsd:complexType>
+                                    <xsd:attribute name="name" type="xsd:string" use="required"/>
+                                    <xsd:attribute name="alias" type="xsd:string" use="required"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
                     </xsd:complexType>
                 </xsd:element>
             </xsd:all>

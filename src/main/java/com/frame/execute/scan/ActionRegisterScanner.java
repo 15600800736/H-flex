@@ -20,17 +20,20 @@ import java.util.List;
  * include alias,name and id attributes
  */
 @ActionClass(className = "b")
-public class ActionRegisterScanner implements Scanner {
+public class ActionRegisterScanner extends Scanner {
 
     private ConfigurationNode actionClass;
 
+    public ActionRegisterScanner(Configuration configuration) {
+        super(configuration);
+    }
 
     public void setActionClass(ConfigurationNode actionClass) {
         this.actionClass = actionClass;
     }
 
     @Override
-    public void scan(Configuration configuration) throws ScanException {
+    public Boolean execute() throws Exception {
         if(actionClass == null) {
             throw new ScanException("<action-class></action-class>","缺少<action-class>标签");
         }
@@ -54,8 +57,12 @@ public class ActionRegisterScanner implements Scanner {
             String classPath = actionClass.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
             String methodPath = classPath + "." + name;
             Validor validor = new MethodExactlyNameValidor(methodPath);
-            if(!validor.valid()) {
-                ExceptionUtil.doThrow(new ScanException("com.frame.test.Test.testMethod","方法名格式错误"));
+            try {
+                if(!validor.execute()) {
+                    ExceptionUtil.doThrow(new ScanException("com.frame.test.Test.testMethod","方法名格式错误"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             if(id == null) {
                 id = methodPath;
@@ -67,6 +74,7 @@ public class ActionRegisterScanner implements Scanner {
                 configuration.appendAlias(alias, id);
             }
         });
+        return true;
     }
 
     @Override

@@ -22,13 +22,14 @@ import java.util.Map;
  * in your program.
  */
 @ActionClass(className = "e")
-public class RegisterScanner implements Scanner {
+public class RegisterScanner extends Scanner {
     private ConfigurationNode actionRegister;
     private ConfigurationNode actionGroups;
 
     private final Map<String, Class<? extends Scanner>> creatorMapper = new HashMap<>(8);
 
-    public RegisterScanner(ConfigurationNode actionRegister, ConfigurationNode actionGroups) {
+    public RegisterScanner(ConfigurationNode actionRegister, ConfigurationNode actionGroups, Configuration configuration) {
+        super(configuration);
         this.actionRegister = actionRegister;
         this.actionGroups = actionGroups;
         // register scanner
@@ -36,7 +37,7 @@ public class RegisterScanner implements Scanner {
     }
 
     @Override
-    public void scan(Configuration configuration) throws ScanException {
+    public Boolean execute() throws Exception {
         if (actionRegister == null) {
             throw new ScanException("<action-register></action-register>", "未定义<action-register>");
         }
@@ -56,19 +57,14 @@ public class RegisterScanner implements Scanner {
         // register scan by xml
         if (actionClasses != null) {
             scanner = createScanner(ConfigurationStringPool.ACTION_CLASSES);
-            scanner.scan(configuration);
+            scanner.execute();
         }
         // register scan by annotations
         if (baseContents != null) {
             scanner = createScanner(ConfigurationStringPool.BASE_CONTENTS);
-            scanner.scan(configuration);
+            scanner.execute();
         }
-        // register action groups
-//        if(actionGroups != null) {
-//            scanner = createScanner(ACTION_GROUPS);
-//            scanner.scan(configuration);
-//        }
-
+        return true;
     }
 
     /**
@@ -96,7 +92,7 @@ public class RegisterScanner implements Scanner {
      */
     private void initCreatorMapper() {
         creatorMapper.put(ConfigurationStringPool.BASE_CONTENTS, BaseContentsScanner.class);
-        creatorMapper.put(ConfigurationStringPool.ACTION_CLASSES, RegisterActionClassesScanner.class);
+        creatorMapper.put(ConfigurationStringPool.ACTION_CLASSES, ActionClassesScanner.class);
         creatorMapper.put(ConfigurationStringPool.ACTION_GROUPS, ActionGroupScanner.class);
     }
 

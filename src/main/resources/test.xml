@@ -21,7 +21,10 @@
         <annotation-scan/>
         <action-classes>
             <action-class name="proc" path="com.frame.execute.process.DefaultProcessor">
-                <action alias="a,b" name="test1" id="1"/>
+                <action alias="a,b" name="test1" id="1">
+                    <param>java.lang.String</param>
+                    <param>java.lang.Integer</param>
+                </action>
                 <action alias="c,d" name="test2" id="2"/>
             </action-class>
             <action-class name="action" path="com.frame.info.ActionInfoHolder">
@@ -34,4 +37,8 @@
             <path>com.frame</path>
         </base-contents>
     </action-register>
+    <type-alias>
+        <type name="java.lang.String" alias="string"/>
+
+    </type-alias>
 </frame-haug>

@@ -48,11 +48,6 @@ public class ActionInfo extends MapperResource{
     }
 
     @Override
-    public Boolean extract(Resource resource) {
-        return null;
-    }
-
-    @Override
     protected void initResourceOrder() {
 
     }

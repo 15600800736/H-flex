@@ -1,5 +1,6 @@
 package com.frame.context.resource;
 
+import com.frame.exceptions.CastException;
 import com.frame.info.Information;
 
 /**
@@ -39,7 +40,7 @@ public interface Resource {
      * @param name
      * @return
      */
-    Information getInformation(String name);
+    Information getInformation(String name) throws Exception;
 
     /**
      * get the specify information with specify class
@@ -47,7 +48,7 @@ public interface Resource {
      * @param infoClass
      * @return
      */
-    <T> T getInformation(String name, Class<T> infoClass);
+    <T> T getInformation(String name, Class<T> infoClass) throws Exception;
 
     /**
      * add an information with specify name

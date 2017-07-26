@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by fdh on 2017/7/4.
  */
-public class ElementTransformer implements Transformer<List<ConfigurationNode>> {
+public class ElementTransformer extends Transformer<List<ConfigurationNode>> {
 
     private List<Element> elements;
 
@@ -18,7 +18,7 @@ public class ElementTransformer implements Transformer<List<ConfigurationNode>> 
         this.elements = elements;
     }
     @Override
-    public List<ConfigurationNode> transform() {
+    public List<ConfigurationNode> execute() {
         List<ConfigurationNode> nodes = new LinkedList<>();
         for(Element element : elements) {
             ConfigurationNode node = new ConfigurationNode(element);

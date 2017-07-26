@@ -22,11 +22,15 @@ import java.util.Map;
  * Then create a action register to scan the actions you configured under the class.
  */
 @ActionClass(className = "d")
-public class RegisterActionClassesScanner implements Scanner {
+public class ActionClassesScanner extends Scanner {
 
+
+    public ActionClassesScanner(Configuration configuration) {
+        super(configuration);
+    }
 
     @Override
-    public void scan(Configuration configuration) throws ScanException {
+    public Boolean execute() throws ScanException {
         Node root = configuration.getRoot();
         if (root == null) {
             throw new ScanException("<frame-haug></frame-haug>", "缺少根节点");
@@ -39,9 +43,10 @@ public class RegisterActionClassesScanner implements Scanner {
         // get all of the action-class
         List<ConfigurationNode> actionClassList = actionClasses.getChildren(ConfigurationStringPool.ACTION_CLASS);
         Map<String, String> classMapper = new HashMap<>(64);
-        ActionRegisterScanner scanner = new ActionRegisterScanner();
+        ActionRegisterScanner scanner = new ActionRegisterScanner(configuration);
         registerAction(actionClassList,classMapper,scanner,configuration);
         configuration.appendClass(classMapper);
+        return true;
     }
 
     private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, Scanner actionScanner, Configuration configuration) {
@@ -53,8 +58,8 @@ public class RegisterActionClassesScanner implements Scanner {
                 ((ActionRegisterScanner)actionScanner).setActionClass(n);
             }
             try {
-                actionScanner.scan(configuration);
-            } catch (ScanException e) {
+                actionScanner.execute();
+            } catch (Exception e) {
                 ExceptionUtil.doThrow(e);
             }
         });

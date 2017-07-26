@@ -13,9 +13,9 @@ public abstract class Node {
 
     public abstract <T extends Node> T getChild(String name);
 
-    public abstract <T extends Node> List<T> getChildren(String name);
+    public abstract <T extends Node> List<T> getChildren(String name) throws Exception;
 
-    public abstract <T extends Node> List<T> getAllChildren();
+    public abstract <T extends Node> List<T> getAllChildren() throws Exception;
 
     public abstract String getAttributeText(String name);
 
