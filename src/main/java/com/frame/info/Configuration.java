@@ -1,5 +1,6 @@
 package com.frame.info;
 
+import com.frame.annotations.Action;
 import com.frame.context.resource.MapperResource;
 import com.frame.context.resource.Resource;
 import org.slf4j.Logger;
@@ -25,38 +26,47 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Configuration extends MapperResource {
     /**
-     * root node
+     * <p>root node</p>
      */
     private Node root;
     /**
-     * whether the annotation-scanning is enabled
+     * <p>whether the annotation-scanning is enabled</p>
      */
     private AtomicBoolean annotationScan = new AtomicBoolean();
     /**
-     * the class of action mapper: name -> path
+     * <p>the class of action mapper: name -> path</p>
      */
     private Map<String, String> classesPathMapper = new HashMap<>(64);
     /**
-     * the action's name mapper: id -> name
+     * <p>the action's name mapper: id -> name</p>
      */
     private Map<String, String> actions = new HashMap<>(256);
     /**
-     * the name of action's class mapper: id -> classname
+     * <p>the name of action's class mapper: id -> classname</p>
      */
     private Map<String, String> actionClassMapper = new HashMap<>(256);
     /**
-     * the action's alias mapper: alias -> id
+     * <p>the action's alias mapper: alias -> id</p>
      */
     private Map<String, String> aliasMapper = new HashMap<>(512);
     /**
-     * Map type to its alias: alias -> type
+     * <p>Map type to its alias: alias -> type</p>
      */
     private Map<String, String> typeAliasMapper = new HashMap<>(64);
     /**
-     * the count of the direct child node (<action-groups/><action-register/>)
+     * <p>the count of the direct child node (<action-groups/><action-register/>)</p>
      */
     private Integer countOfResourcesType = 2;
 
+    /**
+     * <p>Record the actions parameters' type, the type is separated by ",". The type may be found in typeAliasMapper</p>
+     */
+    private Map<String, String> paramsMapper = new HashMap<>(256);
+
+    /**
+     * <p>Has the configuration been well-registered, means if all the actions info has been injected</p>
+     */
+    private AtomicBoolean registered = new AtomicBoolean(false);
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -182,6 +192,7 @@ public class Configuration extends MapperResource {
         return canSplit;
     }
 
+
     @Override
     public Resource[] transformResourcesToSpecificOrder(Resource... resources) {
         Resource[] orderedResource = new Resource[countOfResourcesType];
@@ -194,9 +205,39 @@ public class Configuration extends MapperResource {
         }
         return orderedResource;
     }
+    /**/
 
-    public Map<String, String> getClassesPath() {
-        return classesPathMapper;
+    public Map<String, String> getActions() {
+        return actions;
+    }
+
+    public void setActions(Map<String, String> actions) {
+        this.actions = actions;
+    }
+
+    public Map<String, String> getActionClassMapper() {
+        return actionClassMapper;
+    }
+
+    public void setActionClassMapper(Map<String, String> actionClassMapper) {
+        this.actionClassMapper = actionClassMapper;
+    }
+
+    public Map<String, String> getAliasMapper() {
+        return aliasMapper;
+    }
+
+    public void setAliasMapper(Map<String, String> aliasMapper) {
+        this.aliasMapper = aliasMapper;
+    }
+/**/
+
+    public Boolean isRegisterd() {
+        return registered.get();
+    }
+
+    public void setIsRegisterd(Boolean isRegisterd) {
+        this.registered.set(isRegisterd);
     }
 }
 

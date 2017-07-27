@@ -14,7 +14,7 @@ public class TypeAliasScanner extends Scanner {
     }
 
     @Override
-    public Boolean execute() throws Exception {
+    public Boolean exec() throws Exception {
         Node root = configuration.getRoot();
         Node typeAlias = root == null ? null : root.getChild(ConfigurationStringPool.TYPE_ALIAS);
         if(typeAlias == null) {
@@ -22,16 +22,6 @@ public class TypeAliasScanner extends Scanner {
 
         }
         return true;
-    }
-
-    @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
     }
 
     @Override

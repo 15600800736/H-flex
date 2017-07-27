@@ -4,11 +4,13 @@ import com.frame.annotations.ActionClass;
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
+import com.frame.execute.control.Controller;
+import com.frame.execute.control.MainController;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 
-import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * Created by fdh on 2017/7/14.
@@ -34,7 +36,7 @@ public class RegisterScanner extends Scanner {
     }
 
     @Override
-    public Boolean execute() throws Exception {
+    public Object exec() throws Exception {
         if (actionRegister == null) {
             throw new ScanException("<action-register></action-register>", "未定义<action-register>");
         }
@@ -61,12 +63,9 @@ public class RegisterScanner extends Scanner {
             scanner = new BaseContentsScanner(configuration);
             scanner.execute();
         }
-        return true;
-    }
 
-    @Override
-    public void prepareForExecute() {
-
+        configuration.setIsRegisterd(true);
+        return configuration;
     }
 
     @Override
@@ -74,8 +73,21 @@ public class RegisterScanner extends Scanner {
         return new Resource[0];
     }
 
-    @Override
-    public void postProcessForExceute() {
+
+    public static void main(String...strings) {
+        Controller<Boolean> controller = new MainController();
+        try {
+            controller.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Configuration configuration = ((MainController)controller).configuration;
+
+        Map<String, String> map = configuration.getActions();
+        map.entrySet().forEach( es -> {
+            System.out.println(es.getKey() + " " + es.getValue());
+        });
+        System.out.println(map.size());
 
     }
 }

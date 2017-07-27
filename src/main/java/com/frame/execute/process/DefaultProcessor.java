@@ -7,17 +7,8 @@ import com.frame.context.resource.Resource;
  */
 public class DefaultProcessor<T> extends Processor<T> {
     @Override
-    public T execute() {
+    public T exec() {
         return null;
-    }
-    @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
     }
 
     @Override

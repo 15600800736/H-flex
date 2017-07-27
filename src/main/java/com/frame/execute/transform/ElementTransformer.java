@@ -19,7 +19,7 @@ public class ElementTransformer extends Transformer<List<ConfigurationNode>> {
         this.elements = elements;
     }
     @Override
-    public List<ConfigurationNode> execute() {
+    public List<ConfigurationNode> exec() throws Exception{
         List<ConfigurationNode> nodes = new LinkedList<>();
         for(Element element : elements) {
             ConfigurationNode node = new ConfigurationNode(element);
@@ -28,16 +28,6 @@ public class ElementTransformer extends Transformer<List<ConfigurationNode>> {
             }
         }
         return nodes;
-    }
-
-    @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
     }
 
     @Override

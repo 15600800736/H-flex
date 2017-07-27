@@ -15,22 +15,12 @@ public class ActionGroupScanner extends Scanner {
     }
 
     @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
+    public Object exec() throws Exception {
+        return true;
     }
 
     @Override
     public Resource[] getResources() {
         return new Resource[0];
-    }
-
-    @Override
-    public Boolean execute() throws Exception {
-        return true;
     }
 }

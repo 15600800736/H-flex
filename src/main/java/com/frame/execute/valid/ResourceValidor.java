@@ -14,25 +14,16 @@ public class ResourceValidor extends Validor {
         super(validable);
     }
     @Override
-    public Boolean execute() {
+    public Boolean exec() {
         Pattern pattern = Pattern.compile("^([A-Z]:\\\\)?[^\\\\/:*?\"<>|]+?(\\\\[^\\\\/:*?\"<>|]+?)*\\.xml");
         Matcher matcher = pattern.matcher(validable);
         return matcher.matches();
 
     }
 
-    @Override
-    public void prepareForExecute() {
-
-    }
 
     @Override
     public Resource[] getResources() {
         return new Resource[0];
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
     }
 }

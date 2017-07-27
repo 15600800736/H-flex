@@ -7,19 +7,10 @@ import com.frame.context.resource.Resource;
  */
 public class EndExecutor implements Executor<Object> {
     @Override
-    public Object execute() throws Exception {
+    public Object exec() throws Exception {
         return null;
     }
 
-    @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
-    }
 
     @Override
     public Resource[] getResources() {

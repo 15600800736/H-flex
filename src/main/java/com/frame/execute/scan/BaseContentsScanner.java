@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.annotations.Action;
 import com.frame.annotations.ActionClass;
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -30,6 +32,41 @@ import java.util.concurrent.*;
 @ActionClass(className = "c")
 public class BaseContentsScanner
         extends Scanner {
+
+
+    /**
+     *
+     */
+    class ActionRegisterScanner extends Scanner {
+        /**
+         *
+         */
+        private Class<?> actionClasses;
+        protected ActionRegisterScanner(Configuration configuration, Class<?> actionClasses) {
+            super(configuration);
+            this.actionClasses = actionClasses;
+        }
+
+        @Override
+        public Object exec() throws Exception {
+            if(actionClasses == null) {
+                throw new ScanException(null,"actionClasses is null");
+            }
+            // get all methods
+            Method[] methods = actionClasses.getDeclaredMethods();
+            for (Method method : methods) {
+                if(method.isAnnotationPresent(Action.class)) {
+
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public Resource[] getResources() {
+            return new Resource[0];
+        }
+    }
     private final Integer CLASS_SUFFIX_LENGTH = 6;
 
     /**
@@ -107,12 +144,13 @@ public class BaseContentsScanner
                     return;
                 }
                 try {
-//              get the class's full name
+                        // get the class's full name
                     String classFullName = classesQueue.take();
                     Class<?> actionClass = loader.loadClass(classFullName);
                     if (actionClass.isAnnotationPresent(ActionClass.class)) {
                         ActionClass annotation = actionClass.getAnnotation(ActionClass.class);
                         configuration.appendClass(annotation.className(), classFullName);
+
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -126,7 +164,7 @@ public class BaseContentsScanner
     }
 
     @Override
-    public Boolean execute() throws Exception {
+    public Object exec() throws Exception {
         Node root = configuration.getRoot();
         if (root == null && configuration.isAnnotationScan() == null) {
             throw new ScanException(null, "无法获取<annotation-scan/>状态");
@@ -214,18 +252,8 @@ public class BaseContentsScanner
     }
 
     @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
     public Resource[] getResources() {
         return new Resource[0];
     }
 
-    @Override
-    public void postProcessForExceute() {
-
-    }
 }
-

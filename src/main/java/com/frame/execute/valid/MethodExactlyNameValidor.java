@@ -13,22 +13,13 @@ public class MethodExactlyNameValidor extends Validor {
     public MethodExactlyNameValidor(String validable) {
         super(validable);
     }
+
     @Override
-    public Boolean execute() {
+    public Boolean exec() {
         validable = validable.trim();
         Pattern methodCompleteNamePattern = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9_]*(\\.[A-Za-z0-9_]*)+$");
         Matcher matcher = methodCompleteNamePattern.matcher(validable);
         return matcher.matches();
-    }
-
-    @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
     }
 
     @Override

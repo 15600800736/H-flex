@@ -15,22 +15,13 @@ public class PackageValidor extends Validor {
     }
 
     @Override
-    public Boolean execute() {
+    public Boolean exec() {
         Pattern pattern = Pattern.compile("^[a-zA-z_][a-zA-Z0-9_]*(\\.[a-zA-z_][a-zA-Z0-9_]*)*");
         Matcher matcher = pattern.matcher(validable);
         return matcher.matches();
     }
 
 
-    @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
-    }
 
     @Override
     public Resource[] getResources() {

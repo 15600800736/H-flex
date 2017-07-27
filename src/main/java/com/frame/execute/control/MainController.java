@@ -7,8 +7,10 @@ package com.frame.execute.control;
 
 import com.frame.context.Task;
 import com.frame.context.resource.Resource;
+import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.BaseContentsScanner;
+import com.frame.execute.scan.RegisterScanner;
 import com.frame.execute.scan.Scanner;
 import com.frame.info.Configuration;
 import com.frame.context.read.ConfigurationReader;
@@ -51,7 +53,7 @@ public class MainController extends Controller<Boolean> {
     /**
      * <p>Configuration is the main configure file of the frame</p>
      */
-    private Configuration configuration;
+    public Configuration configuration;
 
     /**
      * <p>Task queue contains all of the work should be done, every time the controller
@@ -67,6 +69,7 @@ public class MainController extends Controller<Boolean> {
      * task finished. If you want to know if the task has finished, call {@code Boolean isFinished = currentTask.isDone()}</p>
      */
     private ExecutorService singleService = Executors.newSingleThreadExecutor();
+
 
     @Override
     public void prepareForExecute() {
@@ -87,8 +90,8 @@ public class MainController extends Controller<Boolean> {
     }
 
     @Override
-    public void postProcessForExceute() {
-
+    public Boolean postProcessForExecute(Object result) {
+        return (Boolean) result;
     }
 
     /**
@@ -96,11 +99,13 @@ public class MainController extends Controller<Boolean> {
      * It will </p>
      */
     @Override
-    public Boolean execute() throws Exception {
+    public Boolean exec() throws Exception {
         // if the frame is ready for initialize
         Scanner scanner = null;
         if (reader != null) {
-            scanner = new BaseContentsScanner(configuration);
+            scanner = new RegisterScanner(configuration.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
+                    configuration.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS),
+                    configuration);
         }
         if (scanner != null) {
             try {

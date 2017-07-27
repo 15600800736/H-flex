@@ -15,20 +15,10 @@ public class MethodFuzzyNameValidor extends Validor {
         super(validable);
     }
     @Override
-    public Boolean execute() {
+    public Boolean exec() {
         Pattern methodFuzzyNamePattern = Pattern.compile("^[A-Za-z0-9*?][A-Za-z0-9_*?]*(\\.[A-Za-z0-9_*?]*)+$");
         Matcher matcher = methodFuzzyNamePattern.matcher(validable);
         return matcher.matches();
-    }
-
-    @Override
-    public void prepareForExecute() {
-
-    }
-
-    @Override
-    public void postProcessForExceute() {
-
     }
 
     @Override

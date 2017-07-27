@@ -1,5 +1,6 @@
 package com.frame.testbasic;
 
+import com.frame.annotations.ActionClass;
 import com.frame.context.Task;
 import com.frame.context.resource.Resource;
 import com.frame.execute.EndExecutor;
@@ -10,12 +11,13 @@ import org.junit.Test;
  * Created by fdh on 2017/7/27.
  */
 
+@ActionClass
 public class TestTask {
     @Test
     public void test() {
         Executor<Object> a = new Executor<Object>() {
             @Override
-            public Object execute() throws Exception {
+            public Object exec() throws Exception {
                 int result = 0;
                 for (int i = 0; i < 10000; i++) {
                     result += i;
@@ -24,15 +26,6 @@ public class TestTask {
                 return result;
             }
 
-            @Override
-            public void prepareForExecute() {
-
-            }
-
-            @Override
-            public void postProcessForExceute() {
-
-            }
 
             @Override
             public Resource[] getResources() {
@@ -42,22 +35,13 @@ public class TestTask {
 
         Executor<Object> b = new Executor<Object>() {
             @Override
-            public Object execute() throws Exception {
+            public Object exec() throws Exception {
                 for (int i = 0; i < 100; i++) {
                     System.out.println("lalalalala");
                 }
                 return null;
             }
 
-            @Override
-            public void prepareForExecute() {
-
-            }
-
-            @Override
-            public void postProcessForExceute() {
-
-            }
 
             @Override
             public Resource[] getResources() {
