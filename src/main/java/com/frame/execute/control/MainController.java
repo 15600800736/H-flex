@@ -9,7 +9,6 @@ import com.frame.context.Task;
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
-import com.frame.execute.scan.BaseContentsScanner;
 import com.frame.execute.scan.RegisterScanner;
 import com.frame.execute.scan.Scanner;
 import com.frame.info.Configuration;
@@ -74,7 +73,7 @@ public class MainController extends Controller<Boolean> {
     @Override
     public void prepareForExecute() {
 
-        reader = createConfigurationReader("G:\\test.xml");
+        reader = createConfigurationReader("F:\\SourceTreeGit\\H-flex\\src\\main\\resources\\test.xml");
         configuration = reader.createConfiguration();
         registerExecutor();
         step();

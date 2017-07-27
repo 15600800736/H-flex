@@ -30,7 +30,10 @@
             <action-class name="action" path="com.frame.info.ActionInfoHolder">
                 <action alias="e,f" name="test3" id="3"/>
                 <action alias="g" name="test4" id="4"/>
-                <action alias="h,i,j" name="test5" id="5"/>
+                <action alias="h,i,j" name="test5" id="5" overload="true"/>
+                <action alias="k,l,m,n" name="test5" id="6" overload="true">
+                    <param>java.lang.String</param>
+                </action>
             </action-class>
             <action-class path="com.frame.info.ActionInfo">
                 <all/>

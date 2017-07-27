@@ -4,6 +4,7 @@ import com.frame.annotations.Action;
 import com.frame.annotations.ActionClass;
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
+import com.frame.enums.TrueOrFalse;
 import com.frame.exceptions.ScanException;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +58,10 @@ public class BaseContentsScanner
             Method[] methods = actionClasses.getDeclaredMethods();
             for (Method method : methods) {
                 if(method.isAnnotationPresent(Action.class)) {
-
+                    Action actionAnnotation = method.getAnnotation(Action.class);
+                    String alias = actionAnnotation.alias();
+                    String[] aliases = alias.split(",");
+                    TrueOrFalse overload = actionAnnotation.overload();
                 }
             }
             return true;

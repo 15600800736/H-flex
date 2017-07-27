@@ -83,7 +83,7 @@ public class ActionClassesScanner extends Scanner {
                 configuration.appendActionClass(id, classPath);
                 String[] aliases = alias.split(",");
                 for (String a : aliases) {
-                    configuration.appendAlias(alias, id);
+                    configuration.appendAlias(a, id);
                 }
             });
             return true;
