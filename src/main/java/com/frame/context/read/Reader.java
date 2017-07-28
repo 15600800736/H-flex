@@ -1,7 +1,7 @@
 package com.frame.context.read;
 
 import com.frame.context.resource.Resource;
-import com.frame.info.Node;
+import com.frame.context.info.Node;
 
 /**
  * Created by fdh on 2017/7/25.

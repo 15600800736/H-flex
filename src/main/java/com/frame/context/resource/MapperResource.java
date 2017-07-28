@@ -1,10 +1,8 @@
 package com.frame.context.resource;
 
-import com.frame.enums.exceptions.ExtractorExceptionType;
 import com.frame.exceptions.CastException;
-import com.frame.exceptions.ExtractorException;
 import com.frame.execute.extract.Extractor;
-import com.frame.info.Information;
+import com.frame.context.info.Information;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +39,9 @@ public abstract class MapperResource implements Resource {
     /**
      * the method is used for init specific sub-resource order
      */
-    protected abstract void initResourceOrder();
+    protected void initResourceOrder() {
+
+    }
 
     /**
      * the method is used for init what information is required
@@ -131,4 +131,6 @@ public abstract class MapperResource implements Resource {
     public Resource[] transformResourcesToSpecificOrder(Resource... resources) {
         return resources;
     }
+
+
 }

@@ -1,7 +1,7 @@
 package com.frame.execute.transform;
 
 import com.frame.context.resource.Resource;
-import com.frame.info.ConfigurationNode;
+import com.frame.context.info.StringInfomation.ConfigurationNode;
 
 import org.dom4j.Element;
 
@@ -28,10 +28,5 @@ public class ElementTransformer extends Transformer<List<ConfigurationNode>> {
             }
         }
         return nodes;
-    }
-
-    @Override
-    public Resource[] getResources() {
-        return new Resource[0];
     }
 }

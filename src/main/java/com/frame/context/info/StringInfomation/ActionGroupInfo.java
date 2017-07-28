@@ -1,4 +1,4 @@
-package com.frame.info;
+package com.frame.context.info.StringInfomation;
 
 import com.frame.context.resource.MapperResource;
 import com.frame.context.resource.Resource;

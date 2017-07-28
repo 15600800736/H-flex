@@ -6,9 +6,9 @@ import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.control.Controller;
 import com.frame.execute.control.MainController;
-import com.frame.info.ActionInfo;
-import com.frame.info.Configuration;
-import com.frame.info.ConfigurationNode;
+import com.frame.context.info.StringInfomation.ActionInfo;
+import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.StringInfomation.ConfigurationNode;
 
 import java.util.Map;
 
@@ -67,11 +67,6 @@ public class RegisterScanner extends Scanner {
 
         configuration.setIsRegisterd(true);
         return configuration;
-    }
-
-    @Override
-    public Resource[] getResources() {
-        return new Resource[0];
     }
 
 

@@ -56,5 +56,7 @@ public interface Executor<T> extends Callable<T> {
      * Get the resources that the executor holds.
      * @return
      */
-    Resource[] getResources();
+    default Resource[] getResources() {
+        return null;
+    }
 }

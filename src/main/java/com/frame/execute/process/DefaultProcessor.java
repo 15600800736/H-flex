@@ -10,9 +10,4 @@ public class DefaultProcessor<T> extends Processor<T> {
     public T exec() {
         return null;
     }
-
-    @Override
-    public Resource[] getResources() {
-        return null;
-    }
 }

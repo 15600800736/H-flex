@@ -1,5 +1,6 @@
 package com.frame.context;
 
+import com.frame.context.resource.Resource;
 import com.frame.execute.EndExecutor;
 import com.frame.execute.Executor;
 
@@ -26,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * You needn't worry about {@code isClosed() == false && isDone() == true} , that won't happen</p>
  *
  */
-public class Task {
+public class Task implements Executor<Object> {
     /**
      * <p>The capacity of blocking queue,when it is full, the thread that tries to put executors in it will be hang up. </p>
      */
@@ -68,16 +69,22 @@ public class Task {
     /**
      * @return
      */
-    public void execute() {
+    @Override
+    public Object exec() {
         try {
             for (; ; ) {
                 Executor<?> executor = executors.take();
                 if (executor instanceof EndExecutor) {
                     while(compareAndSetIsDone(false,true) && compareAndSetIsClosed(false,true));
-                    return;
+                    return ((EndExecutor)executor).getResult();
                 }
                 Future<?> future = pool.submit(executor);
-                future.get();
+                Object result = future.get();
+                // set the result
+                Executor<?> next = executors.peek();
+                if(next != null || next instanceof EndExecutor) {
+                    ((EndExecutor)next).setResult(result);
+                }
             }
         } catch (InterruptedException | ExecutionException e) {
             while(compareAndSetIsDone(true,false) && compareAndSetIsClosed(false, true));
@@ -86,7 +93,9 @@ public class Task {
         } finally {
             pool.shutdown();
         }
+        return null;
     }
+
 
     /**
      * <p>Dynamically append a executor in an task, if the queue is full, the thread will be hang up.</p>

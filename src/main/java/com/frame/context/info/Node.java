@@ -1,4 +1,6 @@
-package com.frame.info;
+package com.frame.context.info;
+
+import com.frame.context.info.StringInfomation.ConfigurationNode;
 
 import java.util.List;
 import java.util.Map;

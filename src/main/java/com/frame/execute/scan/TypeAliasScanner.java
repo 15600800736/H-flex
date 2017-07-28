@@ -2,8 +2,8 @@ package com.frame.execute.scan;
 
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
-import com.frame.info.Configuration;
-import com.frame.info.Node;
+import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.Node;
 
 /**
  * Created by fdh on 2017/7/26.
@@ -22,10 +22,5 @@ public class TypeAliasScanner extends Scanner {
 
         }
         return true;
-    }
-
-    @Override
-    public Resource[] getResources() {
-        return new Resource[0];
     }
 }

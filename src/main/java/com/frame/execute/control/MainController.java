@@ -11,7 +11,7 @@ import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.RegisterScanner;
 import com.frame.execute.scan.Scanner;
-import com.frame.info.Configuration;
+import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.read.ConfigurationReader;
 
 import java.util.concurrent.BlockingQueue;

@@ -1,4 +1,4 @@
-package com.frame.info;
+package com.frame.context.info.StringInfomation;
 
 
 /**
@@ -6,7 +6,6 @@ package com.frame.info;
  */
 
 import com.frame.context.resource.MapperResource;
-import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.frame.execute.scan;
 
 import com.frame.execute.Executor;
-import com.frame.info.Configuration;
+import com.frame.context.info.StringInfomation.Configuration;
 
 /*
   Created by fdh on 2017/6/17.

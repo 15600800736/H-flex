@@ -7,10 +7,10 @@ import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.valid.MethodExactlyNameValidor;
 import com.frame.execute.valid.Validor;
-import com.frame.info.ActionInfo;
-import com.frame.info.Configuration;
-import com.frame.info.ConfigurationNode;
-import com.frame.info.Node;
+import com.frame.context.info.StringInfomation.ActionInfo;
+import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.StringInfomation.ConfigurationNode;
+import com.frame.context.info.Node;
 import com.frame.util.ExceptionUtil;
 
 import java.util.*;
@@ -161,12 +161,6 @@ public class ActionClassesScanner extends Scanner {
             }
         });
     }
-
-    @Override
-    public Resource[] getResources() {
-        return new Resource[0];
-    }
-
     private void appendClasses(Map<String, String> classMapper, Configuration configuration) {
         classMapper.entrySet().forEach(es->{
             configuration.appendClass(es.getKey(), es.getValue());

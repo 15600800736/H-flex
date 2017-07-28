@@ -3,7 +3,7 @@
             xsi:schemaLocation="http://www.haug.org/frame frame-haug.xsd ">
     <action-groups>
         <action-classes>
-            <action-class name="TestMethod" path="com.frame.info.ActionInfoHolder">
+            <action-class name="TestMethod" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
                 <action alias="findBookIdByName" name="bookId"/>
                 <action alias="insertBook" name="insertBook">
                     <processor path="com.frame.execute.process.DefaultProcessor" type="pre-processor"/>
@@ -27,7 +27,7 @@
                 </action>
                 <action alias="c,d" name="test2" id="2"/>
             </action-class>
-            <action-class name="action" path="com.frame.info.ActionInfoHolder">
+            <action-class name="action" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
                 <action alias="e,f" name="test3" id="3"/>
                 <action alias="g" name="test4" id="4"/>
                 <action alias="h,i,j" name="test5" id="5" overload="true"/>
@@ -35,7 +35,7 @@
                     <param>java.lang.String</param>
                 </action>
             </action-class>
-            <action-class path="com.frame.info.ActionInfo">
+            <action-class path="com.frame.context.info.StringInfomation.ActionInfo">
                 <all/>
             </action-class>
         </action-classes>

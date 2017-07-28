@@ -1,7 +1,8 @@
-package com.frame.info;
+package com.frame.context.info.StringInfomation;
 
 import com.frame.execute.transform.ElementTransformer;
 import com.frame.execute.transform.Transformer;
+import com.frame.context.info.Node;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 
@@ -18,11 +19,17 @@ public class ConfigurationNode extends Node {
 
     private Element element;
 
-    // 是否是根节点
+    /**
+     * <p>Whether it is the root node</p>
+     */
     private AtomicBoolean root;
-    // 是否有子节点
+    /**
+     * <p>If the node have any child node</p>
+     */
     private AtomicBoolean hasChild;
-    // 是否有属性
+    /**
+     * <p>If the node have any attribute</p>
+     */
     private AtomicBoolean hasAttribute;
 
     public ConfigurationNode(Element element) {

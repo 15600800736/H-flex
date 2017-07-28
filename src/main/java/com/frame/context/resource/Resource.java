@@ -1,7 +1,6 @@
 package com.frame.context.resource;
 
-import com.frame.exceptions.CastException;
-import com.frame.info.Information;
+import com.frame.context.info.Information;
 
 /**
  * Created by fdh on 2017/7/17.

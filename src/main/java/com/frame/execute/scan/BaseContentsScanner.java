@@ -6,18 +6,16 @@ import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.enums.TrueOrFalse;
 import com.frame.exceptions.ScanException;
-import com.frame.info.ActionInfo;
-import com.frame.info.Configuration;
-import com.frame.info.ConfigurationNode;
-import com.frame.info.Node;
+import com.frame.context.info.StringInfomation.ActionInfo;
+import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.StringInfomation.ConfigurationNode;
+import com.frame.context.info.Node;
 import com.frame.thread.ScanThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -286,10 +284,5 @@ public class BaseContentsScanner
                 }
             }
         }
-    }
-
-    @Override
-    public Resource[] getResources() {
-        return new Resource[0];
     }
 }

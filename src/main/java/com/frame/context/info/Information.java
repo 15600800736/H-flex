@@ -1,4 +1,4 @@
-package com.frame.info;
+package com.frame.context.info;
 
 /**
  * Created by fdh on 2017/7/22.
