@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -36,32 +38,20 @@ public class Configuration extends MapperResource {
     /**
      * <p>the class of action mapper: name -> path</p>
      */
-    private Map<String, String> classesPathMapper = new HashMap<>(64);
+    private ConcurrentMap<String, String> classesPathMapper = new ConcurrentHashMap<>(64);
     /**
      * <p>the action's name mapper: id -> name</p>
      */
-    private Map<String, String> actions = new HashMap<>(256);
-    /**
-     * <p>the name of action's class mapper: id -> classname</p>
-     */
-    private Map<String, String> actionClassMapper = new HashMap<>(256);
-    /**
-     * <p>the action's alias mapper: alias -> id</p>
-     */
-    private Map<String, String> aliasMapper = new HashMap<>(512);
+    private ConcurrentMap<String, ActionInfo> actions = new ConcurrentHashMap<>(256);
     /**
      * <p>Map type to its alias: alias -> type</p>
      */
-    private Map<String, String> typeAliasMapper = new HashMap<>(64);
+    private ConcurrentMap<String, String> typeAliasMapper = new ConcurrentHashMap<>(64);
     /**
      * <p>the count of the direct child node (<action-groups/><action-register/>)</p>
      */
     private Integer countOfResourcesType = 2;
 
-    /**
-     * <p>Record the actions parameters' type, the type is separated by ",". The type may be found in typeAliasMapper</p>
-     */
-    private Map<String, String> paramsMapper = new HashMap<>(256);
 
     /**
      * <p>Has the configuration been well-registered, means if all the actions info has been injected</p>
@@ -86,13 +76,6 @@ public class Configuration extends MapperResource {
 
     }
 
-    // setter lock
-    private Lock appendClassesMapLock = new ReentrantLock();
-    private Lock appendActionsMapLock = new ReentrantLock();
-    private Lock appendActionClassMapLock = new ReentrantLock();
-    private Lock appendAliasMapLock = new ReentrantLock();
-    private Lock appendTypeAliasMapLock = new ReentrantLock();
-
     public void setRoot(Node root) {
         this.root = root;
     }
@@ -112,64 +95,14 @@ public class Configuration extends MapperResource {
         return annotationScan.get();
     }
 
-    public void appendClass(Map<String, String> classesPath) {
-        appendClassesMapLock.lock();
-        this.classesPathMapper.putAll(classesPath);
-        appendClassesMapLock.unlock();
+    public String appendClass(String name, String path) {
+        return this.classesPathMapper.putIfAbsent(name, path);
     }
 
-    public void appendAction(Map<String, String> actions) {
-        appendActionsMapLock.lock();
-        this.actions.putAll(actions);
-        appendActionsMapLock.unlock();
+    public ActionInfo appendAction(String id, ActionInfo actionInfo) {
+        return this.actions.putIfAbsent(id, actionInfo );
     }
 
-    public void appendActionClass(Map<String, String> actionClassMapper) {
-        appendActionClassMapLock.lock();
-        this.actionClassMapper.putAll(actionClassMapper);
-        appendActionClassMapLock.unlock();
-    }
-
-    public void appendAlias(Map<String, String> aliasMapper) {
-        appendAliasMapLock.lock();
-        this.aliasMapper.putAll(aliasMapper);
-        appendAliasMapLock.unlock();
-    }
-    public void appendTypeAlias(Map<String, String> typeAliasMapper) {
-        appendTypeAliasMapLock.lock();
-        this.aliasMapper.putAll(typeAliasMapper);
-        appendTypeAliasMapLock.unlock();
-    }
-
-    public void appendClass(String name, String path) {
-        appendClassesMapLock.lock();
-        this.classesPathMapper.put(name, path);
-        appendClassesMapLock.unlock();
-    }
-
-    public void appendAction(String id, String name) {
-        appendActionsMapLock.lock();
-        this.actions.put(id, name);
-        appendActionsMapLock.unlock();
-    }
-
-    public void appendActionClass(String id, String classPath) {
-        appendActionClassMapLock.lock();
-        this.actionClassMapper.put(id, classPath);
-        appendActionClassMapLock.unlock();
-    }
-
-    public void appendAlias(String alias, String id) {
-        appendAliasMapLock.lock();
-        this.aliasMapper.put(alias, id);
-        appendAliasMapLock.unlock();
-    }
-
-    public void appendTypeAlias(String alias, String name) {
-        appendTypeAliasMapLock.lock();
-        this.aliasMapper.put(alias, name);
-        appendTypeAliasMapLock.unlock();
-    }
     @Override
     public <T extends Resource> Boolean split(T[] resources) {
         Boolean canSplit = resources != null && resources.length == 2 &&
@@ -207,30 +140,15 @@ public class Configuration extends MapperResource {
     }
     /**/
 
-    public Map<String, String> getActions() {
+    public ConcurrentMap<String, ActionInfo> getActions() {
         return actions;
     }
 
-    public void setActions(Map<String, String> actions) {
-        this.actions = actions;
+    public ConcurrentMap<String, String> getClassesPathMapper() {
+        return classesPathMapper;
     }
 
-    public Map<String, String> getActionClassMapper() {
-        return actionClassMapper;
-    }
-
-    public void setActionClassMapper(Map<String, String> actionClassMapper) {
-        this.actionClassMapper = actionClassMapper;
-    }
-
-    public Map<String, String> getAliasMapper() {
-        return aliasMapper;
-    }
-
-    public void setAliasMapper(Map<String, String> aliasMapper) {
-        this.aliasMapper = aliasMapper;
-    }
-/**/
+    /**/
 
     public Boolean isRegisterd() {
         return registered.get();

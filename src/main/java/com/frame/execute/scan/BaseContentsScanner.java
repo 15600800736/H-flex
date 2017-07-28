@@ -6,6 +6,7 @@ import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.enums.TrueOrFalse;
 import com.frame.exceptions.ScanException;
+import com.frame.info.ActionInfo;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 import com.frame.info.Node;
@@ -16,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -43,33 +46,55 @@ public class BaseContentsScanner
         /**
          *
          */
-        private Class<?> actionClasses;
-        protected ActionRegisterScanner(Configuration configuration, Class<?> actionClasses) {
+        private Class<?> actionClass;
+        protected ActionRegisterScanner(Configuration configuration, Class<?> actionClass) {
             super(configuration);
-            this.actionClasses = actionClasses;
+            this.actionClass = actionClass;
         }
 
         @Override
         public Object exec() throws Exception {
-            if(actionClasses == null) {
+            if(actionClass == null) {
                 throw new ScanException(null,"actionClasses is null");
             }
             // get all methods
-            Method[] methods = actionClasses.getDeclaredMethods();
+            Method[] methods = actionClass.getDeclaredMethods();
             for (Method method : methods) {
                 if(method.isAnnotationPresent(Action.class)) {
                     Action actionAnnotation = method.getAnnotation(Action.class);
-                    String alias = actionAnnotation.alias();
-                    String[] aliases = alias.split(",");
+                    String id = actionAnnotation.id();
                     TrueOrFalse overload = actionAnnotation.overload();
+
+                    ActionInfo newAction = ActionInfo.createActionInfo(id)
+                            .setName(method.getName())
+                            .setAlias(getAlias(actionAnnotation))
+                            .setParam(getParamType(method.getParameterTypes()))
+                            .setActionClass(actionClass.getName())
+                            .setOverload(overload.getBool());
+                    configuration.appendAction(id, newAction);
                 }
             }
             return true;
         }
-
         @Override
         public Resource[] getResources() {
             return new Resource[0];
+        }
+
+        private List<String> getAlias(Action actionAnnotation) {
+            String alias = actionAnnotation.alias();
+            String[] aliases = alias.split(",");
+            return Arrays.asList(aliases);
+        }
+        private List<String> getParamType(Class<?>[] paramType) {
+            if(paramType == null) {
+                return null;
+            }
+            List<String> result = new LinkedList<>();
+            for (Class<?> pt : paramType) {
+                result.add(pt.getName());
+            }
+            return result;
         }
     }
     private final Integer CLASS_SUFFIX_LENGTH = 6;
@@ -154,8 +179,13 @@ public class BaseContentsScanner
                     Class<?> actionClass = loader.loadClass(classFullName);
                     if (actionClass.isAnnotationPresent(ActionClass.class)) {
                         ActionClass annotation = actionClass.getAnnotation(ActionClass.class);
-                        configuration.appendClass(annotation.className(), classFullName);
-
+                        String className = annotation.className();
+                        if(className == null) {
+                            className = classFullName;
+                        }
+                        configuration.appendClass(className, classFullName);
+                        Scanner actionRegisterScanner = new ActionRegisterScanner(configuration, actionClass);
+                        actionRegisterScanner.execute();
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -163,6 +193,8 @@ public class BaseContentsScanner
                     if (logger.isErrorEnabled()) {
                         logger.error("scanning has been cancelled.");
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -260,5 +292,4 @@ public class BaseContentsScanner
     public Resource[] getResources() {
         return new Resource[0];
     }
-
 }

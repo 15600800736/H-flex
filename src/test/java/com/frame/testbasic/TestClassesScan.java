@@ -27,10 +27,7 @@ public class TestClassesScan {
         }
         Configuration configuration = ((MainController)controller).configuration;
 //        Assert.assertTrue(configuration.isRegisterd());
-        Map<String, String> map = configuration.getActions();
-        map.entrySet().forEach( es -> {
-            System.out.println(es.getKey() + " " + es.getValue());
-        });
-        System.out.println(map.size());
+        Map<String, String> map = configuration.getClassesPathMapper();
+        map.entrySet().forEach( es -> System.out.println(es.getKey() + " " + es.getValue()));
     }
 }

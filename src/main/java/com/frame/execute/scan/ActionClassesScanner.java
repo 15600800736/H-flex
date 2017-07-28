@@ -1,19 +1,19 @@
 package com.frame.execute.scan;
 
+import com.frame.annotations.Action;
 import com.frame.annotations.ActionClass;
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.valid.MethodExactlyNameValidor;
 import com.frame.execute.valid.Validor;
+import com.frame.info.ActionInfo;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 import com.frame.info.Node;
 import com.frame.util.ExceptionUtil;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by fdh on 2017/7/15.
@@ -40,6 +40,7 @@ public class ActionClassesScanner extends Scanner {
             super(configuration);
         }
 
+        @Action(id = "aaaaa", alias = "lalala")
         public void setActionClass(ConfigurationNode actionClass) {
             this.actionClass = actionClass;
         }
@@ -56,18 +57,19 @@ public class ActionClassesScanner extends Scanner {
                 }
                 String name = null;
                 String id = null;
-                String alias = null;
                 if (al.hasAttribute(ConfigurationStringPool.ID_ATTRIBUTE)) {
                     id = al.getAttributeText(ConfigurationStringPool.ID_ATTRIBUTE);
                 }
                 if (al.hasAttribute(ConfigurationStringPool.NAME_ATTRIBUTE)) {
                     name = al.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
                 }
-                if (al.hasAttribute(ConfigurationStringPool.ALIAS_ATTRIBUTE)) {
-                    alias = al.getAttributeText(ConfigurationStringPool.ALIAS_ATTRIBUTE);
+                if(!actionClass.hasAttribute(ConfigurationStringPool.PATH_ATTRIBUTE)) {
+                    ExceptionUtil.doThrow(new ScanException("<action-class path='com.path.A'", "<action-class>缺少path属性"));
                 }
+
                 String classPath = actionClass.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
                 String methodPath = classPath + "." + name;
+
                 Validor validor = new MethodExactlyNameValidor(methodPath);
                 try {
                     if (!validor.execute()) {
@@ -79,12 +81,13 @@ public class ActionClassesScanner extends Scanner {
                 if (id == null) {
                     id = methodPath;
                 }
-                configuration.appendAction(id, name);
-                configuration.appendActionClass(id, classPath);
-                String[] aliases = alias.split(",");
-                for (String a : aliases) {
-                    configuration.appendAlias(a, id);
-                }
+                // create a new action
+                ActionInfo newAction = ActionInfo.createActionInfo(id)
+                    .setName(name)
+                    .setActionClass(classPath)
+                    .setAlias(getAliases(al))
+                    .setParam(getParamType(al));
+                configuration.appendAction(id, newAction);
             });
             return true;
         }
@@ -93,7 +96,26 @@ public class ActionClassesScanner extends Scanner {
         public Resource[] getResources() {
             return new Resource[0];
         }
+
+        private List<String> getParamType(ConfigurationNode action) {
+            List<String> paramList = new LinkedList<>();
+            List<ConfigurationNode> param = action.getChildren(ConfigurationStringPool.PARAM);
+            param.forEach(p -> {
+                paramList.add(p.getText());
+            });
+            return paramList;
+        }
+
+        private List<String> getAliases(ConfigurationNode action) {
+            if (!action.hasAttribute(ConfigurationStringPool.ALIAS_ATTRIBUTE)) {
+                return null;
+            }
+            String alias = action.getAttributeText(ConfigurationStringPool.ALIAS_ATTRIBUTE);
+            String[] aliases = alias.split(",");
+            return Arrays.asList(aliases);
+        }
     }
+
 
 
     public ActionClassesScanner(Configuration configuration) {
@@ -116,10 +138,11 @@ public class ActionClassesScanner extends Scanner {
         Map<String, String> classMapper = new HashMap<>(64);
         ActionRegisterScanner scanner = new ActionRegisterScanner(configuration);
         registerAction(actionClassList, classMapper, scanner, configuration);
-        configuration.appendClass(classMapper);
+        appendClasses(classMapper, configuration);
         return true;
     }
 
+    @Action(id = "bbbb", alias = "woaini")
     private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, Scanner actionScanner, Configuration configuration) {
         actionClassList.forEach(n -> {
             String className = n.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
@@ -142,5 +165,11 @@ public class ActionClassesScanner extends Scanner {
     @Override
     public Resource[] getResources() {
         return new Resource[0];
+    }
+
+    private void appendClasses(Map<String, String> classMapper, Configuration configuration) {
+        classMapper.entrySet().forEach(es->{
+            configuration.appendClass(es.getKey(), es.getValue());
+        });
     }
 }

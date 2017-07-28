@@ -10,9 +10,7 @@ import com.frame.execute.process.DefaultProcessor;
  */
 @ActionGroup
 public class TestMethod  {
-    @Action(alias = "findBookIdByName", processors = DefaultProcessor.class)
     private Integer bookId;
-    @Action(alias = "insertBook",processors = DefaultProcessor.class)
     private Integer insertNumber;
 
     public Integer getBookId(Object...args) {
@@ -28,11 +26,8 @@ public class TestMethod  {
 
 @ActionGroup(prefix = "findBookId")
 class Test {
-    @Action(alias = "byName")
-    @Action(alias = "byISBN")
     private Integer bookId;
 
-    @Action(alias="getBookId")
     public Integer getBookId(Object...args) {
         return bookId;
     }
@@ -42,7 +37,6 @@ class Test {
 
 @ActionClass
 class AA {
-    @Action(alias = "findBookIdByName")
     public Integer findBookIdByName(String name) {
         return null;
     }

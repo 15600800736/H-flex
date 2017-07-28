@@ -8,7 +8,7 @@ import com.sun.xml.internal.ws.api.model.CheckedException;
 public class ExceptionUtil {
 
     public static void doThrow(Exception e) {
-        ExceptionUtil.<RuntimeException>doThrowWith(e);
+        ExceptionUtil.doThrowWith(e);
     }
     private static <E extends Exception> void doThrowWith(Exception e) throws E {
         throw (E)e;

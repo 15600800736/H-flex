@@ -1,5 +1,5 @@
 
-package com.frame.execute.parse.parser;
+package com.frame.execute.parse;
 
 import com.frame.exceptions.ScanException;
 import com.frame.execute.Executor;

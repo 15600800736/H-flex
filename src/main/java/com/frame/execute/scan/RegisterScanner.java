@@ -6,6 +6,7 @@ import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.control.Controller;
 import com.frame.execute.control.MainController;
+import com.frame.info.ActionInfo;
 import com.frame.info.Configuration;
 import com.frame.info.ConfigurationNode;
 
@@ -82,12 +83,9 @@ public class RegisterScanner extends Scanner {
             e.printStackTrace();
         }
         Configuration configuration = ((MainController)controller).configuration;
-
-        Map<String, String> map = configuration.getActions();
-        map.entrySet().forEach( es -> {
-            System.out.println(es.getKey() + " " + es.getValue());
-        });
-        System.out.println(map.size());
+//        Assert.assertTrue(configuration.isRegisterd());
+        Map<String, ActionInfo> map = configuration.getActions();
+        map.entrySet().forEach( es -> System.out.println(es.getKey() + " " + es.getValue()));
 
     }
 }

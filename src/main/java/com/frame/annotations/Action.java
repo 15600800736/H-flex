@@ -10,9 +10,9 @@ import java.lang.annotation.*;
 @Retention(value = RetentionPolicy.RUNTIME)
 @Repeatable(value = Actions.class)
 public @interface Action {
+    String id();
     String alias() default "";
     TrueOrFalse overload() default TrueOrFalse.FALSE;
-    Class<? extends Processor>[] processors() default {};
 }
 
 

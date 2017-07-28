@@ -11,4 +11,12 @@ public enum TrueOrFalse {
     TrueOrFalse(Boolean bool) {
         this.bool = bool;
     }
+
+    public Boolean getBool() {
+        return bool;
+    }
+
+    public void setBool(Boolean bool) {
+        this.bool = bool;
+    }
 }
