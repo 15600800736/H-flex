@@ -72,10 +72,6 @@ public class BaseContentsScanner extends Scanner {
             }
             return true;
         }
-        @Override
-        public Resource[] getResources() {
-            return new Resource[0];
-        }
 
         private List<String> getAlias(Action actionAnnotation) {
             String alias = actionAnnotation.alias();

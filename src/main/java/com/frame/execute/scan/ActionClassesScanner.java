@@ -83,10 +83,6 @@ public class ActionClassesScanner extends Scanner {
             return true;
         }
 
-        @Override
-        public Resource[] getResources() {
-            return new Resource[0];
-        }
 
         private List<String> getParamType(ConfigurationNode action) {
             List<String> paramList = new LinkedList<>();

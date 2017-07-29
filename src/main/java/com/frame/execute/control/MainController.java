@@ -5,8 +5,7 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
-import com.frame.execute.Task;
-import com.frame.context.resource.Resource;
+import com.frame.execute.structure.AppendableTask;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.RegisterScanner;
@@ -22,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>The main controller takes charge of all processes and states.
- * There is a {@link Task} queue in the controller, and the main controller will loop check
+ * There is a {@link AppendableTask} queue in the controller, and the main controller will loop check
  * if the current task is finished and the field {@code state}, if false, the controller will yield to let other threads
  * work, otherwise, it will call {@code step()} to get next task to execute until the state equals finished</p>
  */
@@ -33,9 +32,9 @@ public class MainController extends Controller<Object,Boolean> {
     private volatile ConfigurationReader reader;
 
     /**
-     * <p>currentTask represents the currentTask in the taskQueue</p>
+     * <p>currentAppendableTask represents the currentAppendableTask in the appendableTaskQueue</p>
      */
-    private volatile Task currentTask;
+    private volatile AppendableTask currentAppendableTask;
 
     /**
      * <p>state represents what progress the controller has made.
@@ -55,17 +54,17 @@ public class MainController extends Controller<Object,Boolean> {
     public Configuration configuration;
 
     /**
-     * <p>Task queue contains all of the work should be done, every time the controller
+     * <p>AppendableTask queue contains all of the work should be done, every time the controller
      * will take the head task to execute util the state is finished. If there are no tasks,
      * The thread will wait until another task is put in. So every thing the frame want to do should put an
      * executor in it and let it do it.</p>
      */
-    private BlockingQueue<Task> taskQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<AppendableTask> appendableTaskQueue = new LinkedBlockingQueue<>();
 
     /**
      * <p>The singleService is used for start a new thread to execute task, the single guarantee the task will be
      * execute by its order in queue. Starting a new thread is for the main thread do other works instead of waiting the
-     * task finished. If you want to know if the task has finished, call {@code Boolean isFinished = currentTask.isDone()}</p>
+     * task finished. If you want to know if the task has finished, call {@code Boolean isFinished = currentAppendableTask.isDone()}</p>
      */
     private ExecutorService singleService = Executors.newSingleThreadExecutor();
 
@@ -81,11 +80,6 @@ public class MainController extends Controller<Object,Boolean> {
 
     private void initTaskQueue() {
 
-    }
-
-    @Override
-    public Resource[] getResources() {
-        return new Resource[0];
     }
 
     @Override

@@ -6,9 +6,8 @@ import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.Executor;
-import com.frame.execute.Task;
+import com.frame.execute.structure.AppendableTask;
 
-import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 
@@ -35,7 +34,6 @@ public class RegisterScanner extends Scanner {
         this.actionRegister = actionRegister;
         this.actionGroups = actionGroups;
     }
-
     public RegisterScanner(CyclicBarrier barrier, Configuration production, ConfigurationNode actionRegister, ConfigurationNode actionGroups) {
         super(barrier, production);
         this.actionRegister = actionRegister;
@@ -77,7 +75,7 @@ public class RegisterScanner extends Scanner {
 
 
     public static void main(String... strings) throws InterruptedException, ExecutionException {
-        Task task = new Task();
+        AppendableTask appendableTask = new AppendableTask();
         Thread t = new Thread(() -> {
             for(int i = 5; i < 10; i++) {
                 int temp = i;
@@ -91,48 +89,48 @@ public class RegisterScanner extends Scanner {
                         return result;
                     }
                 };
-                task.appendExecutor(executor);
+                appendableTask.appendExecutor(executor);
             }
             try {
-                task.execute();
+                appendableTask.execute();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         t.start();
-        System.out.println(task.isDone());
-        System.out.println(task.isClosed());
-//        Assert.assertFalse(task.isDone());
-//        Assert.assertFalse(task.isClosed());
+        System.out.println(appendableTask.isDone());
+        System.out.println(appendableTask.isClosed());
+//        Assert.assertFalse(appendableTask.isDone());
+//        Assert.assertFalse(appendableTask.isClosed());
         Thread.sleep(1000L);
-        System.out.println(task.isDone());
-        System.out.println(task.isClosed());
-//        Assert.assertTrue(task.isDone());
-//        Assert.assertFalse(task.isClosed());
+        System.out.println(appendableTask.isDone());
+        System.out.println(appendableTask.isClosed());
+//        Assert.assertTrue(appendableTask.isDone());
+//        Assert.assertFalse(appendableTask.isClosed());
 
-        Executor<Object,Object> newExe = new Executor<Object,Object>() {
-            @Override
-            protected Object exec() throws Exception {
-                Thread.sleep(10000);
-                return null;
-            }
-        };
-        task.appendExecutor(newExe);
-        System.out.println(task.isDone());
-        System.out.println(task.isClosed());
-//        Assert.assertFalse(task.isDone());
-//        Assert.assertFalse(task.isClosed());
-        task.close();
-        System.out.println(task.isDone());
-        System.out.println(task.isClosed());
-//        Assert.assertFalse(task.isDone());
-//        Assert.assertTrue(task.isClosed());
-        Thread.sleep(20000);
-        System.out.println(task.isDone());
-        System.out.println(task.isClosed());
-        List<Object> result = task.get();
-        result.forEach(System.out::println);
-//        Assert.assertTrue(task.isDone());
-//        Assert.assertTrue(task.isClosed());
+//        Executor<Object,Object> newExe = new Executor<Object,Object>() {
+//            @Override
+//            protected Object exec() throws Exception {
+//                Thread.sleep(10000);
+//                return null;
+//            }
+//        };
+//        appendableTask.appendExecutor(newExe);
+//        System.out.println(appendableTask.isDone());
+//        System.out.println(appendableTask.isClosed());
+////        Assert.assertFalse(appendableTask.isDone());
+////        Assert.assertFalse(appendableTask.isClosed());
+        appendableTask.close();
+//        System.out.println(appendableTask.isDone());
+//        System.out.println(appendableTask.isClosed());
+////        Assert.assertFalse(appendableTask.isDone());
+////        Assert.assertTrue(appendableTask.isClosed());
+//        Thread.sleep(20000);
+//        System.out.println(appendableTask.isDone());
+//        System.out.println(appendableTask.isClosed());
+//        List<Object> result = appendableTask.get();
+//        result.forEach(System.out::println);
+////        Assert.assertTrue(appendableTask.isDone());
+////        Assert.assertTrue(appendableTask.isClosed());
     }
 }
