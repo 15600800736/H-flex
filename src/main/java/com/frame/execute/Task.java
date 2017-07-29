@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * </ol>
  * You needn't worry about {@code isClosed() == false && isDone() == true} , that won't happen</p>
  */
-public class Task extends Executor<List<Object>> {
+public class Task<P> extends Executor<P,P> {
     /**
      * <p>The capacity of blocking queue,when it is full, the thread that tries to put executors in it will be hang up. </p>
      */
@@ -38,7 +38,7 @@ public class Task extends Executor<List<Object>> {
      * <p>Task's executor, it should be well-initialization with resource, means you can call {@code executor.execute()
      * directly, the task doesn't take charge of initializing}</p>
      */
-    private BlockingQueue<Executor<?>> executors = new LinkedBlockingQueue<>(maxExecutor);
+    private BlockingQueue<Executor<?,?>> executors = new LinkedBlockingQueue<>(maxExecutor);
 
     /**
      * <p>The field is to record if the task has been finished rightly, This 'finished' means all of the executors return with no wrong and exceptions.
@@ -97,7 +97,7 @@ public class Task extends Executor<List<Object>> {
                     }
                     continue;
                 }
-                Executor<?> executor = executors.take();
+                Executor<?,?> executor = executors.take();
                 // else execute mission
                 Future<?> future = pool.submit(executor);
                 // put the future into future queue
@@ -113,23 +113,21 @@ public class Task extends Executor<List<Object>> {
     }
 
     @Override
-    public List<Object> postProcessForExecute(Object result) {
+    public P postProcessForExecute(Object result) {
         // loop to check if all mission have completed
         for (; ; ) {
             Future<?> future = futures.poll();
             if (future == null) {
                 compareAndSetDone(false, true);
-                return results;
+                return production;
             }
             // get the result and put it into result list
             try {
                 Object re = future.get();
                 results.add(re);
-                return results;
             } catch (InterruptedException | ExecutionException e) {
                 // todo
             }
-
         }
     }
 
@@ -139,7 +137,7 @@ public class Task extends Executor<List<Object>> {
      * @param executor
      * @return
      */
-    public Boolean appendExecutor(Executor<?> executor) {
+    public Boolean appendExecutor(Executor<?,?> executor) {
         if (!isClosed()) {
             if (isDone()) {
                 compareAndSetDone(true, false);

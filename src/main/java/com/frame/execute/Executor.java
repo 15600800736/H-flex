@@ -8,16 +8,23 @@ import java.util.concurrent.CyclicBarrier;
 /**
  * Created by fdh on 2017/7/17.
  */
-public abstract class Executor<T>
+public abstract class Executor<P,T>
         implements Callable<T>,Executable<T> {
 
     protected CyclicBarrier barrier;
-    public Executor() {
 
+    protected P production;
+
+    public Executor() {
     }
 
-    public Executor(CyclicBarrier barrier) {
+    public Executor(P production) {
+        this.production = production;
+    }
+
+    public Executor(CyclicBarrier barrier,P production) {
         this.barrier = barrier;
+        this.production = production;
     }
 
     public void setBarrier(CyclicBarrier barrier) {
@@ -74,12 +81,23 @@ public abstract class Executor<T>
     public T postProcessForExecute(Object result) {
         return (T)result;
     }
-
     /**
      * Get the resources that the executor holds.
      * @return
      */
     public Resource[] getResources() {
         return null;
+    }
+
+    public CyclicBarrier getBarrier() {
+        return barrier;
+    }
+
+    public P getProduction() {
+        return production;
+    }
+
+    public void setProduction(P production) {
+        this.production = production;
     }
 }

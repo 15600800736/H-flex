@@ -1,5 +1,6 @@
 package com.frame.execute.scan;
 
+import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.execute.Executor;
 import com.frame.context.info.StringInfomation.Configuration;
 
@@ -17,14 +18,12 @@ import java.util.concurrent.CyclicBarrier;
  * @see Configuration
  * @author Haug
  */
-public abstract class Scanner extends Executor<Boolean> {
-    protected final Configuration configuration;
-
-    protected Scanner(Configuration configuration) {
-        this.configuration = configuration;
+public abstract class Scanner extends Executor<Configuration, Configuration> {
+    public Scanner(Configuration production) {
+        super(production);
     }
-    protected Scanner(Configuration configuration, CyclicBarrier barrier) {
-        this.configuration = configuration;
-        this.barrier = barrier;
+
+    public Scanner(CyclicBarrier barrier, Configuration production) {
+        super(barrier, production);
     }
 }

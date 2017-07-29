@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * if the current task is finished and the field {@code state}, if false, the controller will yield to let other threads
  * work, otherwise, it will call {@code step()} to get next task to execute until the state equals finished</p>
  */
-public class MainController extends Controller<Boolean> {
+public class MainController extends Controller<Object,Boolean> {
     /**
      * <p>Reader is used for reading resources and transform it to a tree with returning its root</p>
      */
@@ -102,9 +102,8 @@ public class MainController extends Controller<Boolean> {
         // if the frame is ready for initialize
         Scanner scanner = null;
         if (reader != null) {
-            scanner = new RegisterScanner(configuration.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
-                    configuration.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS),
-                    configuration);
+            scanner = new RegisterScanner(configuration, configuration.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
+                    configuration.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS));
         }
         if (scanner != null) {
             try {

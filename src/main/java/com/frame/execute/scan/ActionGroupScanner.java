@@ -11,12 +11,13 @@ import java.util.concurrent.CyclicBarrier;
  */
 @ActionClass(className = "a")
 public class ActionGroupScanner extends Scanner {
-    protected ActionGroupScanner(Configuration configuration) {
-        super(configuration);
+
+    public ActionGroupScanner(Configuration production) {
+        super(production);
     }
 
-    public ActionGroupScanner(Configuration configuration, CyclicBarrier barrier) {
-        super(configuration, barrier);
+    public ActionGroupScanner(CyclicBarrier barrier, Configuration production) {
+        super(barrier, production);
     }
 
     @Override

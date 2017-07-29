@@ -1,19 +1,16 @@
 package com.frame.execute.scan;
 
 import com.frame.annotations.ActionClass;
-import com.frame.context.resource.Resource;
+import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.Executor;
 import com.frame.execute.Task;
-import com.frame.execute.control.Controller;
-import com.frame.execute.control.MainController;
-import com.frame.context.info.StringInfomation.ActionInfo;
-import com.frame.context.info.StringInfomation.Configuration;
-import com.frame.context.info.StringInfomation.ConfigurationNode;
 
-import java.util.Map;
+import java.util.List;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -21,7 +18,7 @@ import java.util.concurrent.CyclicBarrier;
  */
 
 /**
- * The RegisterScanner is used for register all of the configuration like actions or action groups
+ * The RegisterScanner is used for register all of the production like actions or action groups
  * It will be called to collect the information from xml or annotations if it is enabled when the frame starts
  * You can configure both <action-classes></action-classes> to specify the path of a method
  * and <base-contents></base-contents> to let the frame scan the class with annotation @ActionClasses
@@ -33,14 +30,14 @@ public class RegisterScanner extends Scanner {
     private ConfigurationNode actionRegister;
     private ConfigurationNode actionGroups;
 
-    public RegisterScanner(ConfigurationNode actionRegister, ConfigurationNode actionGroups, Configuration configuration) {
-        super(configuration);
+    public RegisterScanner(Configuration production, ConfigurationNode actionRegister, ConfigurationNode actionGroups) {
+        super(production);
         this.actionRegister = actionRegister;
         this.actionGroups = actionGroups;
     }
 
-    public RegisterScanner(Configuration configuration, CyclicBarrier barrier, ConfigurationNode actionRegister, ConfigurationNode actionGroups) {
-        super(configuration, barrier);
+    public RegisterScanner(CyclicBarrier barrier, Configuration production, ConfigurationNode actionRegister, ConfigurationNode actionGroups) {
+        super(barrier, production);
         this.actionRegister = actionRegister;
         this.actionGroups = actionGroups;
     }
@@ -65,29 +62,29 @@ public class RegisterScanner extends Scanner {
 
         // register scan by xml
         if (actionClasses != null) {
-            scanner = new ActionClassesScanner(configuration);
+            scanner = new ActionClassesScanner(production);
             scanner.execute();
         }
         // register scan by annotations
         if (baseContents != null) {
-            scanner = new BaseContentsScanner(configuration);
+            scanner = new BaseContentsScanner(production);
             scanner.execute();
         }
 
-        configuration.setIsRegisterd(true);
-        return configuration;
+        production.setIsRegisterd(true);
+        return production;
     }
 
 
-    public static void main(String...strings) throws InterruptedException {
+    public static void main(String... strings) throws InterruptedException, ExecutionException {
         Task task = new Task();
         Thread t = new Thread(() -> {
-            for(int i = 10; i < 20; i++) {
+            for(int i = 5; i < 10; i++) {
                 int temp = i;
-                Executor<Integer> executor = new Executor<Integer>() {
+                Executor<Integer,Integer> executor = new Executor<Integer,Integer>() {
                     @Override
                     protected Object exec() throws Exception {
-                        int result = 0;
+                        int result = 1;
                         for(int j = 1; j < temp; j++) {
                             result *= j;
                         }
@@ -113,7 +110,7 @@ public class RegisterScanner extends Scanner {
 //        Assert.assertTrue(task.isDone());
 //        Assert.assertFalse(task.isClosed());
 
-        Executor<Object> newExe = new Executor<Object>() {
+        Executor<Object,Object> newExe = new Executor<Object,Object>() {
             @Override
             protected Object exec() throws Exception {
                 Thread.sleep(10000);
@@ -133,6 +130,8 @@ public class RegisterScanner extends Scanner {
         Thread.sleep(20000);
         System.out.println(task.isDone());
         System.out.println(task.isClosed());
+        List<Object> result = task.get();
+        result.forEach(System.out::println);
 //        Assert.assertTrue(task.isDone());
 //        Assert.assertTrue(task.isClosed());
     }

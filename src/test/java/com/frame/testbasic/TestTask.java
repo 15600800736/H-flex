@@ -25,10 +25,10 @@ public class TestTask {
         Thread t = new Thread(() -> {
             for(int i = 10; i < 20; i++) {
                 int temp = i;
-                Executor<Integer> executor = new Executor<Integer>() {
+                Executor<Object,Integer> executor = new Executor<Object, Integer>() {
                     @Override
                     protected Object exec() throws Exception {
-                        int result = 0;
+                        int result = 1;
                         for(int j = 1; j < temp; j++) {
                             result *= j;
                         }
@@ -50,7 +50,7 @@ public class TestTask {
         Assert.assertTrue(task.isDone());
         Assert.assertFalse(task.isClosed());
 
-        Executor<Object> newExe = new Executor<Object>() {
+        Executor<Object,Object> newExe = new Executor<Object, Object>() {
             @Override
             protected Object exec() throws Exception {
                 Thread.sleep(10000);
@@ -70,9 +70,14 @@ public class TestTask {
         List<Object> results = task.get();
         Assert.assertNotNull(results);
         if(logger.isDebugEnabled()) {
-            results.forEach(r -> logger.debug(String.valueOf(r)));
+            logger.debug(String.valueOf(results.size()));
         } else {
-            results.forEach(r -> System.out.println(r));
+            System.out.println(results.size());
         }
+//        if(logger.isDebugEnabled()) {
+//            results.forEach(r -> logger.debug(String.valueOf(r)));
+//        } else {
+//            results.forEach(r -> System.out.println(r));
+//        }
     }
 }

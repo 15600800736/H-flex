@@ -43,8 +43,8 @@ public class BaseContentsScanner extends Scanner {
          *
          */
         private Class<?> actionClass;
-        protected ActionRegisterScanner(Configuration configuration, Class<?> actionClass) {
-            super(configuration);
+        protected ActionRegisterScanner(Configuration production, Class<?> actionClass) {
+            super(production);
             this.actionClass = actionClass;
         }
 
@@ -67,7 +67,7 @@ public class BaseContentsScanner extends Scanner {
                             .setParam(getParamType(method.getParameterTypes()))
                             .setActionClass(actionClass.getName())
                             .setOverload(overload.getBool());
-                    configuration.appendAction(id, newAction);
+                    production.appendAction(id, newAction);
                 }
             }
             return true;
@@ -120,13 +120,12 @@ public class BaseContentsScanner extends Scanner {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
-    public BaseContentsScanner(Configuration configuration) {
-        super(configuration);
+    public BaseContentsScanner(Configuration production) {
+        super(production);
     }
 
-    public BaseContentsScanner(Configuration configuration, CyclicBarrier barrier) {
-        super(configuration, barrier);
+    public BaseContentsScanner(CyclicBarrier barrier, Configuration production) {
+        super(barrier, production);
     }
 
     /**
@@ -154,14 +153,14 @@ public class BaseContentsScanner extends Scanner {
     }
 
     /**
-     * The taking thread is for checking if a class is a action class and register it into configuration
+     * The taking thread is for checking if a class is a action class and register it into production
      */
     class TakeThread extends ScanThread {
-        private Configuration configuration;
+        private Configuration production;
 
-        public TakeThread(Configuration configuration, CountDownLatch scannerLatch) {
+        public TakeThread(Configuration production, CountDownLatch scannerLatch) {
             super(scannerLatch);
-            this.configuration = configuration;
+            this.production = production;
         }
 
         @Override
@@ -183,8 +182,8 @@ public class BaseContentsScanner extends Scanner {
                         if(className == null) {
                             className = classFullName;
                         }
-                        configuration.appendClass(className, classFullName);
-                        Scanner actionRegisterScanner = new ActionRegisterScanner(configuration, actionClass);
+                        production.appendClass(className, classFullName);
+                        Scanner actionRegisterScanner = new ActionRegisterScanner(production, actionClass);
                         actionRegisterScanner.execute();
                     }
                 } catch (ClassNotFoundException e) {
@@ -202,8 +201,8 @@ public class BaseContentsScanner extends Scanner {
 
     @Override
     public Object exec() throws Exception {
-        Node root = configuration.getRoot();
-        if (root == null && configuration.isAnnotationScan() == null) {
+        Node root = production.getRoot();
+        if (root == null && production.isAnnotationScan() == null) {
             throw new ScanException(null, "无法获取<annotation-scan/>状态");
         }
         if (root == null) {
@@ -211,16 +210,16 @@ public class BaseContentsScanner extends Scanner {
             return false;
         }
         // check if annotation-scan is on
-        if (configuration.isAnnotationScan() == null) {
+        if (production.isAnnotationScan() == null) {
             ConfigurationNode annotationScan = root.getChild(ConfigurationStringPool.ANNOTATION_SCAN);
             if (annotationScan == null) {
-                configuration.setAnnotationScan(false);
+                production.setAnnotationScan(false);
             } else {
-                configuration.setAnnotationScan(true);
+                production.setAnnotationScan(true);
             }
         }
 
-        if (configuration.isAnnotationScan()) {
+        if (production.isAnnotationScan()) {
             ConfigurationNode baseContents = root.getChild(ConfigurationStringPool.ACTION_REGISTER).getChild(ConfigurationStringPool.BASE_CONTENTS);
             if (baseContents == null) {
                 throw new ScanException("<base-contents></base-contents>", "缺少<base-contents>元素");
@@ -236,7 +235,7 @@ public class BaseContentsScanner extends Scanner {
             // ThreadPool
             ExecutorService ex = Executors.newCachedThreadPool();
             Thread pathScanThread = new PutThread(paths, scannerLatch);
-            Thread classRegisterThread = new TakeThread(configuration, scannerLatch);
+            Thread classRegisterThread = new TakeThread(production, scannerLatch);
             ex.execute(pathScanThread);
             ex.execute(classRegisterThread);
             try {

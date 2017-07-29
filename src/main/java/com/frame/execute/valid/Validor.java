@@ -7,16 +7,16 @@ import java.util.concurrent.CyclicBarrier;
 /**
  * Created by fdh on 2017/7/4.
  */
-public abstract class Validor extends Executor<Boolean> {
-    protected String validable;
-
-    public Validor(String validable) {
-        this.validable = validable;
+public abstract class Validor extends Executor<String, Boolean> {
+    public Validor() {
     }
 
-    public Validor(CyclicBarrier barrier, String validable) {
-        super(barrier);
-        this.validable = validable;
+    public Validor(String production) {
+        super(production);
+    }
+
+    public Validor(CyclicBarrier barrier, String production) {
+        super(barrier, production);
     }
 }
 

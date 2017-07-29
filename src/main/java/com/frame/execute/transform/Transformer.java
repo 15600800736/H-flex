@@ -7,12 +7,15 @@ import java.util.concurrent.CyclicBarrier;
 /**
  * Created by fdh on 2017/7/4.
  */
-public abstract class Transformer<T> extends Executor<T> {
-
+public abstract class Transformer<P,T> extends Executor<P,T> {
     public Transformer() {
     }
 
-    public Transformer(CyclicBarrier barrier) {
-        super(barrier);
+    public Transformer(P production) {
+        super(production);
+    }
+
+    public Transformer(CyclicBarrier barrier, P production) {
+        super(barrier, production);
     }
 }

@@ -12,23 +12,23 @@ import java.util.concurrent.CyclicBarrier;
 /**
  * Created by fdh on 2017/7/4.
  */
-public class ElementTransformer extends Transformer<List<ConfigurationNode>> {
+public class ElementTransformer extends Transformer<List<Element>,List<ConfigurationNode>> {
 
-    private List<Element> elements;
-
-    public ElementTransformer(List<Element> elements) {
-        this.elements = elements;
+    public ElementTransformer() {
     }
 
-    public ElementTransformer(CyclicBarrier barrier, List<Element> elements) {
-        super(barrier);
-        this.elements = elements;
+    public ElementTransformer(List<Element> production) {
+        super(production);
+    }
+
+    public ElementTransformer(CyclicBarrier barrier, List<Element> production) {
+        super(barrier, production);
     }
 
     @Override
     public List<ConfigurationNode> exec() throws Exception{
         List<ConfigurationNode> nodes = new LinkedList<>();
-        for(Element element : elements) {
+        for(Element element : production) {
             ConfigurationNode node = new ConfigurationNode(element);
             if(node != null) {
                 nodes.add(node);

@@ -5,7 +5,6 @@ import com.frame.annotations.ActionClass;
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
-import com.frame.execute.valid.MethodExactlyNameValidor;
 import com.frame.execute.valid.Validor;
 import com.frame.context.info.StringInfomation.ActionInfo;
 import com.frame.context.info.StringInfomation.Configuration;
@@ -37,8 +36,8 @@ public class ActionClassesScanner extends Scanner {
 
         private ConfigurationNode actionClass;
 
-        public ActionRegisterScanner(Configuration configuration) {
-            super(configuration);
+        public ActionRegisterScanner(Configuration production) {
+            super(production);
         }
 
         @Action(id = "aaaaa", alias = "lalala")
@@ -70,15 +69,6 @@ public class ActionClassesScanner extends Scanner {
 
                 String classPath = actionClass.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
                 String methodPath = classPath + "." + name;
-
-                Validor validor = new MethodExactlyNameValidor(methodPath);
-                try {
-                    if (!validor.execute()) {
-                        ExceptionUtil.doThrow(new ScanException("com.frame.test.Test.testMethod", "方法名格式错误"));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 if (id == null) {
                     id = methodPath;
                 }
@@ -88,7 +78,7 @@ public class ActionClassesScanner extends Scanner {
                     .setActionClass(classPath)
                     .setAlias(getAliases(al))
                     .setParam(getParamType(al));
-                configuration.appendAction(id, newAction);
+                production.appendAction(id, newAction);
             });
             return true;
         }
@@ -118,18 +108,17 @@ public class ActionClassesScanner extends Scanner {
     }
 
 
-
-    public ActionClassesScanner(Configuration configuration) {
-        super(configuration);
+    public ActionClassesScanner(Configuration production) {
+        super(production);
     }
 
-    public ActionClassesScanner(Configuration configuration, CyclicBarrier barrier) {
-        super(configuration, barrier);
+    public ActionClassesScanner(CyclicBarrier barrier, Configuration production) {
+        super(barrier, production);
     }
 
     @Override
     public Object exec() throws ScanException {
-        Node root = configuration.getRoot();
+        Node root = production.getRoot();
         if (root == null) {
             throw new ScanException("<frame-haug></frame-haug>", "缺少根节点");
         }
@@ -141,14 +130,14 @@ public class ActionClassesScanner extends Scanner {
         // get all of the action-class
         List<ConfigurationNode> actionClassList = actionClasses.getChildren(ConfigurationStringPool.ACTION_CLASS);
         Map<String, String> classMapper = new HashMap<>(64);
-        ActionRegisterScanner scanner = new ActionRegisterScanner(configuration);
-        registerAction(actionClassList, classMapper, scanner, configuration);
-        appendClasses(classMapper, configuration);
+        ActionRegisterScanner scanner = new ActionRegisterScanner(production);
+        registerAction(actionClassList, classMapper, scanner, production);
+        appendClasses(classMapper, production);
         return true;
     }
 
     @Action(id = "bbbb", alias = "woaini")
-    private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, Scanner actionScanner, Configuration configuration) {
+    private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, Scanner actionScanner, Configuration production) {
         actionClassList.forEach(n -> {
             String className = n.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
             String classPath = n.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
@@ -166,9 +155,9 @@ public class ActionClassesScanner extends Scanner {
             }
         });
     }
-    private void appendClasses(Map<String, String> classMapper, Configuration configuration) {
+    private void appendClasses(Map<String, String> classMapper, Configuration production) {
         classMapper.entrySet().forEach(es->{
-            configuration.appendClass(es.getKey(), es.getValue());
+            production.appendClass(es.getKey(), es.getValue());
         });
     }
 }

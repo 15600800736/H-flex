@@ -18,7 +18,7 @@ public class TestClassesScan {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     @Test
     public void testScan() {
-        Controller<Boolean> controller = new MainController();
+        Controller<Object,Boolean> controller = new MainController();
         try {
             controller.execute();
         } catch (Exception e) {
