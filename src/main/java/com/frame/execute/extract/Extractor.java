@@ -11,6 +11,5 @@ import com.frame.execute.Executor;
  * Extractor is a executor that can extract information which it requires
  * from given resource, extract successfully or not can be seen in the value returned.
  */
-public interface Extractor extends Executor{
-    Boolean extract(Resource resource);
+public abstract class Extractor extends Executor{
 }

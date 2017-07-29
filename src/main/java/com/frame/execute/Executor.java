@@ -3,28 +3,51 @@ package com.frame.execute;
 import com.frame.context.resource.Resource;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by fdh on 2017/7/17.
  */
-public interface Executor<T> extends Callable<T> {
+public abstract class Executor<T>
+        implements Callable<T>,Executable<T> {
+
+    protected CyclicBarrier barrier;
+    public Executor() {
+
+    }
+
+    public Executor(CyclicBarrier barrier) {
+        this.barrier = barrier;
+    }
+
+    public void setBarrier(CyclicBarrier barrier) {
+        this.barrier = barrier;
+    }
+
     /**
      * <p>The main method in Executor, it will be called after {@code prepareForExecutor} and before {@code postProcessForExecute}.
      * Sub-classes should overwritten this method to implements your own logic</p>
      * @return
      * @throws Exception
      */
-    Object exec() throws Exception;
+    protected abstract Object exec() throws Exception;
 
     /**
      * the entrance of executor, default implementation give you a chance to prepare and post-process
      * @return
      * @throws Exception
      */
-    default T execute() throws Exception {
-        prepareForExecute();
-        Object result = exec();
-        return postProcessForExecute(result);
+    public final T execute() throws Exception {
+        try {
+            prepareForExecute();
+            Object rawResult = exec();
+            return postProcessForExecute(rawResult);
+        } finally {
+            if(this.barrier != null) {
+                this.barrier.await();
+            }
+        }
+
     }
     /**
      * <p>Default call {@code execute}</p>
@@ -32,14 +55,14 @@ public interface Executor<T> extends Callable<T> {
      * @throws Exception
      */
     @Override
-    default T call() throws Exception {
+    public T call() throws Exception {
         return execute();
     }
 
     /**
      * <p>Prepare the environment for execute, default implementation is empty</p>
      */
-    default void prepareForExecute() {
+    public void prepareForExecute() {
 
     }
 
@@ -48,7 +71,7 @@ public interface Executor<T> extends Callable<T> {
      * @param result the result of {@code execute()}
      * @return
      */
-    default T postProcessForExecute(Object result) {
+    public T postProcessForExecute(Object result) {
         return (T)result;
     }
 
@@ -56,7 +79,7 @@ public interface Executor<T> extends Callable<T> {
      * Get the resources that the executor holds.
      * @return
      */
-    default Resource[] getResources() {
+    public Resource[] getResources() {
         return null;
     }
 }

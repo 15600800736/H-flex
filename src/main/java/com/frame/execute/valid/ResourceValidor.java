@@ -10,9 +10,12 @@ import java.util.regex.Pattern;
  */
 public class ResourceValidor extends Validor {
 
+
     public ResourceValidor(String validable) {
         super(validable);
     }
+
+
     @Override
     public Boolean exec() {
         Pattern pattern = Pattern.compile("^([A-Z]:\\\\)?[^\\\\/:*?\"<>|]+?(\\\\[^\\\\/:*?\"<>|]+?)*\\.xml");

@@ -1,11 +1,14 @@
 package com.frame.testbasic;
 
 import com.frame.annotations.ActionClass;
-import com.frame.context.Task;
-import com.frame.context.resource.Resource;
-import com.frame.execute.EndExecutor;
+import com.frame.execute.Task;
 import com.frame.execute.Executor;
+import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Created by fdh on 2017/7/27.
@@ -13,62 +16,63 @@ import org.junit.Test;
 
 @ActionClass
 public class TestTask {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     @Test
-    public void test() {
-        Executor<Object> a = new Executor<Object>() {
-            @Override
-            public Object exec() throws Exception {
-                int result = 0;
-                for (int i = 0; i < 10000; i++) {
-                    result += i;
-                }
-                System.out.println(result);
-                return result;
-            }
+    public void test() throws InterruptedException {
 
 
-            @Override
-            public Resource[] getResources() {
-                return new Resource[0];
-            }
-        };
-
-        Executor<Object> b = new Executor<Object>() {
-            @Override
-            public Object exec() throws Exception {
-                for (int i = 0; i < 100; i++) {
-                    System.out.println("lalalalala");
-                }
-                return null;
-            }
-
-
-            @Override
-            public Resource[] getResources() {
-                return new Resource[0];
-            }
-        };
         Task task = new Task();
         Thread t = new Thread(() -> {
-            task.appendExecutor(a);
-            task.appendExecutor(b);
-            task.execute();
+            for(int i = 10; i < 20; i++) {
+                int temp = i;
+                Executor<Integer> executor = new Executor<Integer>() {
+                    @Override
+                    protected Object exec() throws Exception {
+                        int result = 0;
+                        for(int j = 1; j < temp; j++) {
+                            result *= j;
+                        }
+                        return result;
+                    }
+                };
+                task.appendExecutor(executor);
+            }
+            try {
+                task.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
         t.start();
-        System.out.println(task.isDone());
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        Assert.assertFalse(task.isDone());
+        Assert.assertFalse(task.isClosed());
+        Thread.sleep(1000L);
+        Assert.assertTrue(task.isDone());
+        Assert.assertFalse(task.isClosed());
+
+        Executor<Object> newExe = new Executor<Object>() {
+            @Override
+            protected Object exec() throws Exception {
+                Thread.sleep(10000);
+                return null;
+            }
+        };
+        task.appendExecutor(newExe);
+        Assert.assertFalse(task.isDone());
+        Assert.assertFalse(task.isClosed());
+        task.close();
+        Assert.assertFalse(task.isDone());
+        Assert.assertTrue(task.isClosed());
+        Thread.sleep(20000);
+        Assert.assertTrue(task.isDone());
+        Assert.assertTrue(task.isClosed());
+
+        List<Object> results = task.get();
+        Assert.assertNotNull(results);
+        if(logger.isDebugEnabled()) {
+            results.forEach(r -> logger.debug(String.valueOf(r)));
+        } else {
+            results.forEach(r -> System.out.println(r));
         }
-        System.out.println(task.isDone());
-        task.appendExecutor(a);
-        task.appendExecutor(new EndExecutor());
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println(task.isDone());
     }
 }

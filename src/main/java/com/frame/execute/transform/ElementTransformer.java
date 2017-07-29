@@ -7,6 +7,7 @@ import org.dom4j.Element;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by fdh on 2017/7/4.
@@ -18,6 +19,12 @@ public class ElementTransformer extends Transformer<List<ConfigurationNode>> {
     public ElementTransformer(List<Element> elements) {
         this.elements = elements;
     }
+
+    public ElementTransformer(CyclicBarrier barrier, List<Element> elements) {
+        super(barrier);
+        this.elements = elements;
+    }
+
     @Override
     public List<ConfigurationNode> exec() throws Exception{
         List<ConfigurationNode> nodes = new LinkedList<>();

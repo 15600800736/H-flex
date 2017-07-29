@@ -14,6 +14,7 @@ import com.frame.context.info.Node;
 import com.frame.util.ExceptionUtil;
 
 import java.util.*;
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by fdh on 2017/7/15.
@@ -120,6 +121,10 @@ public class ActionClassesScanner extends Scanner {
 
     public ActionClassesScanner(Configuration configuration) {
         super(configuration);
+    }
+
+    public ActionClassesScanner(Configuration configuration, CyclicBarrier barrier) {
+        super(configuration, barrier);
     }
 
     @Override

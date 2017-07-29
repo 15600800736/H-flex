@@ -5,7 +5,7 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
-import com.frame.context.Task;
+import com.frame.execute.Task;
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;

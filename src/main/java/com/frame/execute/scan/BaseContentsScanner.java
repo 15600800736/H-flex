@@ -33,9 +33,7 @@ import java.util.concurrent.*;
  * it is a action class and register it.</p>
  */
 @ActionClass(className = "c")
-public class BaseContentsScanner
-        extends Scanner {
-
+public class BaseContentsScanner extends Scanner {
 
     /**
      *
@@ -125,6 +123,10 @@ public class BaseContentsScanner
 
     public BaseContentsScanner(Configuration configuration) {
         super(configuration);
+    }
+
+    public BaseContentsScanner(Configuration configuration, CyclicBarrier barrier) {
+        super(configuration, barrier);
     }
 
     /**
