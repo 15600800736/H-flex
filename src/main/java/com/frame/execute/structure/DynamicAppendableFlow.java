@@ -9,6 +9,7 @@ import java.util.concurrent.CyclicBarrier;
  */
 public abstract class DynamicAppendableFlow<P,T> extends Flow<P,T> {
 
+
     public DynamicAppendableFlow() {
     }
 
@@ -27,5 +28,19 @@ public abstract class DynamicAppendableFlow<P,T> extends Flow<P,T> {
      * @return
      */
     public abstract Boolean appendExecutor(Executor<P, ?> executor);
+
+    /**
+     * <p>Inject the task's production into the executor if the executor's production isn't the task's and return the executor's production</p>
+     * @param production
+     * @param executor
+     * @return
+     */
+    protected P injectProduction(P production, Executor<P,?> executor) {
+        P exProduction = executor.getProduction();
+        if(exProduction != production) {
+            executor.setProduction(production);
+        }
+        return exProduction;
+    }
 
 }

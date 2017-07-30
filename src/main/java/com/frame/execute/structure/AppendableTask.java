@@ -30,9 +30,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * forbid the other threads to add executor.
  * * If you want to get the executors' result, call {@code get()}.
  * * The task isn't suggested to run in the main thread, because it may be blocked.
+ * You cannot run the task twice, because all of the executors has been removed ,like all workers are gone, so if you want it to repeat, you need add
+ * them again.
  * </p>
  */
 public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
+
+    protected class ExecutorPair {
+        Executor<P, ?> executor;
+        P production;
+
+        public ExecutorPair(Executor<P, ?> executor, P production) {
+            this.executor = executor;
+            this.production = production;
+        }
+    }
+
+    private Long startMillis = 0L;
+
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     /**
      * <p>The capacity of blocking queue,when it is full, the thread that tries to put executors in it will be blocked. </p>
@@ -58,10 +73,16 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      */
     private List<Object> results = new LinkedList<>();
 
+
     /**
      * <p>Hold the thread that runs the current task to interrupt this thread.</p>
      */
     private Thread taskThread;
+
+    /**
+     * <p>The production cache is used for caching the executors' own productions, in order to return it when the executor complete its task</p>
+     */
+    private ConcurrentMap<Future<?>, ExecutorPair> productionCache = new ConcurrentHashMap<>();
 
     public AppendableTask() {
     }
@@ -82,13 +103,13 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     }
 
 
-
     /**
      * <p>reset the state of the task, inject the thread of the task</p>
      */
     @Override
     public void prepareForExecute() {
         this.taskThread = Thread.currentThread();
+        this.startMillis = System.currentTimeMillis();
         if (isClosed()) {
             compareAndSetClosed(true, false);
         }
@@ -104,31 +125,37 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      *
      * @return null
      * @throws Exception any exceptions that can be thrown when execute
+     * @return The time of ending execute
      */
     @Override
     public Object exec() throws Exception {
         try {
             // loop to take mission and execute
             for (; ; ) {
-                // if the task has already rejected the mission, and no more exist mission
-                // start to wait the exist mission complete
+                // if the task has already rejected the mission, and no more exist mission to take
+                // stop take executors from queue and go to post-processing
                 if (isClosed() && executors.isEmpty()) {
-                    return null;
+                    return System.currentTimeMillis();
                 }
-                if (executors.isEmpty()) {
-                    if (!isDone()) {
-                        compareAndSetDone(false, true);
-                    }
+                // if the queue is empty means there is no more executor to take for now, so the task will process the current result
+                // the task will pause for now, so if you append a executor now, it won't execute immediately.
+                if (executors.isEmpty() && results.isEmpty() && !futures.isEmpty()) {
+                    processResult();
                 }
                 // else execute mission
                 try {
-                    Executor<?, ?> executor = executors.take();
+                    Executor<P, ?> executor = executors.take();
+                    P originalProduction = injectProduction(production, executor);
                     Future<?> future = pool.submit(executor);
+                    // cache the executor's own production
+                    productionCache.putIfAbsent(future, new ExecutorPair(executor, originalProduction));
                     // put the future into future queue
                     futures.offer(future);
                 } catch (InterruptedException ignored) {
-                    if(logger.isDebugEnabled()) {
-                        logger.debug("task has been closed.");
+                    if(isClosed()) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("task has been closed.");
+                        }
                     }
                 }
             }
@@ -146,22 +173,39 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      */
     @Override
     public P postProcessForExecute(Object result) {
+        processResult();
+        return production;
+    }
+
+    private void processResult() {
         // loop to check if all mission have completed
         for (; ; ) {
             Future<?> future = futures.poll();
             if (future == null) {
-                compareAndSetDone(false, true);
-                return production;
+                if(!isDone()) {
+                    compareAndSetDone(false, true);
+                }
+                if(logger.isDebugEnabled()) {
+                    logger.debug("The task takes" + String.valueOf(System.currentTimeMillis() - startMillis) + "ms");
+                }
+                return;
             }
             // get the result and put it into result list
             try {
                 Object re = future.get();
+                // complete the mission and give back the executor's production
+                ExecutorPair executorPair = productionCache.get(future);
+                Executor<P, ?> executor = executorPair.executor;
+                P production = executorPair.production;
+                executor.setProduction(production);
                 results.add(re);
             } catch (InterruptedException | ExecutionException e) {
                 // todo
             }
         }
     }
+
+
     /**
      * <p>Dynamically append a executor in an task, if the queue is full, the thread will return false. and if the task has been closed,
      * return false, too</p>
@@ -180,7 +224,6 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
         return false;
     }
 
-
     /**
      * <p>call this method to forbid any thread to add executors into this task</p>
      */
@@ -189,7 +232,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
         if (!isClosed()) {
             compareAndSetClosed(false, true);
         }
-        if(taskThread != null) {
+        if (taskThread != null) {
             taskThread.interrupt();
         } else {
             // todo
@@ -201,13 +244,12 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      *
      * @return
      */
-    public List<Object> get() {
-        if (!isClosed() || !isDone()) {
+    public List<?> get() {
+        List<Object> returnedResults = new LinkedList<>(results);
+        if (!isDone()) {
             return null;
         }
-        return results;
+        results.clear();
+        return returnedResults;
     }
-
-
-
 }

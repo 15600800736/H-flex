@@ -8,6 +8,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by fdh on 2017/7/27.
  */
@@ -17,13 +20,13 @@ public class TestAppendableTask {
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Test
     public void test() throws InterruptedException {
-
-
-        AppendableTask appendableTask = new AppendableTask();
+        Boolean taskProduction = false;
+        AppendableTask<Boolean> appendableTask = new AppendableTask<>(taskProduction,20);
+        List<Executor<Boolean,Integer>> executors = new LinkedList<>();
         Thread t = new Thread(() -> {
             for(int i = 10; i < 20; i++) {
                 int temp = i;
-                Executor<Object,Integer> executor = new Executor<Object, Integer>() {
+                Executor<Boolean,Integer> executor = new Executor<Boolean, Integer>() {
                     @Override
                     protected Object exec() throws Exception {
                         int result = 1;
@@ -33,6 +36,9 @@ public class TestAppendableTask {
                         return result;
                     }
                 };
+                Boolean executorProduction = true;
+                executor.setProduction(executorProduction);
+                executors.add(executor);
                 appendableTask.appendExecutor(executor);
             }
             try {
@@ -48,34 +54,40 @@ public class TestAppendableTask {
         Assert.assertTrue(appendableTask.isDone());
         Assert.assertFalse(appendableTask.isClosed());
 
-//        Executor<Object,Object> newExe = new Executor<Object, Object>() {
-//            @Override
-//            protected Object exec() throws Exception {
-//                Thread.sleep(10000);
-//                return null;
-//            }
-//        };
-//        appendableTask.appendExecutor(newExe);
-//        Assert.assertFalse(appendableTask.isDone());
-//        Assert.assertFalse(appendableTask.isClosed());
-//        appendableTask.close();
-//        Assert.assertFalse(appendableTask.isDone());
-//        Assert.assertTrue(appendableTask.isClosed());
-//        Thread.sleep(20000);
-//        Assert.assertTrue(appendableTask.isDone());
-//        Assert.assertTrue(appendableTask.isClosed());
-//
-//        List<Object> results = appendableTask.get();
-//        Assert.assertNotNull(results);
-//        if(logger.isDebugEnabled()) {
-//            logger.debug(String.valueOf(results.size()));
-//        } else {
-//            System.out.println(results.size());
-//        }
-//        if(logger.isDebugEnabled()) {
-//            results.forEach(r -> logger.debug(String.valueOf(r)));
-//        } else {
-//            results.forEach(r -> System.out.println(r));
-//        }
+        Executor<Boolean,Integer> newExe = new Executor<Boolean, Integer>() {
+            @Override
+            protected Object exec() throws Exception {
+                Thread.sleep(10000);
+                return null;
+            }
+        };
+        appendableTask.appendExecutor(newExe);
+        Assert.assertFalse(appendableTask.isDone());
+        Assert.assertFalse(appendableTask.isClosed());
+        appendableTask.close();
+        Assert.assertFalse(appendableTask.isDone());
+        Assert.assertTrue(appendableTask.isClosed());
+        Thread.sleep(20000);
+        Assert.assertTrue(appendableTask.isDone());
+        Assert.assertTrue(appendableTask.isClosed());
+
+        List<?> results = appendableTask.get();
+        Assert.assertNotNull(results);
+        if(logger.isDebugEnabled()) {
+            logger.debug(String.valueOf(results.size()));
+        } else {
+            System.out.println(results.size());
+        }
+        if(logger.isDebugEnabled()) {
+            results.forEach(r -> logger.debug(String.valueOf(r)));
+        } else {
+            results.forEach(System.out::println);
+        }
+
+        Thread.sleep(1000L);
+
+        executors.forEach(e -> {
+            Assert.assertTrue(e.getProduction());
+        });
     }
 }

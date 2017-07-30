@@ -6,12 +6,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by fdh on 2017/7/29.
  */
 public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
+    protected class ExecutorPair {
+        Executor<P, ?> executor;
+        P production;
+        Integer position;
+        public ExecutorPair(Executor<P, ?> executor, P production, Integer position) {
+            this.executor = executor;
+            this.production = production;
+            this.position = position;
+        }
+    }
     /**
      *
      */
@@ -40,14 +49,23 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
      */
     private Thread lineThread;
 
+
     @Override
     public void prepareForExecute() {
-        lineThread = Thread.currentThread();
+        this.lineThread = Thread.currentThread();
+        if(isClosed()) {
+            compareAndSetClosed(true,false);
+        }
+        if(isDone()) {
+            compareAndSetDone(true,false);
+        }
     }
 
     @Override
     protected Object exec() throws Exception {
-
+        if(isClosed() && isDone()) {
+            
+        }
         return null;
     }
 

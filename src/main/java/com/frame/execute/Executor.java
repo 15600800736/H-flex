@@ -18,8 +18,8 @@ import java.util.concurrent.CyclicBarrier;
  * returns the raw type {@link Object}, so you should transform its type in {@code postProcessForExecute()}</p> like its default implementation, while
  * the default pre-dealing is empty.
  * The executor also has a barrier, which is used for let other partners wait until all of the works are done, all the executor
- * will wait at the end of {@code postProcessForExecute()}, and of course, you can make it in your way.</p>
- *
+ * will wait at the end of {@code postProcessForExecute()}, and of course, you can make it in your way.For the moment, the executor can only be executed
+ * by one thread.</p>
  * @param <P> the production type
  * @param <T> the result type
  */
