@@ -75,8 +75,8 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
     }
 
     @Override
-    public Boolean appendExecutor(Executor<P, ?> executor) {
-        return null;
+    public void appendExecutor(Executor<P, ?> executor) {
+        return;
     }
 
 

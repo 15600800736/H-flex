@@ -27,7 +27,7 @@ public abstract class DynamicAppendableFlow<P,T> extends Flow<P,T> {
      * @param executor the executor to add
      * @return
      */
-    public abstract Boolean appendExecutor(Executor<P, ?> executor);
+    public abstract void appendExecutor(Executor<P, ?> executor);
 
     /**
      * <p>Inject the task's production into the executor if the executor's production isn't the task's and return the executor's production</p>

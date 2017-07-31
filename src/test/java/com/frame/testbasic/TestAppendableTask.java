@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by fdh on 2017/7/27.
@@ -71,7 +72,7 @@ public class TestAppendableTask {
         Assert.assertTrue(appendableTask.isDone());
         Assert.assertTrue(appendableTask.isClosed());
 
-        List<?> results = appendableTask.get();
+        Map<Executor<Boolean,?>, Object> results = appendableTask.get();
         Assert.assertNotNull(results);
         if(logger.isDebugEnabled()) {
             logger.debug(String.valueOf(results.size()));
@@ -79,9 +80,9 @@ public class TestAppendableTask {
             System.out.println(results.size());
         }
         if(logger.isDebugEnabled()) {
-            results.forEach(r -> logger.debug(String.valueOf(r)));
+            results.entrySet().forEach(r -> logger.debug(String.valueOf(r)));
         } else {
-            results.forEach(System.out::println);
+            results.entrySet().forEach(System.out::println);
         }
 
         Thread.sleep(1000L);
