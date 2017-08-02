@@ -6,17 +6,44 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by fdh on 2017/7/29.
  */
 public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
-    protected class ExecutorPair {
-        Executor<P, ?> executor;
+
+
+
+    class Process {
+        /**
+         *
+         */
+        Executor<P,P> worker;
+        /**
+         *
+         */
+        Executor<P,P> nextWorker;
+    }
+    /**
+     *
+     */
+    protected class WorkerPair {
+
+        /**
+         *
+         */
+        Executor<P, P> worker;
+        /**
+         *
+         */
         P production;
+        /**
+         *
+         */
         Integer position;
-        public ExecutorPair(Executor<P, ?> executor, P production, Integer position) {
-            this.executor = executor;
+        public WorkerPair(Executor<P, P> worker, P production, Integer position) {
+            this.worker = worker;
             this.production = production;
             this.position = position;
         }
@@ -28,21 +55,7 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
     /**
      *
      */
-    private BlockingQueue<Executor<P, ?>> executors = new LinkedBlockingQueue<>(maxExecutor);
-    /**
-     *
-     */
-    private ExecutorService pool = Executors.newSingleThreadExecutor();
-
-    /**
-     * <p>The Queue is used for storing futures</p>
-     */
-    private Queue<Future<?>> futures = new ConcurrentLinkedQueue<>();
-
-    /**
-     * <p>The list is used for storing every executor's result</p>
-     */
-    private List<Object> results = new LinkedList<>();
+    private BlockingQueue<Process> processors = new LinkedBlockingQueue<>();
 
     /**
      * <p>Hold the line thread in order to interrupt this thread</p>
@@ -63,10 +76,18 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
 
     @Override
     protected Object exec() throws Exception {
-        if(isClosed() && isDone()) {
-            
+        if(isClosed()) {
+            return production;
         }
-        return null;
+
+        if(isDone()) {
+            LockSupport.park();
+        }
+
+        Process processor = processors.take();
+        P originalProduction = processor.worker.setProduction(production);
+
+
     }
 
     @Override
@@ -75,7 +96,7 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
     }
 
     @Override
-    public void appendExecutor(Executor<P, ?> executor) {
+    public void appendExecutor(Executor<P, ?> worker) {
         return;
     }
 

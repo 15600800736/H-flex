@@ -13,25 +13,25 @@ import java.util.concurrent.*;
  */
 
 /**
- * <p>AppendableTask is unit of work, it's an special {@link Executor}, which can let a series of executor work concurrently.
+ * <p>AppendableTask is unit of work, it's an special {@link Executor}, which can let a series of worker work concurrently.
  * Every task is for a specific production, so what it receives is what it gives, because a task is used for processing an
  * production like filling it, which means just make a production more useful, but won't change it to another type.
  * The state of task is determined by two field, {@code done} and {@code closed}, you could check them with {@code isDone(); isClosed();}.
  * <ol>
- * <li>done -> if isDone() returns true, it means that all of the executors in the task has finished their work, and the
+ * <li>done -> if isDone() returns true, it means that all of the workers in the task has finished their work, and the
  * task has been hang up, but it doesn't mean the task's work has finished, because you can add a new {@link Executor} into the task
- * with {@code appendExecutor(Executor executor)}, and the task will start itself and continue to do the new work.</li>
- * <li>closed -> if isClosed() returns true, it means you cannot add a new executor into the task, but it doesn't mean the task has been stop,
- * because it will continue to do the rest work until all of the executors executed.</li>
+ * with {@code appendExecutor(Executor worker)}, and the task will start itself and continue to do the new work.</li>
+ * <li>closed -> if isClosed() returns true, it means you cannot add a new worker into the task, but it doesn't mean the task has been stop,
+ * because it will continue to do the rest work until all of the workers executed.</li>
  * </ol></p>
  * <p>Above all, if you want to check if the task is stop, you have to use {@code isDone() && isClosed()}. By the way, you can call {@code close()} to
- * forbid the other threads to add executor.
- * * If you want to get the executors' result, call {@code get()}.
+ * forbid the other threads to add worker.
+ * * If you want to get the workers' result, call {@code get()}.
  * * The task isn't suggested to run in the main thread, because it may be blocked.
- * You cannot run the task twice, because all of the executors has been removed ,like all workers are gone, so if you want it to repeat, you need add
+ * You cannot run the task twice, because all of the workers has been removed ,like all workers are gone, so if you want it to repeat, you need add
  * them again.
  * </p>
- * <p>Note that the task's executors <em><b>cannot</b></em> change the production and it's basic type filed.  It can just process it, sSo as follow</p>
+ * <p>Note that the task's workers <em><b>cannot</b></em> change the production and it's basic type filed.  It can just process it, sSo as follow</p>
  * <pre>
  *
  * public static void main(String...strings) {
@@ -46,12 +46,12 @@ import java.util.concurrent.*;
  */
 public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
 
-    protected class ExecutorPair {
-        Executor<P, ?> executor;
+    protected class WorkerPair {
+        Executor<P, ?> worker;
         P production;
 
-        public ExecutorPair(Executor<P, ?> executor, P production) {
-            this.executor = executor;
+        public WorkerPair(Executor<P, ?> worker, P production) {
+            this.worker = worker;
             this.production = production;
         }
     }
@@ -60,7 +60,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     /**
-     * <p>The capacity of blocking queue,when it is full, the thread that tries to put executors in it will be blocked. </p>
+     * <p>The capacity of blocking queue,when it is full, the thread that tries to put workers in it will be blocked. </p>
      */
     private int maxExecutor = 10;
     /**
@@ -68,9 +68,9 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      */
     private final ExecutorService pool = Executors.newCachedThreadPool();
     /**
-     * <p>AppendableTask's executors, the production will be passed into the executors and let them process it</p>
+     * <p>AppendableTask's workers, the production will be passed into the workers and let them process it</p>
      */
-    private BlockingQueue<Executor<P, ?>> executors = new LinkedBlockingQueue<>(maxExecutor);
+    private BlockingQueue<Executor<P, ?>> workers = new LinkedBlockingQueue<>(maxExecutor);
 
 
     /**
@@ -79,7 +79,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     private Queue<Future<?>> futures = new ConcurrentLinkedQueue<>();
 
     /**
-     * <p>The list is used for storing every executor's result</p>
+     * <p>The list is used for storing every worker's result</p>
      */
     private Map<Executor<P,?>,Object> results = new ConcurrentHashMap<>();
 
@@ -90,9 +90,9 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     private Thread taskThread;
 
     /**
-     * <p>The production cache is used for caching the executors' own productions, in order to return it when the executor complete its task</p>
+     * <p>The production cache is used for caching the workers' own productions, in order to return it when the worker complete its task</p>
      */
-    private ConcurrentMap<Future<?>, ExecutorPair> productionCache = new ConcurrentHashMap<>();
+    private ConcurrentMap<Future<?>, WorkerPair> productionCache = new ConcurrentHashMap<>();
 
     public AppendableTask() {
     }
@@ -128,9 +128,9 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
         }
     }
 
-    /**
-     * <p>The method will loop taking an executor from the blocking queue and execute,
-     * when the task is closed and no more executors can be taken, it will return and let the post-processing
+    /**-
+     * <p>The method will loop taking an worker from the blocking queue and execute,
+     * when the task is closed and no more workers can be taken, it will return and let the post-processing
      * deal the result.</p>
      *
      * @return The time of ending execute
@@ -141,22 +141,22 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
         // loop to take mission and execute
         for (; ; ) {
             // if the task has already rejected the mission, and no more exist mission to take
-            // stop take executors from queue and go to post-processing
-            if (isClosed() && executors.isEmpty()) {
+            // stop take workers from queue and go to post-processing
+            if (isClosed() && workers.isEmpty()) {
                 return System.currentTimeMillis();
             }
-            // if the queue is empty means there is no more executor to take for now, so the task will process the current result
-            // the task will pause for now, so if you append a executor now, it won't execute immediately.
-            if (executors.isEmpty() && results.isEmpty() && !futures.isEmpty()) {
+            // if the queue is empty means there is no more worker to take for now, so the task will process the current result
+            // the task will pause for now, so if you append a worker now, it won't execute immediately.
+            if (workers.isEmpty() && results.isEmpty() && !futures.isEmpty()) {
                 processResult();
             }
             // else execute mission
             try {
-                Executor<P, ?> executor = executors.take();
-                P originalProduction = injectProduction(production, executor);
-                Future<?> future = pool.submit(executor);
-                // cache the executor's own production
-                productionCache.putIfAbsent(future, new ExecutorPair(executor, originalProduction));
+                Executor<P, ?> worker = workers.take();
+                P originalProduction = injectProduction(production, worker);
+                Future<?> future = pool.submit(worker);
+                // cache the worker's own production
+                productionCache.putIfAbsent(future, new WorkerPair(worker, originalProduction));
                 // put the future into future queue
                 futures.offer(future);
             } catch (InterruptedException ignored) {
@@ -171,7 +171,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
 
 
     /**
-     * <p>Wait until all of the work finished and return the well-precessed prodution , storing every executor's result
+     * <p>Wait until all of the work finished and return the well-precessed prodution , storing every worker's result
      * at the same time.</p>
      *
      * @return the well-processed production
@@ -202,12 +202,12 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
             // get the result and put it into result list
             try {
                 Object re = future.get();
-                // complete the mission and give back the executor's production
-                ExecutorPair executorPair = productionCache.get(future);
-                Executor<P, ?> executor = executorPair.executor;
-                P production = executorPair.production;
-                executor.setProduction(production);
-                results.put(executor,re);
+                // complete the mission and give back the worker's production
+                WorkerPair workerPair = productionCache.get(future);
+                Executor<P, ?> worker = workerPair.worker;
+                P production = workerPair.production;
+                worker.setProduction(production);
+                results.put(worker,re);
             } catch (InterruptedException | ExecutionException e) {
                 System.out.println("got a interruptedException when process result, but we store it");
                 while(!futures.add(future));
@@ -217,20 +217,20 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
 
 
     /**
-     * <p>Dynamically append a executor in an task, if the queue is full, the thread will return false. and if the task has been closed,
+     * <p>Dynamically append a worker in an task, if the queue is full, the thread will return false. and if the task has been closed,
      * return false, too</p>
      *
-     * @param executor the executor to add
+     * @param worker the worker to add
      * @return
      */
     @Override
-    public void appendExecutor(Executor<P, ?> executor) {
+    public void appendExecutor(Executor<P, ?> worker) {
         if (!isClosed()) {
             if (isDone()) {
                 compareAndSetDone(true, false);
             }
             try {
-                executors.put(executor);
+                workers.put(worker);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -238,7 +238,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     }
 
     /**
-     * <p>call this method to forbid any thread to add executors into this task</p>
+     * <p>call this method to forbid any thread to add workers into this task</p>
      */
     @Override
     public void close() {
@@ -253,11 +253,11 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     }
 
     /**
-     * <p>Get the results of each executor</p>
+     * <p>Get the results of each worker</p>
      *
      * @return
      */
-    public Map<Executor<P,?>, Object> get() {
+    public Map<Executor<P,?>, Object> getResults() {
         Map<Executor<P,?>,Object> returnedResults = new ConcurrentHashMap<>(results);
         if (!isDone()) {
             return null;

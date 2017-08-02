@@ -72,7 +72,7 @@ public class TestAppendableTask {
         Assert.assertTrue(appendableTask.isDone());
         Assert.assertTrue(appendableTask.isClosed());
 
-        Map<Executor<Boolean,?>, Object> results = appendableTask.get();
+        Map<Executor<Boolean,?>, Object> results = appendableTask.getResults();
         Assert.assertNotNull(results);
         if(logger.isDebugEnabled()) {
             logger.debug(String.valueOf(results.size()));

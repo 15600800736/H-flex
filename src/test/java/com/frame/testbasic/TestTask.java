@@ -48,10 +48,7 @@ public class TestTask {
             });
             t.start();
             Thread.sleep(1000L);
-
-            Map<Executor<IntegerWrapper,?>, Object> results = appendableTask.get();
-
-
+            Map<Executor<IntegerWrapper,?>, Object> results = appendableTask.getResults();
             Executor<IntegerWrapper, String> newExe = new Executor<IntegerWrapper, String>() {
                 @Override
                 protected Object exec() throws Exception {
@@ -69,7 +66,7 @@ public class TestTask {
             appendableTask.appendExecutor(newExe2);
             appendableTask.close();
             Thread.sleep(1000);
-            Map<Executor<IntegerWrapper, ?>, Object> result = appendableTask.get();
+            Map<Executor<IntegerWrapper, ?>, Object> result = appendableTask.getResults();
             result.entrySet().forEach(System.out::println);
         }
     }
