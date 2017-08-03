@@ -223,7 +223,6 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      * @param worker the worker to add
      * @return
      */
-    @Override
     public void appendExecutor(Executor<P, ?> worker) {
         if (!isClosed()) {
             if (isDone()) {

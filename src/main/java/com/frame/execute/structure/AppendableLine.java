@@ -14,17 +14,17 @@ import java.util.concurrent.locks.LockSupport;
 public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
 
 
-
     class Process {
         /**
          *
          */
-        Executor<P,P> worker;
+        Executor<P, P> worker;
         /**
          *
          */
-        Executor<P,P> nextWorker;
+        Process nextProcessor;
     }
+
     /**
      *
      */
@@ -42,12 +42,14 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
          *
          */
         Integer position;
+
         public WorkerPair(Executor<P, P> worker, P production, Integer position) {
             this.worker = worker;
             this.production = production;
             this.position = position;
         }
     }
+
     /**
      *
      */
@@ -55,49 +57,83 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
     /**
      *
      */
-    private BlockingQueue<Process> processors = new LinkedBlockingQueue<>();
+    private BlockingDeque<Process> processors = new LinkedBlockingDeque<>();
 
     /**
      * <p>Hold the line thread in order to interrupt this thread</p>
      */
     private Thread lineThread;
 
+    /**
+     *
+     */
+    private ExecutorService pool = Executors.newSingleThreadExecutor();
+
+    private Process currentProcessor;
 
     @Override
     public void prepareForExecute() {
         this.lineThread = Thread.currentThread();
-        if(isClosed()) {
-            compareAndSetClosed(true,false);
+        try {
+            this.currentProcessor = processors.take();
+        } catch (InterruptedException e) {
+            // todo
         }
-        if(isDone()) {
-            compareAndSetDone(true,false);
+        if (isClosed()) {
+            compareAndSetClosed(true, false);
+        }
+        if (isDone()) {
+            compareAndSetDone(true, false);
         }
     }
 
     @Override
     protected Object exec() throws Exception {
-        if(isClosed()) {
-            return production;
+        for (; ; ) {
+            if (isClosed()) {
+                return production;
+            }
+
+            if (isDone()) {
+                LockSupport.park();
+            }
+            Executor<P, P> worker = currentProcessor.worker;
+            P originalProduction = injectProduction(production, worker);
+            if (worker != null) {
+                Future<P> future = pool.submit(worker);
+                this.production = future.get();
+                worker.setProduction(originalProduction);
+                Process next = currentProcessor.nextProcessor;
+                if (next != null) {
+                    this.currentProcessor = next;
+                } else {
+                    if (!isDone()) {
+                        compareAndSetDone(false, true);
+                    }
+                }
+            }
         }
-
-        if(isDone()) {
-            LockSupport.park();
-        }
-
-        Process processor = processors.take();
-        P originalProduction = processor.worker.setProduction(production);
-
-
     }
 
     @Override
     public P postProcessForExecute(Object result) {
-        return null;
+        return (P) result;
     }
 
-    @Override
-    public void appendExecutor(Executor<P, ?> worker) {
-        return;
+    public void appendExecutor(Executor<P, P> worker) {
+        Process processor = new Process();
+        Process tail = processors.pollLast();
+
+        // add the processor
+        processors.add(processor);
+
+        // update the relationship
+        // means the queue is empty
+        if(tail != null) {
+            if(tail.nextProcessor == null) {
+                tail.nextProcessor = processor;
+            }
+        }
     }
 
 

@@ -20,14 +20,14 @@ public abstract class DynamicAppendableFlow<P,T> extends Flow<P,T> {
     public DynamicAppendableFlow(CyclicBarrier barrier, P production) {
         super(barrier, production);
     }
-    /**
-     * <p>Dynamically append a executor in an task, if the queue is full, the thread will return false. and if the task has been closed,
-     * return false, too</p>
-     *
-     * @param executor the executor to add
-     * @return
-     */
-    public abstract void appendExecutor(Executor<P, ?> executor);
+//    /**
+//     * <p>Dynamically append a executor in an task, if the queue is full, the thread will return false. and if the task has been closed,
+//     * return false, too</p>
+//     *
+//     * @param executor the executor to add
+//     * @return
+//     */
+//    public abstract void appendExecutor(Executor<P, ?> executor);
 
     /**
      * <p>Inject the task's production into the executor if the executor's production isn't the task's and return the executor's production</p>
