@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -69,13 +70,13 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
      */
     private ExecutorService pool = Executors.newSingleThreadExecutor();
 
-    private Process currentProcessor;
+    private AtomicReferenceFieldUpdater<AppendableLine<P>, Process> currentProcessor;
 
     @Override
     public void prepareForExecute() {
         this.lineThread = Thread.currentThread();
         try {
-            this.currentProcessor = processors.take();
+            this.currentProcessor.set(this,processors.take());
         } catch (InterruptedException e) {
             // todo
         }
@@ -90,24 +91,31 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
     @Override
     protected Object exec() throws Exception {
         for (; ; ) {
+            // if the line has closed, return immediately, no matter if the line has finished its work
             if (isClosed()) {
                 return production;
             }
 
+            // if all
             if (isDone()) {
                 LockSupport.park();
             }
-            Executor<P, P> worker = currentProcessor.worker;
+            Executor<P, P> worker = currentProcessor.get(this).worker;
             P originalProduction = injectProduction(production, worker);
             if (worker != null) {
                 Future<P> future = pool.submit(worker);
-                this.production = future.get();
+                try {
+                    this.production = future.get();
+                } catch (InterruptedException e) {
+
+                }
                 worker.setProduction(originalProduction);
-                Process next = currentProcessor.nextProcessor;
+                Process next = currentProcessor.get(this).nextProcessor;
                 if (next != null) {
-                    this.currentProcessor = next;
+                    this.currentProcessor.set(this, next);
                 } else {
                     if (!isDone()) {
+                        this.currentProcessor.set(this,null);
                         compareAndSetDone(false, true);
                     }
                 }
@@ -132,10 +140,15 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
         if(tail != null) {
             if(tail.nextProcessor == null) {
                 tail.nextProcessor = processor;
+                // means the thread has been hanged on
+                if(isDone()) {
+
+                    compareAndSetDone(true,false);
+                    LockSupport.unpark(lineThread);
+                }
             }
         }
     }
-
 
     @Override
     public void close() {
