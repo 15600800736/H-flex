@@ -25,7 +25,11 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 return null;
             }
             for ( ; ;) {
-
+                if(isClosed()) {
+                    return null;
+                }
+                P production = AppendableLine.this.production.take();
+                header.worker.addProdution(production);
             }
         }
     }
@@ -115,6 +119,8 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
      *
      */
     private Integer productionCacheSize = 16;
+
+    private PassWorker passWorker = new PassWorker();
     @Override
     public void prepareForExecute() {
         this.lineThread = Thread.currentThread();
@@ -127,6 +133,9 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         if (isStarted()) {
             compareAndSetStarted(true,false);
         }
+
+        // start to take production from production queue.
+        pool.submit(passWorker);
     }
 
     @Override
@@ -134,14 +143,13 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         if(!isStarted()) {
             compareAndSetStarted(false,true);
         }
-
         for (; ; ) {
             // if the line has closed, return immediately, no matter if the line has finished its work
             if (isClosed()) {
                 return production;
             }
 
-            // if all
+            // if all production has been processed.
             if (isDone()) {
                 LockSupport.park();
             }
