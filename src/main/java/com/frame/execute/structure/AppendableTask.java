@@ -44,13 +44,13 @@ import java.util.concurrent.*;
  * }}</pre>
  * And you will get a 0, because the task...
  */
-public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
+public class AppendableTask<P> extends Flow<P, P> {
 
-    protected class WorkerPair {
+    protected class WorkerInfo {
         Executor<P, ?> worker;
         P production;
 
-        public WorkerPair(Executor<P, ?> worker, P production) {
+        public WorkerInfo(Executor<P, ?> worker, P production) {
             this.worker = worker;
             this.production = production;
         }
@@ -62,7 +62,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     /**
      * <p>The capacity of blocking queue,when it is full, the thread that tries to put workers in it will be blocked. </p>
      */
-    private int maxExecutor = 10;
+    private int maxWorker = 16;
     /**
      * <p>The cache thread pool means the task can be acting concurrently</p>
      */
@@ -70,7 +70,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     /**
      * <p>AppendableTask's workers, the production will be passed into the workers and let them process it</p>
      */
-    private BlockingQueue<Executor<P, ?>> workers = new LinkedBlockingQueue<>(maxExecutor);
+    private BlockingQueue<Executor<P, ?>> workers = new LinkedBlockingQueue<>(maxWorker);
 
 
     /**
@@ -81,7 +81,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     /**
      * <p>The list is used for storing every worker's result</p>
      */
-    private Map<Executor<P,?>,Object> results = new ConcurrentHashMap<>();
+    private Map<Executor<P, ?>, Object> results = new ConcurrentHashMap<>();
 
 
     /**
@@ -92,24 +92,24 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
     /**
      * <p>The production cache is used for caching the workers' own productions, in order to return it when the worker complete its task</p>
      */
-    private ConcurrentMap<Future<?>, WorkerPair> productionCache = new ConcurrentHashMap<>();
+    private ConcurrentMap<Future<?>, WorkerInfo> productionCache = new ConcurrentHashMap<>();
 
     public AppendableTask() {
     }
 
 
-    public AppendableTask(int maxExecutor) {
-        this.maxExecutor = maxExecutor;
+    public AppendableTask(int maxWorker) {
+        this.maxWorker = maxWorker;
     }
 
-    public AppendableTask(P production, int maxExecutor) {
+    public AppendableTask(P production, int maxWorker) {
         super(production);
-        this.maxExecutor = maxExecutor;
+        this.maxWorker = maxWorker;
     }
 
-    public AppendableTask(CyclicBarrier barrier, P production, int maxExecutor) {
+    public AppendableTask(CyclicBarrier barrier, P production, int maxWorker) {
         super(barrier, production);
-        this.maxExecutor = maxExecutor;
+        this.maxWorker = maxWorker;
     }
 
 
@@ -126,9 +126,13 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
         if (isDone()) {
             compareAndSetDone(true, false);
         }
+        if (isStarted()) {
+            compareAndSetStarted(true, false);
+        }
     }
 
-    /**-
+    /**
+     * -
      * <p>The method will loop taking an worker from the blocking queue and execute,
      * when the task is closed and no more workers can be taken, it will return and let the post-processing
      * deal the result.</p>
@@ -138,6 +142,9 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      */
     @Override
     public Object exec() throws Exception {
+        if (!isStarted()) {
+            compareAndSetStarted(false,true);
+        }
         // loop to take mission and execute
         for (; ; ) {
             // if the task has already rejected the mission, and no more exist mission to take
@@ -156,7 +163,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
                 P originalProduction = injectProduction(production, worker);
                 Future<?> future = pool.submit(worker);
                 // cache the worker's own production
-                productionCache.putIfAbsent(future, new WorkerPair(worker, originalProduction));
+                productionCache.putIfAbsent(future, new WorkerInfo(worker, originalProduction));
                 // put the future into future queue
                 futures.offer(future);
             } catch (InterruptedException ignored) {
@@ -188,7 +195,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
 
     private void processResult() {
         // loop to check if all mission have completed
-        for (int i = 0; ; i++ ) {
+        for (int i = 0; ; i++) {
             Future<?> future = futures.poll();
             if (future == null) {
                 if (!isDone()) {
@@ -203,14 +210,14 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
             try {
                 Object re = future.get();
                 // complete the mission and give back the worker's production
-                WorkerPair workerPair = productionCache.get(future);
-                Executor<P, ?> worker = workerPair.worker;
-                P production = workerPair.production;
+                WorkerInfo workerInfo = productionCache.get(future);
+                Executor<P, ?> worker = workerInfo.worker;
+                P production = workerInfo.production;
                 worker.setProduction(production);
-                results.put(worker,re);
+                results.put(worker, re);
             } catch (InterruptedException | ExecutionException e) {
                 System.out.println("got a interruptedException when process result, but we store it");
-                while(!futures.add(future));
+                while (!futures.add(future)) ;
             }
         }
     }
@@ -223,7 +230,7 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      * @param worker the worker to add
      * @return
      */
-    public void appendExecutor(Executor<P, ?> worker) {
+    public void appendWorker(Executor<P, ?> worker) {
         if (!isClosed()) {
             if (isDone()) {
                 compareAndSetDone(true, false);
@@ -234,6 +241,22 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    /**
+     * <p>Inject the task's production into the executor if the executor's production isn't the task's and return the executor's production</p>
+     *
+     * @param production
+     * @param executor
+     * @return
+     */
+    protected P injectProduction(P production, Executor<P, ?> executor) {
+        P exProduction = executor.getProduction();
+        if (exProduction != production) {
+            executor.setProduction(production);
+        }
+        return exProduction;
     }
 
     /**
@@ -256,8 +279,8 @@ public class AppendableTask<P> extends DynamicAppendableFlow<P, P> {
      *
      * @return
      */
-    public Map<Executor<P,?>, Object> getResults() {
-        Map<Executor<P,?>,Object> returnedResults = new ConcurrentHashMap<>(results);
+    public Map<Executor<P, ?>, Object> getResults() {
+        Map<Executor<P, ?>, Object> returnedResults = new ConcurrentHashMap<>(results);
         if (!isDone()) {
             return null;
         }

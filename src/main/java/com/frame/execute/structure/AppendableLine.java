@@ -2,59 +2,95 @@ package com.frame.execute.structure;
 
 import com.frame.execute.Executor;
 
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by fdh on 2017/7/29.
  */
-public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
+public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
 
+
+    private class PassWorker extends Executor<P,P> {
+
+        @Override
+        protected Object exec() throws Exception {
+            Process header = processors.peek();
+            if(header == null) {
+                return null;
+            }
+            for ( ; ;) {
+
+            }
+        }
+    }
+    /**
+     * <p>A process is a abstraction of a point in a line of factory, like a Node, it has worker and the next one.
+     * When the next process is null, means there are no more process, and the line will be hanged up until some thread close
+     * the line.</p>
+     */
     class Process {
         /**
-         *
+         * <p>The unit of execute to do work</p>
          */
-        Executor<P, P> worker;
+        WorkerInfo worker;
         /**
-         *
+         * <p>Next step, if null, means there is no more</p>
          */
         Process nextProcessor;
     }
 
     /**
-     *
+     * <p>The worker pair holds some information about the worker, like where he is and what he deals with</p>
      */
-    protected class WorkerPair {
+    protected class WorkerInfo {
 
         /**
-         *
+         * <p>The main part of the worker information</p>
          */
         Executor<P, P> worker;
         /**
-         *
-         */
-        P production;
-        /**
-         *
+         * <p>The index of the worker in this line</p>
          */
         Integer position;
+        /**
+         * <p>The productions that is waiting to be processed</p>
+         */
+        BlockingQueue<P> productionCache;
 
-        public WorkerPair(Executor<P, P> worker, P production, Integer position) {
+        public WorkerInfo(Executor<P, P> worker, Integer position) {
+
+            if(productionCacheSize == null) {
+                productionCache = new LinkedBlockingQueue<>();
+            } else {
+                productionCache = new LinkedBlockingQueue<>(productionCacheSize);
+            }
             this.worker = worker;
-            this.production = production;
             this.position = position;
+        }
+
+        /**
+         * <p>add a production to the production queue.</p>
+         * @param production
+         */
+        public void addProdution(P production) {
+            try {
+                this.productionCache.put(production);
+            } catch (InterruptedException e) {
+                // todo
+            }
         }
     }
 
     /**
-     *
+     * <p>how many workers in this line</p>
      */
-    private int maxExecutor = 10;
+    private int workerNum = 16;
     /**
      *
      */
@@ -68,28 +104,37 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
     /**
      *
      */
-    private ExecutorService pool = Executors.newSingleThreadExecutor();
+    private ExecutorService pool = Executors.newFixedThreadPool(workerNum);
 
-    private AtomicReferenceFieldUpdater<AppendableLine<P>, Process> currentProcessor;
+    /**
+     *
+     */
+    private Lock processorLock = new ReentrantLock();
 
+    /**
+     *
+     */
+    private Integer productionCacheSize = 16;
     @Override
     public void prepareForExecute() {
         this.lineThread = Thread.currentThread();
-        try {
-            this.currentProcessor.set(this,processors.take());
-        } catch (InterruptedException e) {
-            // todo
-        }
         if (isClosed()) {
             compareAndSetClosed(true, false);
         }
         if (isDone()) {
             compareAndSetDone(true, false);
         }
+        if (isStarted()) {
+            compareAndSetStarted(true,false);
+        }
     }
 
     @Override
     protected Object exec() throws Exception {
+        if(!isStarted()) {
+            compareAndSetStarted(false,true);
+        }
+
         for (; ; ) {
             // if the line has closed, return immediately, no matter if the line has finished its work
             if (isClosed()) {
@@ -100,7 +145,7 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
             if (isDone()) {
                 LockSupport.park();
             }
-            Executor<P, P> worker = currentProcessor.get(this).worker;
+            Executor<P, P> worker = currentProcessor.worker;
             P originalProduction = injectProduction(production, worker);
             if (worker != null) {
                 Future<P> future = pool.submit(worker);
@@ -110,12 +155,14 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
 
                 }
                 worker.setProduction(originalProduction);
-                Process next = currentProcessor.get(this).nextProcessor;
+                Process next = currentProcessor.nextProcessor;
                 if (next != null) {
-                    this.currentProcessor.set(this, next);
+                    proccessorLock.lock();
+                    this.currentProcessor = next;
+                    proccessorLock.unlock();
                 } else {
                     if (!isDone()) {
-                        this.currentProcessor.set(this,null);
+                        this.currentProcessor.set(this, null);
                         compareAndSetDone(false, true);
                     }
                 }
@@ -124,11 +171,12 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
     }
 
     @Override
-    public P postProcessForExecute(Object result) {
-        return (P) result;
+    public List<P> postProcessForExecute(Object result) {
+        return (List<P>) result;
     }
 
-    public void appendExecutor(Executor<P, P> worker) {
+
+    public void appendProduction(P production) {
         Process processor = new Process();
         Process tail = processors.pollLast();
 
@@ -137,19 +185,22 @@ public class AppendableLine<P> extends DynamicAppendableFlow<P, P> {
 
         // update the relationship
         // means the queue is empty
-        if(tail != null) {
-            if(tail.nextProcessor == null) {
+        if (tail != null) {
+            if (tail.nextProcessor == null) {
                 tail.nextProcessor = processor;
                 // means the thread has been hanged on
-                if(isDone()) {
+                if (isDone()) {
 
-                    compareAndSetDone(true,false);
+                    compareAndSetDone(true, false);
                     LockSupport.unpark(lineThread);
                 }
             }
         }
     }
 
+    public void appendWorker(Executor<P,P> worker) {
+
+    }
     @Override
     public void close() {
 
