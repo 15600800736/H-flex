@@ -3,8 +3,10 @@ package com.frame.execute.structure;
 import com.frame.execute.Executor;
 
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
@@ -85,6 +87,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 this.productionCache.put(production);
             } catch (InterruptedException e) {
                 // todo
+                System.out.println("interrupt when add production");
             }
         }
     }
@@ -102,7 +105,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     /**
      *
      */
-    Process lastProcessor;
+    Process lastProcessor = firstProcessor;
 
     /**
      * <p>Hold the line thread in order to interrupt this thread</p>
@@ -128,6 +131,11 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
      *
      */
     private Process tailProcessor;
+
+    /**
+     *
+     */
+    private AtomicInteger countOfProduction = new AtomicInteger(0);
 
     @Override
     public void prepareForExecute() {
@@ -155,14 +163,33 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         Process currentProcessor = firstProcessor;
         while (currentProcessor != tailProcessor) {
             pool.submit(currentProcessor);
+            currentProcessor = currentProcessor.nextProcessor;
         }
-        LockSupport.park();
-        return null;
+
+        for (; ; ) {
+            if (tailProcessor.worker.productionCache.size() == countOfProduction.get()) {
+                if (!isDone()) {
+                    compareAndSetDone(false, true);
+                    if (isClosed()) {
+                        return tailProcessor.worker.productionCache;
+                    }
+                }
+            }
+            LockSupport.park();
+        }
     }
 
     @Override
     public List<P> postProcessForExecute(Object result) {
-        return null;
+        BlockingQueue<P> finishedProductions = (BlockingQueue<P>) result;
+        List<P> finished = new LinkedList<>();
+        for (; ; ) {
+            if(finishedProductions.poll() == null) {
+                return finished;
+            }
+            P product = finishedProductions.poll();
+            finished.add(product);
+        }
     }
 
 
@@ -170,13 +197,44 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
     }
 
-    public void appendWorker(Executor<P, P> worker) {
+    public Boolean appendWorker(Executor<P, P> worker) {
+        // if the line has started, you can't add worker into the line.
+        if(isStarted()) {
+            return false;
+        }
+        // if this is the first time adding processor
+        if(firstProcessor == null) {
+            Process process = new Process();
+            process.worker = new WorkerInfo(worker, 1);
+            firstProcessor = process;
+            tailProcessor = process;
+            return true;
+        }
 
+        if(tailProcessor == null) {
+            tailProcessor = firstProcessor;
+        }
+
+        Process process = new Process();
+        process.worker = new WorkerInfo(worker, tailProcessor.worker.position + 1);
+        tailProcessor.nextProcessor = process;
+        tailProcessor = tailProcessor.nextProcessor;
+        return true;
     }
 
     @Override
     public void close() {
 
+    }
+
+    public P get() {
+        try {
+            return tailProcessor.worker.productionCache.take();
+        } catch (InterruptedException e) {
+            // todo
+            System.out.println("interrupt when get");
+            return null;
+        }
     }
 
     /**
@@ -221,4 +279,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         worker.setProduction(production);
         return originalProduction;
     }
+
+
 }
