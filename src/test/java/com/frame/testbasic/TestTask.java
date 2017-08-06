@@ -38,7 +38,7 @@ public class TestTask {
                             return result;
                         }
                     };
-                    appendableTask.appendExecutor(executor);
+                    appendableTask.appendWorker(executor);
                 }
                 try {
                     test.integerWrapper = appendableTask.execute();
@@ -62,8 +62,8 @@ public class TestTask {
                     return "I love you";
                 }
             };
-            appendableTask.appendExecutor(newExe);
-            appendableTask.appendExecutor(newExe2);
+            appendableTask.appendWorker(newExe);
+            appendableTask.appendWorker(newExe2);
             appendableTask.close();
             Thread.sleep(1000);
             Map<Executor<IntegerWrapper, ?>, Object> result = appendableTask.getResults();

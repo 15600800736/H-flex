@@ -40,7 +40,7 @@ public class TestAppendableTask {
                 Boolean executorProduction = true;
                 executor.setProduction(executorProduction);
                 executors.add(executor);
-                appendableTask.appendExecutor(executor);
+                appendableTask.appendWorker(executor);
             }
             try {
                 appendableTask.execute();
@@ -62,7 +62,7 @@ public class TestAppendableTask {
                 return null;
             }
         };
-        appendableTask.appendExecutor(newExe);
+        appendableTask.appendWorker(newExe);
         Assert.assertFalse(appendableTask.isDone());
         Assert.assertFalse(appendableTask.isClosed());
         appendableTask.close();
