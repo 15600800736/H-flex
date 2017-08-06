@@ -31,7 +31,19 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
         @Override
         public void run() {
-
+            for (; ; ) {
+                if (isClosed()) {
+                    return;
+                }
+                try {
+                    P production = worker.productionCache.take();
+                    injectProduction(worker.worker, production);
+                    P finishedProduction = worker.worker.execute();
+                    nextProcessor.worker.addProdution(finishedProduction);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -39,7 +51,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
      * <p>The worker pair holds some information about the worker, like where he is and what he deals with</p>
      */
     protected class WorkerInfo {
-
         /**
          * <p>The main part of the worker information</p>
          */
@@ -117,6 +128,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
      *
      */
     private Process tailProcessor;
+
     @Override
     public void prepareForExecute() {
         this.lineThread = Thread.currentThread();
@@ -141,15 +153,16 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             compareAndSetStarted(false, true);
         }
         Process currentProcessor = firstProcessor;
-        while(currentProcessor != tailProcessor) {
-
+        while (currentProcessor != tailProcessor) {
+            pool.submit(currentProcessor);
         }
+        LockSupport.park();
         return null;
     }
 
     @Override
     public List<P> postProcessForExecute(Object result) {
-        return (List<P>) result;
+        return null;
     }
 
 
@@ -180,11 +193,11 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             @Override
             protected Object exec() throws Exception {
                 for (; ; ) {
-                    if(isClosed()) {
+                    if (isClosed()) {
                         return this.production;
                     }
                     P production = AppendableLine.this.production.take();
-                    if(headerProcessor.nextProcessor != null && headerProcessor.nextProcessor.worker != null) {
+                    if (headerProcessor.nextProcessor != null && headerProcessor.nextProcessor.worker != null) {
                         headerProcessor.nextProcessor.worker.addProdution(production);
                     }
                 }
@@ -194,12 +207,18 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
     private void createTailProcessor() {
-        if(lastProcessor == null || tailProcessor != null) {
+        if (lastProcessor == null || tailProcessor != null) {
             return;
         }
 
         tailProcessor = new Process();
-        tailProcessor.worker = new WorkerInfo(null,lastProcessor.worker.position + 1);
+        tailProcessor.worker = new WorkerInfo(null, lastProcessor.worker.position + 1);
         lastProcessor.nextProcessor = tailProcessor;
+    }
+
+    protected P injectProduction(Executor<P, P> worker, P production) {
+        P originalProduction = worker.getProduction();
+        worker.setProduction(production);
+        return originalProduction;
     }
 }
