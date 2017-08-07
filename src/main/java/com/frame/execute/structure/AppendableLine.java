@@ -35,6 +35,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
          *
          */
         Thread currentThread;
+
         @Override
         public void run() {
             this.currentThread = Thread.currentThread();
@@ -223,17 +224,20 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
     @Override
     protected Object exec() throws Exception {
-        if (!isStarted()) {
-            compareAndSetStarted(false, true);
-        }
-        Process currentProcessor = firstProcessor;
         try {
+            if (isClosed()) {
+                return tailProcessor.worker.productionCache;
+            }
+            if (!isStarted()) {
+                compareAndSetStarted(false, true);
+            }
+            Process currentProcessor = firstProcessor;
+
             while (currentProcessor != tailProcessor) {
                 pool.submit(currentProcessor);
                 System.out.println("Thread " + currentProcessor.worker.position + "has started.");
                 currentProcessor = currentProcessor.nextProcessor;
             }
-
             for (; ; ) {
                 if (tailProcessor.worker.productionCache.size() == countOfProduction.get()) {
                     if (!isDone()) {
@@ -245,7 +249,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 }
                 LockSupport.park();
             }
-        }finally {
+        } finally {
             pool.shutdown();
         }
     }
@@ -303,14 +307,23 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
     @Override
     public void close() {
-        if(!isClosed()) {
-            for(Process p = headerProcessor; p != tailProcessor; p = p.nextProcessor) {
-                if(p.currentThread != null) {
-                    System.out.println("close thread " + p.worker.position);
-                    p.currentThread.interrupt();
+        try {
+            if (!isClosed()) {
+                compareAndSetClosed(false, true);
+                LockSupport.unpark(this.lineThread);
+                for (Process p = headerProcessor; p != tailProcessor; p = p.nextProcessor) {
+                    if (p.currentThread != null) {
+                        System.out.println("close thread " + p.worker.position);
+                        // double check
+                        if (!isClosed()) {
+                            compareAndSetClosed(false, true);
+                        }
+                        p.currentThread.interrupt();
+                    }
                 }
             }
-            compareAndSetClosed(false,true);
+        } finally {
+            pool.shutdown();
         }
     }
 
@@ -370,38 +383,36 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
 
     public static void main(String... strings) throws InterruptedException {
-        for(int j = 0; j < 50; j++) {
-            AppendableLine<Integer> line = new AppendableLine<>(100, 20);
-            for (int i = 0; i < 10; i++) {
-                int finalI = i;
-                Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
-                    @Override
-                    protected Object exec() throws Exception {
-                        this.production += finalI;
-                        Thread.sleep(1000L);
-                        return this.production;
-                    }
-                };
-
-                line.appendWorker(executor);
-            }
-            System.out.println(line.isStarted());
-            Thread.sleep(1000L);
-
-            Thread t = new Thread(() -> {
-                try {
-                    line.execute();
-                } catch (Exception e) {
-                    e.printStackTrace();
+        AppendableLine<Integer> line = new AppendableLine<>(100, 20);
+        for (int i = 0; i < 10; i++) {
+            int finalI = i;
+            Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
+                @Override
+                protected Object exec() throws Exception {
+                    this.production += finalI;
+                    Thread.sleep(1000L);
+                    return this.production;
                 }
-            });
-            t.start();
-            Thread.sleep(1L);
-            System.out.println(line.isStarted());
-            System.out.println(line.isClosed());
-            System.out.println(line.isDone());
-            line.close();
+            };
+
+            line.appendWorker(executor);
         }
+        System.out.println(line.isStarted());
+        Thread.sleep(1000L);
+
+        Thread t = new Thread(() -> {
+            try {
+                line.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        t.start();
+        Thread.sleep(1L);
+        System.out.println(line.isStarted());
+        System.out.println(line.isClosed());
+        System.out.println(line.isDone());
+        line.close();
     }
 
 }
