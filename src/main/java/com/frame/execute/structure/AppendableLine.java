@@ -40,7 +40,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             this.currentThread = Thread.currentThread();
             for (; ; ) {
                 if (isClosed()) {
-                    System.out.println("thread" + worker.position + "has been closed");
+                    System.out.println("thread " + worker.position + "has been closed");
                     return;
                 }
                 try {
@@ -230,6 +230,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         try {
             while (currentProcessor != tailProcessor) {
                 pool.submit(currentProcessor);
+                System.out.println("Thread " + currentProcessor.worker.position + "has started.");
                 currentProcessor = currentProcessor.nextProcessor;
             }
 
@@ -283,20 +284,20 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             Process process = new Process();
             process.worker = new WorkerInfo(worker, 1);
             firstProcessor = process;
-            tailProcessor = process;
+            lastProcessor = process;
             return true;
         }
 
-        if (tailProcessor == null) {
-            tailProcessor = firstProcessor;
+        if (lastProcessor == null) {
+            lastProcessor = firstProcessor;
         }
 
         Process process = new Process();
-        process.worker = new WorkerInfo(worker, tailProcessor.worker.position + 1);
+        process.worker = new WorkerInfo(worker, lastProcessor.worker.position + 1);
         // append processor
-        tailProcessor.nextProcessor = process;
+        lastProcessor.nextProcessor = process;
         // update tail processor
-        tailProcessor = tailProcessor.nextProcessor;
+        lastProcessor = lastProcessor.nextProcessor;
         return true;
     }
 
@@ -336,6 +337,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         headerProcessor.worker = new WorkerInfo(new Executor<P, P>() {
             @Override
             protected Object exec() throws Exception {
+                headerProcessor.currentThread = Thread.currentThread();
                 for (; ; ) {
                     if (isClosed()) {
                         return this.production;
@@ -368,40 +370,38 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
 
     public static void main(String... strings) throws InterruptedException {
-        AppendableLine<Integer> line = new AppendableLine<>(100, 20);
-        for (int i = 0; i < 100; i++) {
-            int finalI = i;
-            Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
-                @Override
-                protected Object exec() throws Exception {
-                    this.production += finalI;
-                    Thread.sleep(100L);
-                    return this.production;
-                }
-            };
+        for(int j = 0; j < 50; j++) {
+            AppendableLine<Integer> line = new AppendableLine<>(100, 20);
+            for (int i = 0; i < 10; i++) {
+                int finalI = i;
+                Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
+                    @Override
+                    protected Object exec() throws Exception {
+                        this.production += finalI;
+                        Thread.sleep(1000L);
+                        return this.production;
+                    }
+                };
 
-            line.appendWorker(executor);
-        }
-
-        int i = 1;
-
-        System.out.println(line.isStarted());
-        Thread.sleep(1000L);
-
-        Thread t = new Thread(()->{
-            try {
-                line.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
+                line.appendWorker(executor);
             }
-        });
-        t.start();
-        Thread.sleep(1L);
-        System.out.println(line.isStarted());
-        System.out.println(line.isClosed());
-        System.out.println(line.isDone());
+            System.out.println(line.isStarted());
+            Thread.sleep(1000L);
 
-        line.close();
+            Thread t = new Thread(() -> {
+                try {
+                    line.execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            t.start();
+            Thread.sleep(1L);
+            System.out.println(line.isStarted());
+            System.out.println(line.isClosed());
+            System.out.println(line.isDone());
+            line.close();
+        }
     }
 
 }
