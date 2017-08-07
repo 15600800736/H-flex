@@ -21,7 +21,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
      * When the next process is null, means there are no more process, and the line will be hanged up until some thread close
      * the line.</p>
      */
-    class Process implements Runnable {
+    protected class Process implements Runnable {
         /**
          * <p>The unit of execute to do work</p>
          */
@@ -31,10 +31,16 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
          */
         Process nextProcessor;
 
+        /**
+         *
+         */
+        Thread currentThread;
         @Override
         public void run() {
+            this.currentThread = Thread.currentThread();
             for (; ; ) {
                 if (isClosed()) {
+                    System.out.println("thread" + worker.position + "has been closed");
                     return;
                 }
                 try {
@@ -43,7 +49,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     P finishedProduction = worker.worker.execute();
                     nextProcessor.worker.addProdution(finishedProduction);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("interrupt when worker" + worker.position + "take productions");
                 }
             }
         }
@@ -100,12 +106,12 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     /**
      *
      */
-    Process firstProcessor;
+    public Process firstProcessor;
 
     /**
      *
      */
-    Process lastProcessor = firstProcessor;
+    public Process lastProcessor = firstProcessor;
 
     /**
      * <p>Hold the line thread in order to interrupt this thread</p>
@@ -137,6 +143,66 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
      */
     private AtomicInteger countOfProduction = new AtomicInteger(0);
 
+    /**
+     * Constructors
+     */
+
+    public AppendableLine() {
+    }
+
+    public AppendableLine(BlockingQueue<P> production) {
+        super(production);
+    }
+
+    public AppendableLine(CyclicBarrier barrier, BlockingQueue<P> production) {
+        super(barrier, production);
+    }
+
+    public AppendableLine(Integer productionCacheSize) {
+        this.productionCacheSize = productionCacheSize;
+    }
+
+    public AppendableLine(BlockingQueue<P> production, Integer productionCacheSize) {
+        super(production);
+        this.productionCacheSize = productionCacheSize;
+    }
+
+    public AppendableLine(CyclicBarrier barrier, BlockingQueue<P> production, Integer productionCacheSize) {
+        super(barrier, production);
+        this.productionCacheSize = productionCacheSize;
+    }
+
+    public AppendableLine(int workerNum) {
+        this.workerNum = workerNum;
+    }
+
+    public AppendableLine(BlockingQueue<P> production, int workerNum) {
+        super(production);
+        this.workerNum = workerNum;
+    }
+
+    public AppendableLine(CyclicBarrier barrier, BlockingQueue<P> production, int workerNum) {
+        super(barrier, production);
+        this.workerNum = workerNum;
+    }
+
+    public AppendableLine(int workerNum, Integer productionCacheSize) {
+        this.workerNum = workerNum;
+        this.productionCacheSize = productionCacheSize;
+    }
+
+    public AppendableLine(BlockingQueue<P> production, int workerNum, Integer productionCacheSize) {
+        super(production);
+        this.workerNum = workerNum;
+        this.productionCacheSize = productionCacheSize;
+    }
+
+    public AppendableLine(CyclicBarrier barrier, BlockingQueue<P> production, int workerNum, Integer productionCacheSize) {
+        super(barrier, production);
+        this.workerNum = workerNum;
+        this.productionCacheSize = productionCacheSize;
+    }
+
     @Override
     public void prepareForExecute() {
         this.lineThread = Thread.currentThread();
@@ -161,21 +227,25 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             compareAndSetStarted(false, true);
         }
         Process currentProcessor = firstProcessor;
-        while (currentProcessor != tailProcessor) {
-            pool.submit(currentProcessor);
-            currentProcessor = currentProcessor.nextProcessor;
-        }
+        try {
+            while (currentProcessor != tailProcessor) {
+                pool.submit(currentProcessor);
+                currentProcessor = currentProcessor.nextProcessor;
+            }
 
-        for (; ; ) {
-            if (tailProcessor.worker.productionCache.size() == countOfProduction.get()) {
-                if (!isDone()) {
-                    compareAndSetDone(false, true);
-                    if (isClosed()) {
-                        return tailProcessor.worker.productionCache;
+            for (; ; ) {
+                if (tailProcessor.worker.productionCache.size() == countOfProduction.get()) {
+                    if (!isDone()) {
+                        compareAndSetDone(false, true);
+                        if (isClosed()) {
+                            return tailProcessor.worker.productionCache;
+                        }
                     }
                 }
+                LockSupport.park();
             }
-            LockSupport.park();
+        }finally {
+            pool.shutdown();
         }
     }
 
@@ -184,7 +254,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         BlockingQueue<P> finishedProductions = (BlockingQueue<P>) result;
         List<P> finished = new LinkedList<>();
         for (; ; ) {
-            if(finishedProductions.poll() == null) {
+            if (finishedProductions.poll() == null) {
                 return finished;
             }
             P product = finishedProductions.poll();
@@ -194,16 +264,22 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
 
     public void appendProduction(P production) {
-
+        try {
+            this.production.put(production);
+        } catch (InterruptedException e) {
+            // todo
+            System.out.println(" interrupt when put production.");
+            e.printStackTrace();
+        }
     }
 
     public Boolean appendWorker(Executor<P, P> worker) {
         // if the line has started, you can't add worker into the line.
-        if(isStarted()) {
+        if (isStarted()) {
             return false;
         }
         // if this is the first time adding processor
-        if(firstProcessor == null) {
+        if (firstProcessor == null) {
             Process process = new Process();
             process.worker = new WorkerInfo(worker, 1);
             firstProcessor = process;
@@ -211,20 +287,30 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             return true;
         }
 
-        if(tailProcessor == null) {
+        if (tailProcessor == null) {
             tailProcessor = firstProcessor;
         }
 
         Process process = new Process();
         process.worker = new WorkerInfo(worker, tailProcessor.worker.position + 1);
+        // append processor
         tailProcessor.nextProcessor = process;
+        // update tail processor
         tailProcessor = tailProcessor.nextProcessor;
         return true;
     }
 
     @Override
     public void close() {
-
+        if(!isClosed()) {
+            for(Process p = headerProcessor; p != tailProcessor; p = p.nextProcessor) {
+                if(p.currentThread != null) {
+                    System.out.println("close thread " + p.worker.position);
+                    p.currentThread.interrupt();
+                }
+            }
+            compareAndSetClosed(false,true);
+        }
     }
 
     public P get() {
@@ -280,5 +366,42 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         return originalProduction;
     }
 
+
+    public static void main(String... strings) throws InterruptedException {
+        AppendableLine<Integer> line = new AppendableLine<>(100, 20);
+        for (int i = 0; i < 100; i++) {
+            int finalI = i;
+            Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
+                @Override
+                protected Object exec() throws Exception {
+                    this.production += finalI;
+                    Thread.sleep(100L);
+                    return this.production;
+                }
+            };
+
+            line.appendWorker(executor);
+        }
+
+        int i = 1;
+
+        System.out.println(line.isStarted());
+        Thread.sleep(1000L);
+
+        Thread t = new Thread(()->{
+            try {
+                line.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        t.start();
+        Thread.sleep(1L);
+        System.out.println(line.isStarted());
+        System.out.println(line.isClosed());
+        System.out.println(line.isDone());
+
+        line.close();
+    }
 
 }
