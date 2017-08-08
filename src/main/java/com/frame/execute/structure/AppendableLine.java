@@ -48,7 +48,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     P production = worker.productionCache.take();
                     injectProduction(worker.worker, production);
                     P finishedProduction = worker.worker.execute();
-                    if(this == lastProcessor) {
+                    if (this == lastProcessor) {
                         LockSupport.unpark(lineThread);
                     }
                     nextProcessor.worker.addProdution(finishedProduction);
@@ -249,7 +249,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 currentProcessor = currentProcessor.nextProcessor;
             }
             for (; ; ) {
-                if(isClosed()) {
+                if (isClosed()) {
                     return tailProcessor.worker.productionCache;
                 }
                 if (tailProcessor.worker.productionCache.size() == countOfProduction.get()) {
@@ -285,6 +285,9 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         try {
             this.production.put(production);
             countOfProduction.incrementAndGet();
+            if (isDone()) {
+                compareAndSetDone(true, false);
+            }
         } catch (InterruptedException e) {
             // todo
             System.out.println(" interrupt when put production.");
@@ -397,25 +400,23 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
 
     public static void main(String... strings) throws InterruptedException {
-        AppendableLine<Integer> line = new AppendableLine<>(100, 500);
+        AppendableLine<Integer> line = new AppendableLine<>(100, 100);
         for (int i = 0; i < 10; i++) {
             int finalI = i;
             Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
                 @Override
                 protected Object exec() throws Exception {
                     this.production += finalI;
-                    Thread.sleep(1L);
+                    Thread.sleep(10L);
                     return this.production;
                 }
             };
 
             line.appendWorker(executor);
         }
-        System.out.println("isStart" + line.isStarted());
-
         Thread t = new Thread(() -> {
             try {
-                for(int i = 1; i < 500; i++) {
+                for (int i = 0; i < 100; i++) {
                     line.appendProduction(i);
                 }
                 line.execute();
@@ -424,16 +425,65 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             }
         });
         t.start();
-        Thread.sleep(1L);
-        System.out.println("isStart" + line.isStarted());
-        System.out.println("isClosed" + line.isClosed());
-        System.out.println("isDone" + line.isDone());
+        Thread.sleep(100);
+        System.out.println("isStart " + line.isStarted());
+        System.out.println("isClosed " + line.isClosed());
+        System.out.println("isDone " + line.isDone());
 
         Thread.sleep(1000L);
-        System.out.println("isDone" + line.isDone());
-        line.close();
-        Thread.sleep(1L);
-        System.out.println("isClose" + line.isClosed());
+        System.out.println("isDone " + line.isDone());
+        Thread t2 = new Thread(() -> {
+            for (int i = 0; i < 100; i++) {
+                line.appendProduction(i);
+            }
+        });
+        t2.start();
+        Thread.sleep(10);
+        System.out.println("isDone " + line.isDone());
+        Thread.sleep(10000);
+        System.out.println("isDone " + line.isDone());
+//            line.close();
+//            Thread.sleep(100);
+//            Assert.assertTrue(line.isStarted());
+//            Assert.assertTrue(line.isDone());
+//            Assert.assertTrue(line.isClosed());
     }
+//        AppendableLine<Integer> line = new AppendableLine<>(100, 500);
+//        for (int i = 0; i < 10; i++) {
+//            int finalI = i;
+//            Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
+//                @Override
+//                protected Object exec() throws Exception {
+//                    this.production += finalI;
+//                    Thread.sleep(1L);
+//                    return this.production;
+//                }
+//            };
+//
+//            line.appendWorker(executor);
+//        }
+//        System.out.println("isStart" + line.isStarted());
+//
+//        Thread t = new Thread(() -> {
+//            try {
+//                for(int i = 1; i < 500; i++) {
+//                    line.appendProduction(i);
+//                }
+//                line.execute();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
+//        t.start();
+//        Thread.sleep(1L);
+//        System.out.println("isStart" + line.isStarted());
+//        System.out.println("isClosed" + line.isClosed());
+//        System.out.println("isDone" + line.isDone());
+//
+//        Thread.sleep(1000L);
+//        System.out.println("isDone" + line.isDone());
+//        line.close();
+//        Thread.sleep(1L);
+//        System.out.println("isClose" + line.isClosed());
 
 }

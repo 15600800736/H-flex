@@ -52,4 +52,61 @@ public class TestAppendableLine {
             Assert.assertTrue(line.isClosed());
         }
     }
+
+    @Test
+    public void testAppendProduction() throws InterruptedException {
+        for(int j = 0; j < 10; j++) {
+            AppendableLine<Integer> line = new AppendableLine<>(100, 100);
+            for (int i = 0; i < 10; i++) {
+                int finalI = i;
+                Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
+                    @Override
+                    protected Object exec() throws Exception {
+                        this.production += finalI;
+                        Thread.sleep(10L);
+                        return this.production;
+                    }
+                };
+
+                line.appendWorker(executor);
+            }
+            Thread t = new Thread(() -> {
+                try {
+                    for (int i = 1; i < 100; i++) {
+                        line.appendProduction(i);
+                    }
+                    line.execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            t.start();
+            Thread.sleep(100);
+            Assert.assertTrue(line.isStarted());
+            Assert.assertFalse(line.isDone());
+            Assert.assertFalse(line.isClosed());
+            Thread.sleep(10000);
+            Assert.assertTrue(line.isStarted());
+            Assert.assertTrue(line.isDone());
+            Assert.assertFalse(line.isClosed());
+            Thread t2 = new Thread(() -> {
+                for (int i = 1; i < 100; i++) {
+                    line.appendProduction(i);
+                }
+            });
+            t2.start();
+            Assert.assertTrue(line.isStarted());
+            Assert.assertFalse(line.isDone());
+            Assert.assertFalse(line.isClosed());
+            Thread.sleep(10000);
+            Assert.assertTrue(line.isStarted());
+            Assert.assertTrue(line.isDone());
+            Assert.assertFalse(line.isClosed());
+//            line.close();
+//            Thread.sleep(100);
+//            Assert.assertTrue(line.isStarted());
+//            Assert.assertTrue(line.isDone());
+//            Assert.assertTrue(line.isClosed());
+        }
+    }
 }
