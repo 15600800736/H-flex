@@ -48,6 +48,9 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     P production = worker.productionCache.take();
                     injectProduction(worker.worker, production);
                     P finishedProduction = worker.worker.execute();
+                    if(this == lastProcessor) {
+                        LockSupport.unpark(lineThread);
+                    }
                     nextProcessor.worker.addProdution(finishedProduction);
                 } catch (Exception e) {
                     System.out.println("interrupt when worker" + worker.position + "take productions");
