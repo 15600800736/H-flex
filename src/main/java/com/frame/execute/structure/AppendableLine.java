@@ -62,7 +62,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     nextProcessor.worker.addProdution(finishedProduction);
                 } catch (Exception e) {
                     if (e instanceof InterruptedException) {
-                        System.out.println("thread " + worker.position + "has been closed");
                         return;
                     }
                 }
@@ -88,8 +87,8 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         BlockingQueue<P> productionCache;
 
         Boolean needMax = false;
+
         /**
-         *
          * @param worker
          * @param position
          */
@@ -126,7 +125,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 this.productionCache.put(production);
             } catch (InterruptedException e) {
                 // todo
-                System.out.println("interrupt when add production");
             }
         }
     }
@@ -259,31 +257,32 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         createTailProcessor();
         // start to inject production into first processor;
         pool.submit(headerProcessor.worker.worker);
+
     }
 
     @Override
     protected Object exec() throws Exception {
         try {
-            if (isClosed()) {
-                return tailProcessor.worker.productionCache;
-            }
             if (!isStarted()) {
                 compareAndSetStarted(false, true);
             }
             Process currentProcessor = firstProcessor;
 
             while (currentProcessor != tailProcessor) {
-                pool.submit(currentProcessor);
-                System.out.println("Thread " + currentProcessor.worker.position + "has started.");
+                if(!pool.isShutdown()) {
+                    pool.submit(currentProcessor);
+                }
                 currentProcessor = currentProcessor.nextProcessor;
+
             }
             for (; ; ) {
                 if (tailProcessor.worker.productionCache.size() == countOfProduction.get()) {
                     if (!isDone()) {
                         compareAndSetDone(false, true);
-                        if (isClosed()) {
-                            return tailProcessor.worker.productionCache;
-                        }
+                    }
+                    if (isClosed()) {
+                        System.out.println("size " + tailProcessor.worker.productionCache.size());
+                        return tailProcessor.worker.productionCache;
                     }
                 }
                 LockSupport.park();
@@ -296,13 +295,12 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     @Override
     public List<P> postProcessForExecute(Object result) {
         BlockingQueue<P> finishedProductions = (BlockingQueue<P>) result;
-        System.out.println("size " + finishedProductions.size());
         List<P> finished = new LinkedList<>();
         for (; ; ) {
-            if (finishedProductions.poll() == null) {
+            P product = finishedProductions.poll();
+            if (product == null) {
                 return finished;
             }
-            P product = finishedProductions.poll();
             finished.add(product);
         }
     }
@@ -317,7 +315,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             }
         } catch (InterruptedException e) {
             // todo
-            System.out.println(" interrupt when put production.");
             e.printStackTrace();
         }
     }
@@ -357,7 +354,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 LockSupport.unpark(this.lineThread);
                 for (Process p = headerProcessor; p != tailProcessor; p = p.nextProcessor) {
                     if (p.currentThread != null) {
-                        System.out.println("close thread " + p.worker.position);
                         // double check
                         if (!isClosed()) {
                             compareAndSetClosed(false, true);
@@ -372,13 +368,8 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
     public P get() {
-        try {
-            return tailProcessor.worker.productionCache.take();
-        } catch (InterruptedException e) {
-            // todo
-            System.out.println("interrupt when get");
-            return null;
-        }
+        System.out.println(tailProcessor.worker.productionCache.size());
+        return tailProcessor.worker.productionCache.poll();
     }
 
     /**
@@ -455,7 +446,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             }
         });
         t.start();
-        Thread.sleep(30000);
+        Thread.sleep(1000);
         line.close();
         //            line.close();
 //            Thread.sleep(100);
