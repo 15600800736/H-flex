@@ -278,21 +278,11 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 if (countOfProduction.compareAndSet(tailProcessor.worker.productionCache.size(), 0)) {
                     if (!isDone()) {
                         compareAndSetDone(false, true);
-                        System.out.println("set done");
                     }
                     if (isClosed()) {
-                        System.out.println("Close!!!!!!");
                         return tailProcessor.worker.productionCache;
                     }
                 }
-                System.out.println("cache size " + tailProcessor.worker.productionCache.size());
-                System.out.println("count of production" + countOfProduction.get());
-                Process temp = headerProcessor;
-                while(temp != null) {
-                    System.out.println("worker " + temp.worker.position + "'s cache is " + temp.worker.productionCache.size());
-                    temp = temp.nextProcessor;
-                }
-                System.out.println("--------------------------------------");
                 LockSupport.park();
             }
         } finally {
@@ -372,7 +362,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
     public P get() {
-        System.out.println("tail processor's cache is " + tailProcessor.worker.productionCache.size());
         return tailProcessor.worker.productionCache.poll();
     }
 
@@ -392,7 +381,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 headerProcessor.currentThread = Thread.currentThread();
                 for (; ; ) {
                     P production = AppendableLine.this.production.take();
-                    System.out.println("take a production from line's cache.");
                     if (headerProcessor.nextProcessor != null && headerProcessor.nextProcessor.worker != null) {
                         headerProcessor.nextProcessor.worker.addProdution(production);
                     }
