@@ -54,13 +54,12 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     injectProduction(worker.worker, production);
                     P finishedProduction = worker.worker.execute();
                     // if this is last processor pushing production into tail processor, check if done(There are some mistakes here)
+                    nextProcessor.worker.addProdution(finishedProduction);
                     if (this == lastProcessor) {
                         LockSupport.unpark(lineThread);
                     }
 
                     // pushing production into next worker.
-                    nextProcessor.worker.addProdution(finishedProduction);
-                    System.out.println("worker " + worker.position + "'s cache size is " + worker.productionCache.size());
                 } catch (Exception e) {
                     if (e instanceof InterruptedException) {
                         return;
@@ -276,18 +275,24 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
             }
             for (; ; ) {
-                if (tailProcessor.worker.productionCache.size() == countOfProduction.get()) {
+                if (countOfProduction.compareAndSet(tailProcessor.worker.productionCache.size(), 0)) {
                     if (!isDone()) {
                         compareAndSetDone(false, true);
                         System.out.println("set done");
                     }
                     if (isClosed()) {
-                        System.out.println("size " + tailProcessor.worker.productionCache.size());
+                        System.out.println("Close!!!!!!");
                         return tailProcessor.worker.productionCache;
                     }
                 }
                 System.out.println("cache size " + tailProcessor.worker.productionCache.size());
                 System.out.println("count of production" + countOfProduction.get());
+                Process temp = headerProcessor;
+                while(temp != null) {
+                    System.out.println("worker " + temp.worker.position + "'s cache is " + temp.worker.productionCache.size());
+                    temp = temp.nextProcessor;
+                }
+                System.out.println("--------------------------------------");
                 LockSupport.park();
             }
         } finally {
