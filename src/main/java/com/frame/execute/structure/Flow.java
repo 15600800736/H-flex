@@ -76,6 +76,5 @@ public abstract class Flow<P,T> extends Executor<P,T> {
         return started.get();
     }
 
-
     public abstract void close();
 }

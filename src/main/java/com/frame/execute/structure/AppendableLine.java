@@ -1,17 +1,13 @@
 package com.frame.execute.structure;
 
 import com.frame.execute.Executor;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by fdh on 2017/7/29.
@@ -57,6 +53,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     if (e instanceof InterruptedException) {
                         return;
                     }
+                    e.printStackTrace();
                 }
             }
         }
@@ -117,6 +114,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             try {
                 this.productionCache.put(production);
             } catch (InterruptedException e) {
+                System.out.println("here!here!");
                 // todo
             }
         }
@@ -309,10 +307,10 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         }
     }
 
-    public Boolean appendWorker(Executor<P, P> worker) {
+    public AppendableLine appendWorker(Executor<P, P> worker) {
         // if the line has started, you can't add worker into the line.
         if (isStarted()) {
-            return false;
+            return this;
         }
         // if this is the first time adding processor
         if (firstProcessor == null) {
@@ -320,7 +318,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             process.worker = new WorkerInfo(worker, 1);
             firstProcessor = process;
             lastProcessor = process;
-            return true;
+            return this;
         }
 
         if (lastProcessor == null) {
@@ -333,7 +331,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         lastProcessor.nextProcessor = process;
         // update tail processor
         lastProcessor = lastProcessor.nextProcessor;
-        return true;
+        return this;
     }
 
     @Override
@@ -400,67 +398,72 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
 
-    public static void main(String... strings) throws Exception {
-        AppendableLine<Integer> line = new AppendableLine<>(100, 100);
-        try {
-            for (int i = 0; i < 10; i++) {
-                int finalI = i;
-                Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
-                    @Override
-                    protected Object exec() throws Exception {
-                        this.production += finalI;
-                        Thread.sleep(10L);
-                        return this.production;
-                    }
-                };
+//    static class Test {
+//
+//        Map<Integer, String> map1 = new ConcurrentHashMap<>(2);
+//
+//        Map<Integer, String> map2 = new ConcurrentHashMap<>(2);
+//    }
 
-                line.appendWorker(executor);
-            }
-            try {
-                for (int i = 0; i < 10; i++) {
-                    line.appendProduction(i);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            Thread lineExecThread = new Thread(() -> {
-                try {
-                    line.execute();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }, "lineExecThread");
-            lineExecThread.start();
-            for (; ; ) {
-                if (line.isDone()) {
-                    Integer r = line.get();
-                    if(r == null) {
-                        break;
-                    }
-                    System.out.println(r);
-                }
-            }
-
-            try {
-                for (int i = 200; i < 400; i++) {
-                    line.appendProduction(i);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            for (; ; ) {
-                if (line.isDone()) {
-                    Integer r = line.get();
-                    if(r == null) {
-                        break;
-                    }
-                    System.out.println(r);
-                }
-            }
-
-        } finally {
-            line.close();
-        }
-    }
+//    public static void main(String... strings) throws Exception {
+//        AppendableLine<Test> line = new AppendableLine<>(100, 100);
+//        ReusableTask<Test> task1 = new ReusableTask<>(2);
+//        task1.appendWorker(new Executor<Test, Object>() {
+//            @Override
+//            protected Object exec() throws Exception {
+//                this.production.map1.putIfAbsent(1,"Processed by task 1 worker 1");
+//                return "Processed by task 1 worker 1";
+//            }
+//        });
+//        task1.appendWorker(new Executor<Test, Object>() {
+//
+//            @Override
+//            protected Object exec() throws Exception {
+//                this.production.map2.putIfAbsent(2,"Processed by task 1 worker 2");
+//                return "Processed by task 1 worker 2";
+//            }
+//        });
+//
+//        ReusableTask<Test> task2 = new ReusableTask<>(2);
+//        task2.appendWorker(new Executor<Test, Object>() {
+//            @Override
+//            protected Object exec() throws Exception {
+//                this.production.map1.putIfAbsent(3,"Processed by task 2 worker 1");
+//                return "Processed by task 2 worker 1";
+//            }
+//        });
+//        task2.appendWorker(new Executor<Test, Object>() {
+//            @Override
+//            protected Object exec() throws Exception {
+//                this.production.map2.putIfAbsent(4,"Processed by task 2 worker 2");
+//                return "Processed by task 2 worker 2";
+//            }
+//        });
+//        line.appendWorker(task1).appendWorker(task2);
+//        Thread exe = new Thread(() -> {
+//            try {
+//                line.execute();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
+//        exe.start();
+//        for (int i = 0; i < 3; i++) {
+//            Test test = new Test();
+//            line.appendProduction(test);
+//        }
+//
+//        for (; ; ) {
+//            if(line.isDone()) {
+//                Test test = line.get();
+//                if(test == null) {
+//                    break;
+//                }
+//                test.map1.entrySet().forEach(System.out::println);
+//                test.map2.entrySet().forEach(System.out::println);
+//                System.out.println("_____________________");
+//            }
+//        }
+//        line.close();
+//    }
 }
