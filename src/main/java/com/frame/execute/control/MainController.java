@@ -5,6 +5,7 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
+import com.frame.execute.structure.AppendableLine;
 import com.frame.execute.structure.AppendableTask;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
@@ -12,6 +13,7 @@ import com.frame.execute.scan.RegisterScanner;
 import com.frame.execute.scan.Scanner;
 import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.read.ConfigurationReader;
+import com.frame.execute.structure.ReusableTask;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -75,7 +77,6 @@ public class MainController extends Controller<Object,Boolean> {
         reader = createConfigurationReader("F:\\SourceTreeGit\\H-flex\\src\\main\\resources\\test.xml");
         configuration = reader.createConfiguration();
         registerExecutor();
-        step();
     }
 
     private void initTaskQueue() {
@@ -93,20 +94,34 @@ public class MainController extends Controller<Object,Boolean> {
      */
     @Override
     public Boolean exec() throws Exception {
-        // if the frame is ready for initialize
-        Scanner scanner = null;
-        if (reader != null) {
-            scanner = new RegisterScanner(configuration, configuration.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
-                    configuration.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS));
-        }
-        if (scanner != null) {
+        //first step: scan from xml
+        AppendableLine<Configuration> configurationLine = new AppendableLine<>(1);
+        ReusableTask<Configuration> registerTask = new ReusableTask<>();
+
+        registerTask.appendWorker(new RegisterScanner(configuration,
+                reader.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
+                reader.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS)));
+
+        configurationLine.appendProduction(configuration);
+        configurationLine.appendWorker(registerTask);
+
+        Thread lineExecThread = new Thread(()-> {
             try {
-                scanner.execute();
-            } catch (ScanException e) {
+                configurationLine.execute();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+        }, "lineExecThread");
+
+        lineExecThread.start();
+        configurationLine.close();
+        for(; ;) {
+            if(configurationLine.isDone()) {
+                configuration = configurationLine.get();
+                break;
+            }
         }
-        return true;
+        return null;
     }
 
     /**
@@ -126,12 +141,6 @@ public class MainController extends Controller<Object,Boolean> {
     }
 
 
-    /**
-     * <p>When this method is invoked, the frame's initialization will become the next stage</p>
-     */
-    private void step() {
-    }
-
 
     /**
      * <p>Register the handler to initialize the frame,
@@ -139,5 +148,17 @@ public class MainController extends Controller<Object,Boolean> {
      */
     private void registerExecutor() {
 
+    }
+
+    public static void main(String[] args) {
+        for(int i = 0; i < 100; i++) {
+            MainController m = new MainController();
+            try {
+                m.execute();
+                Thread.sleep(300);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

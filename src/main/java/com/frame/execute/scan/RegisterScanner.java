@@ -57,7 +57,7 @@ public class RegisterScanner extends Scanner {
             throw new ScanException("<action-classes></action-classes> 或 <annotation-scan/><base-contents></base-contents>"
                     , "没有可供注册的方法");
         }
-        Scanner scanner = null;
+        Scanner scanner;
 
         // register scan by xml
         if (actionClasses != null) {
@@ -71,6 +71,7 @@ public class RegisterScanner extends Scanner {
         }
 
         production.setIsRegisterd(true);
+        System.out.println(production);
         return production;
     }
 

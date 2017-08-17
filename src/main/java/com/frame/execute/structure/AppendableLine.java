@@ -173,64 +173,20 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         this.production = new LinkedBlockingQueue<>(productionCacheSize);
     }
 
-    public AppendableLine(CyclicBarrier barrier, BlockingQueue<P> production) {
-        super(barrier, production);
-        this.production = new LinkedBlockingQueue<>(productionCacheSize);
-    }
-
-    public AppendableLine(Integer productionCacheSize) {
+    public AppendableLine(int productionCacheSize) {
         this.productionCacheSize = productionCacheSize;
         this.production = new LinkedBlockingQueue<>(productionCacheSize);
     }
 
-    public AppendableLine(BlockingQueue<P> production, Integer productionCacheSize) {
-        super(production);
-        this.productionCacheSize = productionCacheSize;
-        this.production = new LinkedBlockingQueue<>(productionCacheSize);
-    }
-
-    public AppendableLine(CyclicBarrier barrier, BlockingQueue<P> production, Integer productionCacheSize) {
-        super(barrier, production);
-        this.productionCacheSize = productionCacheSize;
-        this.production = new LinkedBlockingQueue<>(productionCacheSize);
-    }
-
-    public AppendableLine(int workerNum) {
-        this.workerNum = workerNum;
-        this.production = new LinkedBlockingQueue<>(productionCacheSize);
-    }
-
-    public AppendableLine(BlockingQueue<P> production, int workerNum) {
-        super(production);
-        this.workerNum = workerNum;
-        this.production = new LinkedBlockingQueue<>(productionCacheSize);
-    }
-
-    public AppendableLine(CyclicBarrier barrier, BlockingQueue<P> production, int workerNum) {
-        super(barrier, production);
-        this.workerNum = workerNum;
-        this.production = new LinkedBlockingQueue<>(productionCacheSize);
-    }
-
-    public AppendableLine(int workerNum, Integer productionCacheSize) {
+    public AppendableLine(int workerNum, int productionCacheSize) {
         this.workerNum = workerNum;
         this.productionCacheSize = productionCacheSize;
         this.production = new LinkedBlockingQueue<>(productionCacheSize);
     }
 
-    public AppendableLine(BlockingQueue<P> production, int workerNum, Integer productionCacheSize) {
-        super(production);
-        this.workerNum = workerNum;
-        this.productionCacheSize = productionCacheSize;
-        this.production = new LinkedBlockingQueue<>(productionCacheSize);
-    }
 
-    public AppendableLine(CyclicBarrier barrier, BlockingQueue<P> production, int workerNum, Integer productionCacheSize) {
-        super(barrier, production);
-        this.workerNum = workerNum;
-        this.productionCacheSize = productionCacheSize;
-        this.production = new LinkedBlockingQueue<>(productionCacheSize);
-    }
+
+
 
     @Override
     public void prepareForExecute() {
@@ -238,7 +194,9 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         createHeaderProcessor();
         createTailProcessor();
         // start to inject production into first processor;
-        pool.submit(headerProcessor.worker.worker);
+        if(headerProcessor != null) {
+            pool.submit(headerProcessor.worker.worker);
+        }
 
     }
 
