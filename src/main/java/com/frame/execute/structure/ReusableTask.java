@@ -11,6 +11,19 @@ import java.util.concurrent.*;
  * Created by fdh on 2017/8/16.
  */
 public class ReusableTask<P> extends Flow<P, P> {
+    protected class NamedThreadFactory implements ThreadFactory {
+        ThreadFactory tf = Executors.defaultThreadFactory();
+        public NamedThreadFactory() {
+
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = tf.newThread(r);
+            t.setName("task's worker thread");
+            return t;
+        }
+    }
     protected class WorkerInfo {
         Executor<P, ?> worker;
         P production;
@@ -31,7 +44,7 @@ public class ReusableTask<P> extends Flow<P, P> {
     /**
      * <p>The cache thread pool means the task can be acting concurrently</p>
      */
-    private ExecutorService pool = Executors.newCachedThreadPool();
+    private ExecutorService pool = Executors.newCachedThreadPool(new NamedThreadFactory());
     /**
      * <p>AppendableTask's workers, the production will be passed into the workers and let them process it</p>
      */

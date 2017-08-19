@@ -45,6 +45,19 @@ import java.util.concurrent.*;
  * And you will get a 0, because the task...
  */
 public class AppendableTask<P> extends Flow<P, P> {
+    protected class NamedThreadFactory implements ThreadFactory {
+        ThreadFactory tf = Executors.defaultThreadFactory();
+        public NamedThreadFactory() {
+
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = tf.newThread(r);
+            t.setName("task's worker thread");
+            return t;
+        }
+    }
 
     protected class WorkerInfo {
         Executor<P, ?> worker;
@@ -66,7 +79,7 @@ public class AppendableTask<P> extends Flow<P, P> {
     /**
      * <p>The cache thread pool means the task can be acting concurrently</p>
      */
-    private final ExecutorService pool = Executors.newCachedThreadPool();
+    private final ExecutorService pool = Executors.newCachedThreadPool(new NamedThreadFactory());
     /**
      * <p>AppendableTask's workers, the production will be passed into the workers and let them process it</p>
      */
@@ -269,6 +282,7 @@ public class AppendableTask<P> extends Flow<P, P> {
         }
         if (taskThread != null) {
             taskThread.interrupt();
+            System.out.println("task thread interrupt");
         } else {
             // todo
         }

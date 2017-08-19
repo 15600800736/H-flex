@@ -2,9 +2,9 @@ package com.frame.execute.structure;
 
 import com.frame.execute.Executor;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
@@ -14,6 +14,19 @@ import java.util.concurrent.locks.LockSupport;
  */
 public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
+    protected class NamedThreadFactory implements ThreadFactory {
+        ThreadFactory tf = Executors.defaultThreadFactory();
+        public NamedThreadFactory() {
+
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = tf.newThread(r);
+            t.setName("line's task thread");
+            return t;
+        }
+    }
     /**
      * <p>A process is a abstraction of a point in a line of factory, like a Node, it has worker and the next one.
      * When the next process is null, means there are no more process, and the line will be hanged up until some thread close
@@ -44,10 +57,10 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     P finishedProduction = worker.worker.execute();
                     // if this is last processor pushing production into tail processor, check if done(There are some mistakes here)
                     nextProcessor.worker.addProdution(finishedProduction);
+                    System.out.println("added " + worker.position);
                     if (this == lastProcessor) {
                         LockSupport.unpark(lineThread);
                     }
-
                     // pushing production into next worker.
                 } catch (Exception e) {
                     if (e instanceof InterruptedException) {
@@ -114,7 +127,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             try {
                 this.productionCache.put(production);
             } catch (InterruptedException e) {
-                System.out.println("here!here!");
                 // todo
             }
         }
@@ -143,7 +155,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     /**
      *
      */
-    private ExecutorService pool = Executors.newFixedThreadPool(workerNum);
+    private ExecutorService pool = Executors.newFixedThreadPool(workerNum,new NamedThreadFactory());
 
     /**
      *
@@ -185,16 +197,13 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
 
-
-
-
     @Override
     public void prepareForExecute() {
         this.lineThread = Thread.currentThread();
         createHeaderProcessor();
         createTailProcessor();
         // start to inject production into first processor;
-        if(headerProcessor != null) {
+        if (headerProcessor != null) {
             pool.submit(headerProcessor.worker.worker);
         }
 
@@ -239,13 +248,8 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     public List<P> postProcessForExecute(Object result) {
         BlockingQueue<P> finishedProductions = (BlockingQueue<P>) result;
         List<P> finished = new LinkedList<>();
-        for (; ; ) {
-            P product = finishedProductions.poll();
-            if (product == null) {
-                return finished;
-            }
-            finished.add(product);
-        }
+        P[] products = (P[]) finishedProductions.toArray();
+        return Arrays.asList(products);
     }
 
 
@@ -294,23 +298,33 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
     @Override
     public void close() {
-        if (!isClosed()) {
-            compareAndSetClosed(false, true);
-            LockSupport.unpark(this.lineThread);
-            for (Process p = headerProcessor; p != tailProcessor; p = p.nextProcessor) {
-                if (p.currentThread != null) {
-                    // double check
-                    if (!isClosed()) {
-                        compareAndSetClosed(false, true);
+        for (; ; ) {
+            if (!isClosed() && isStarted()) {
+                compareAndSetClosed(false, true);
+                LockSupport.unpark(this.lineThread);
+                for (Process p = headerProcessor; p != tailProcessor; p = p.nextProcessor) {
+                    if (p.currentThread != null) {
+                        // double check
+                        if (!isClosed()) {
+                            compareAndSetClosed(false, true);
+                        }
+                        p.currentThread.interrupt();
                     }
-                    p.currentThread.interrupt();
                 }
+                return;
             }
         }
     }
 
     public P get() {
-        return tailProcessor.worker.productionCache.poll();
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        P result = tailProcessor.worker.productionCache.poll();
+        return result;
+
     }
 
     /**
@@ -331,6 +345,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     P production = AppendableLine.this.production.take();
                     if (headerProcessor.nextProcessor != null && headerProcessor.nextProcessor.worker != null) {
                         headerProcessor.nextProcessor.worker.addProdution(production);
+                        System.out.println("added " + headerProcessor.worker.position);
                     }
                 }
             }

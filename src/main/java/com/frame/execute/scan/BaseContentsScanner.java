@@ -130,10 +130,12 @@ public class BaseContentsScanner extends Scanner {
      */
     class PutThread extends ScanThread {
         private List<String> paths;
-
-        public PutThread(List<String> paths, CountDownLatch scannerLatch) {
+        private Thread takingThread;
+        public PutThread(List<String> paths, CountDownLatch scannerLatch, Thread takingThread) {
             super(scannerLatch);
             this.paths = paths;
+            this.takingThread = takingThread;
+            setName("put thread");
         }
 
         @Override
@@ -144,6 +146,9 @@ public class BaseContentsScanner extends Scanner {
                 getClassesFromClasspath(pathName, p);
             });
             flag = true;
+            if(takingThread != null) {
+                takingThread.interrupt();
+            }
             scannerLatch.countDown();
         }
     }
@@ -157,6 +162,7 @@ public class BaseContentsScanner extends Scanner {
         public TakeThread(Configuration production, CountDownLatch scannerLatch) {
             super(scannerLatch);
             this.production = production;
+            setName("take thread");
         }
 
         @Override
@@ -186,7 +192,7 @@ public class BaseContentsScanner extends Scanner {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     if (logger.isErrorEnabled()) {
-                        logger.error("scanning has been cancelled.");
+                        logger.error("putting cancelled.");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -230,8 +236,8 @@ public class BaseContentsScanner extends Scanner {
 
             // ThreadPool
             ExecutorService ex = Executors.newCachedThreadPool();
-            Thread pathScanThread = new PutThread(paths, scannerLatch);
             Thread classRegisterThread = new TakeThread(production, scannerLatch);
+            Thread pathScanThread = new PutThread(paths, scannerLatch,classRegisterThread);
             ex.execute(pathScanThread);
             ex.execute(classRegisterThread);
             try {

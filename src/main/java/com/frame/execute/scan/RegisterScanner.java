@@ -71,7 +71,6 @@ public class RegisterScanner extends Scanner {
         }
 
         production.setIsRegisterd(true);
-        System.out.println(production);
         return production;
     }
 

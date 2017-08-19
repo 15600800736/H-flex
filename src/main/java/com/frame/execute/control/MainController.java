@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * if the current task is finished and the field {@code state}, if false, the controller will yield to let other threads
  * work, otherwise, it will call {@code step()} to get next task to execute until the state equals finished</p>
  */
-public class MainController extends Controller<Object,Boolean> {
+public class MainController extends Controller<Object, Boolean> {
     /**
      * <p>Reader is used for reading resources and transform it to a tree with returning its root</p>
      */
@@ -105,7 +105,7 @@ public class MainController extends Controller<Object,Boolean> {
         configurationLine.appendProduction(configuration);
         configurationLine.appendWorker(registerTask);
 
-        Thread lineExecThread = new Thread(()-> {
+        Thread lineExecThread = new Thread(() -> {
             try {
                 configurationLine.execute();
             } catch (Exception e) {
@@ -115,12 +115,13 @@ public class MainController extends Controller<Object,Boolean> {
 
         lineExecThread.start();
         configurationLine.close();
-        for(; ;) {
-            if(configurationLine.isDone()) {
+        for (; ; ) {
+            if (configurationLine.isDone()) {
                 configuration = configurationLine.get();
                 break;
             }
         }
+        System.out.println(configuration.getActions().entrySet());
         return null;
     }
 
@@ -141,7 +142,6 @@ public class MainController extends Controller<Object,Boolean> {
     }
 
 
-
     /**
      * <p>Register the handler to initialize the frame,
      * include Scanner, Parser etc.</p>
@@ -151,11 +151,12 @@ public class MainController extends Controller<Object,Boolean> {
     }
 
     public static void main(String[] args) {
-        for(int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             MainController m = new MainController();
             try {
                 m.execute();
-                Thread.sleep(300);
+                System.out.println(i + "----------------------");
+                Thread.sleep(100);
             } catch (Exception e) {
                 e.printStackTrace();
             }
