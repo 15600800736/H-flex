@@ -135,7 +135,7 @@ public class BaseContentsScanner extends Scanner {
             super(scannerLatch);
             this.paths = paths;
             this.takingThread = takingThread;
-            setName("put thread");
+
         }
 
         @Override
@@ -162,7 +162,6 @@ public class BaseContentsScanner extends Scanner {
         public TakeThread(Configuration production, CountDownLatch scannerLatch) {
             super(scannerLatch);
             this.production = production;
-            setName("take thread");
         }
 
         @Override
@@ -233,18 +232,23 @@ public class BaseContentsScanner extends Scanner {
                 String text = p.getText();
                 paths.add(text);
             });
-
-            // ThreadPool
             ExecutorService ex = Executors.newCachedThreadPool();
-            Thread classRegisterThread = new TakeThread(production, scannerLatch);
-            Thread pathScanThread = new PutThread(paths, scannerLatch,classRegisterThread);
-            ex.execute(pathScanThread);
-            ex.execute(classRegisterThread);
             try {
-                scannerLatch.await();
-            } catch (InterruptedException e) {
-                if (logger.isErrorEnabled()) {
-                    logger.error("The scanning thread has been interrupt");
+                // ThreadPool
+                Thread classRegisterThread = new TakeThread(production, scannerLatch);
+                classRegisterThread.setName("take thread");
+                Thread pathScanThread = new PutThread(paths, scannerLatch, classRegisterThread);
+                pathScanThread.setName("put thread");
+                ex.submit(pathScanThread);
+                ex.submit(classRegisterThread);
+                try {
+                    scannerLatch.await();
+                } catch (InterruptedException e) {
+                    if (logger.isErrorEnabled()) {
+                        logger.error("The scanning thread has been interrupt");
+                    }
+                } finally {
+                    ex.shutdown();
                 }
             } finally {
                 ex.shutdown();
