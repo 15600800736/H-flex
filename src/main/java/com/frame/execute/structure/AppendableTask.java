@@ -282,7 +282,6 @@ public class AppendableTask<P> extends Flow<P, P> {
         }
         if (taskThread != null) {
             taskThread.interrupt();
-            System.out.println("task thread interrupt");
         } else {
             // todo
         }

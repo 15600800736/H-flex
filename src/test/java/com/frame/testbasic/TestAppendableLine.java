@@ -134,26 +134,23 @@ public class TestAppendableLine {
 
             line.appendWorker(executor);
         }
-        List<Integer> result = new LinkedList<>();
         Thread t = new Thread(() -> {
             try {
                 for (int i = 1; i < 100; i++) {
                     line.appendProduction(i);
                 }
-                result.addAll(line.execute());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         t.start();
-
-        Thread.sleep(30000);
-        result.forEach(r->{
-            if(logger.isDebugEnabled()) {
-                logger.debug(String.valueOf(r));
-            } else {
-                System.out.println(r);
+        for (; ; ) {
+            if(line.isStarted()) {
+                Integer result = line.get();
+                if (result != null) {
+                    System.out.println(result);
+                }
             }
-        });
+        }
     }
 }

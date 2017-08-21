@@ -43,7 +43,6 @@ public class MainController extends Controller<Object, Boolean> {
     public Configuration configuration;
 
 
-
     @Override
     public void prepareForExecute() {
 
@@ -85,12 +84,12 @@ public class MainController extends Controller<Object, Boolean> {
         lineExecThread.start();
         configurationLine.close();
         for (; ; ) {
-            if (configurationLine.isDone()) {
-                configuration = configurationLine.get();
+            if(configurationLine.isDone()) {
+                Configuration configuration = configurationLine.get();
+                System.out.println(configuration);
                 break;
             }
         }
-        System.out.println(configuration.getActions().entrySet());
         return null;
     }
 
@@ -118,15 +117,13 @@ public class MainController extends Controller<Object, Boolean> {
     private void registerExecutor() {
 
     }
+
     public static void main(String[] args) throws Exception {
-        for(int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             MainController controller = new MainController();
             controller.execute();
-            controller.configuration.getActions().entrySet().forEach(entry -> {
-                System.out.print(entry.getValue().getName() + " ");
-                entry.getValue().getParam().forEach(System.out::print);
-                System.out.println();
-            });
+            System.out.println(i);
+            Thread.sleep(10);
         }
     }
 
