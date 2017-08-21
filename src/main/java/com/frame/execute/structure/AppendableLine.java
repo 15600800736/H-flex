@@ -355,8 +355,12 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
     public P get() {
+        try {
+            return tailProcessor.worker.productionCache.take();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return tailProcessor.worker.productionCache.poll();
-
     }
 
     /**
@@ -441,11 +445,8 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         t.start();
         line.close();
 
-        while(line.hasNext()) {
-            Integer r = line.get();
-            if(r != null) {
-                System.out.println(r);
-            }
+        while (line.hasNext()) {
+            System.out.println(line.get());
         }
     }
 }
