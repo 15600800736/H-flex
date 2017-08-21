@@ -16,6 +16,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
     protected class NamedThreadFactory implements ThreadFactory {
         ThreadFactory tf = Executors.defaultThreadFactory();
+
         public NamedThreadFactory() {
 
         }
@@ -27,6 +28,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             return t;
         }
     }
+
     /**
      * <p>A process is a abstraction of a point in a line of factory, like a Node, it has worker and the next one.
      * When the next process is null, means there are no more process, and the line will be hanged up until some thread close
@@ -52,7 +54,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             this.currentThread = Thread.currentThread();
             for (; ; ) {
                 try {
-                    if(isClosed() && isStarted()) {
+                    if (isClosed() && isStarted() && isDone()) {
                         return;
                     }
                     System.out.println(worker.position + " cache size is " + worker.productionCache.size());
@@ -68,9 +70,10 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     // pushing production into next worker.
                 } catch (Exception e) {
                     if (e instanceof InterruptedException) {
-
+                        
+                    } else {
+                        e.printStackTrace();
                     }
-                    e.printStackTrace();
                 }
             }
         }
@@ -159,7 +162,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     /**
      *
      */
-    private ExecutorService pool = Executors.newFixedThreadPool(workerNum,new NamedThreadFactory());
+    private ExecutorService pool = Executors.newFixedThreadPool(workerNum, new NamedThreadFactory());
 
     /**
      *
@@ -345,12 +348,20 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             @Override
             protected Object exec() throws Exception {
                 headerProcessor.currentThread = Thread.currentThread();
+
                 for (; ; ) {
-                    System.out.println(headerProcessor.worker.position + " cache size is " + headerProcessor.worker.productionCache.size());
-                    P production = AppendableLine.this.production.take();
-                    if (headerProcessor.nextProcessor != null && headerProcessor.nextProcessor.worker != null) {
-                        headerProcessor.nextProcessor.worker.addProdution(production);
-                        System.out.println("added " + headerProcessor.worker.position);
+                    try {
+                        if (isClosed() && isStarted() && isDone()) {
+                            return null;
+                        }
+                        System.out.println(headerProcessor.worker.position + " cache size is " + headerProcessor.worker.productionCache.size());
+                        P production = AppendableLine.this.production.take();
+                        if (headerProcessor.nextProcessor != null && headerProcessor.nextProcessor.worker != null) {
+                            headerProcessor.nextProcessor.worker.addProdution(production);
+                            System.out.println("added " + headerProcessor.worker.position);
+                        }
+                    } catch (InterruptedException e) {
+                        // todo
                     }
                 }
             }

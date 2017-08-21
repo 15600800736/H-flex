@@ -14,8 +14,4 @@ public abstract class Transformer<P,T> extends Executor<P,T> {
     public Transformer(P production) {
         super(production);
     }
-
-    public Transformer(CyclicBarrier barrier, P production) {
-        super(barrier, production);
-    }
 }

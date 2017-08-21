@@ -20,11 +20,12 @@ import java.util.concurrent.CyclicBarrier;
  * The executor also has a barrier, which is used for let other partners wait until all of the works are done, all the executor
  * will wait at the end of {@code postProcessForExecute()}, and of course, you can make it in your way.For the moment, the executor can only be executed
  * by one thread.</p>
+ *
  * @param <P> the production type
  * @param <T> the result type
  */
-public abstract class Executor<P,T>
-        implements Callable<T>,Executable<T> {
+public abstract class Executor<P, T>
+        implements Callable<T>, Executable<T> {
 
     /**
      * <p>The barrier which let other partners wait, threads will wait at the end of execute()</p>
@@ -44,6 +45,7 @@ public abstract class Executor<P,T>
 
     /**
      * <p>Create an executor with a production</p>
+     *
      * @param production
      */
     public Executor(P production) {
@@ -51,22 +53,9 @@ public abstract class Executor<P,T>
     }
 
     /**
-     * <p>Create an executor with production and barrier</p>
-     * @param barrier
-     * @param production
-     */
-    public Executor(CyclicBarrier barrier,P production) {
-        this.barrier = barrier;
-        this.production = production;
-    }
-
-    public void setBarrier(CyclicBarrier barrier) {
-        this.barrier = barrier;
-    }
-
-    /**
      * <p>The main method in Executor, it will be called after {@code prepareForExecutor} and before {@code postProcessForExecute}.
      * Sub-classes should overwritten this method to implements your own logic</p>
+     *
      * @return
      * @throws Exception
      */
@@ -74,23 +63,20 @@ public abstract class Executor<P,T>
 
     /**
      * the entrance of executor, default implementation give you a chance to prepare and post-process
+     *
      * @return
      * @throws Exception
      */
     public final T execute() throws Exception {
-        try {
-            prepareForExecute();
-            Object rawResult = exec();
-            return postProcessForExecute(rawResult);
-        } finally {
-            if(this.barrier != null) {
-                this.barrier.await();
-            }
-        }
+        prepareForExecute();
+        Object rawResult = exec();
+        return postProcessForExecute(rawResult);
 
     }
+
     /**
      * <p>Default call just run the execute{@code execute}</p>
+     *
      * @return
      * @throws Exception
      */
@@ -108,16 +94,14 @@ public abstract class Executor<P,T>
 
     /**
      * process the result of {@code execute}, default implementation is type-transforming.
+     *
      * @param result the result of {@code execute()}
      * @return
      */
     public T postProcessForExecute(Object result) {
-        return (T)result;
+        return (T) result;
     }
 
-    public CyclicBarrier getBarrier() {
-        return barrier;
-    }
 
     public P getProduction() {
         return production;

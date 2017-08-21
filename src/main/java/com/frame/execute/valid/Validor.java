@@ -15,8 +15,5 @@ public abstract class Validor extends Executor<String, Boolean> {
         super(production);
     }
 
-    public Validor(CyclicBarrier barrier, String production) {
-        super(barrier, production);
-    }
 }
 

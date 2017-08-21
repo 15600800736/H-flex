@@ -21,10 +21,6 @@ public class ElementTransformer extends Transformer<List<Element>,List<Configura
         super(production);
     }
 
-    public ElementTransformer(CyclicBarrier barrier, List<Element> production) {
-        super(barrier, production);
-    }
-
     @Override
     public List<ConfigurationNode> exec() throws Exception{
         List<ConfigurationNode> nodes = new LinkedList<>();

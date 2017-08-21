@@ -121,7 +121,7 @@ public class AppendableTask<P> extends Flow<P, P> {
     }
 
     public AppendableTask(CyclicBarrier barrier, P production, int maxWorker) {
-        super(barrier, production);
+        super(production);
         this.maxWorker = maxWorker;
     }
 

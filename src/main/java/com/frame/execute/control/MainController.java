@@ -37,38 +37,11 @@ public class MainController extends Controller<Object, Boolean> {
      * <p>currentAppendableTask represents the currentAppendableTask in the appendableTaskQueue</p>
      */
     private volatile AppendableTask currentAppendableTask;
-
-    /**
-     * <p>state represents what progress the controller has made.
-     * <ol>
-     * <li>0 represents not start</li>
-     * <li>1 represents doing work</li>
-     * <li>2 represents initialization finished</li>
-     * <li>3 represents frame is ready to be used</li>
-     * <li>4 represents something wrong has happened</li>
-     * </ol>
-     * </p>
-     */
-    private AtomicInteger state = new AtomicInteger(0);
     /**
      * <p>Configuration is the main configure file of the frame</p>
      */
     public Configuration configuration;
 
-    /**
-     * <p>AppendableTask queue contains all of the work should be done, every time the controller
-     * will take the head task to execute util the state is finished. If there are no tasks,
-     * The thread will wait until another task is put in. So every thing the frame want to do should put an
-     * executor in it and let it do it.</p>
-     */
-    private BlockingQueue<AppendableTask> appendableTaskQueue = new LinkedBlockingQueue<>();
-
-    /**
-     * <p>The singleService is used for start a new thread to execute task, the single guarantee the task will be
-     * execute by its order in queue. Starting a new thread is for the main thread do other works instead of waiting the
-     * task finished. If you want to know if the task has finished, call {@code Boolean isFinished = currentAppendableTask.isDone()}</p>
-     */
-    private ExecutorService singleService = Executors.newSingleThreadExecutor();
 
 
     @Override
@@ -77,10 +50,6 @@ public class MainController extends Controller<Object, Boolean> {
         reader = createConfigurationReader("F:\\SourceTreeGit\\H-flex\\src\\main\\resources\\test.xml");
         configuration = reader.createConfiguration();
         registerExecutor();
-    }
-
-    private void initTaskQueue() {
-
     }
 
     @Override
@@ -156,7 +125,7 @@ public class MainController extends Controller<Object, Boolean> {
             try {
                 m.execute();
                 System.out.println(i + "----------------------");
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (Exception e) {
                 e.printStackTrace();
             }

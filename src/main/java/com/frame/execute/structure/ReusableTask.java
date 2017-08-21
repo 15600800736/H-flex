@@ -201,7 +201,7 @@ public class ReusableTask<P> extends Flow<P, P> {
     }
 
     public ReusableTask(CyclicBarrier barrier, P production, int maxWorker) {
-        super(barrier, production);
+        super(production);
         this.maxWorker = maxWorker;
     }
 

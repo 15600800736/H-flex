@@ -18,9 +18,6 @@ public abstract class Flow<P,T> extends Executor<P,T> {
         super(production);
     }
 
-    public Flow(CyclicBarrier barrier, P production) {
-        super(barrier, production);
-    }
 
     /**
      * <p>The field is to record if the flow has been finished rightly, This 'finished' means all of the executors return with no wrong and exceptions.

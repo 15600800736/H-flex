@@ -2,7 +2,6 @@ package com.frame.execute.scan;
 
 import com.frame.annotations.Action;
 import com.frame.annotations.ActionClass;
-import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.enums.TrueOrFalse;
 import com.frame.exceptions.ScanException;
@@ -10,7 +9,6 @@ import com.frame.context.info.StringInfomation.ActionInfo;
 import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.context.info.Node;
-import com.frame.thread.ScanThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +18,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by fdh on 2017/7/2.
@@ -43,6 +44,7 @@ public class BaseContentsScanner extends Scanner {
          *
          */
         private Class<?> actionClass;
+
         protected ActionRegisterScanner(Configuration production, Class<?> actionClass) {
             super(production);
             this.actionClass = actionClass;
@@ -50,13 +52,13 @@ public class BaseContentsScanner extends Scanner {
 
         @Override
         public Object exec() throws Exception {
-            if(actionClass == null) {
-                throw new ScanException(null,"actionClasses is null");
+            if (actionClass == null) {
+                throw new ScanException(null, "actionClasses is null");
             }
             // get all methods
             Method[] methods = actionClass.getDeclaredMethods();
             for (Method method : methods) {
-                if(method.isAnnotationPresent(Action.class)) {
+                if (method.isAnnotationPresent(Action.class)) {
                     Action actionAnnotation = method.getAnnotation(Action.class);
                     String id = actionAnnotation.id();
                     TrueOrFalse overload = actionAnnotation.overload();
@@ -78,8 +80,9 @@ public class BaseContentsScanner extends Scanner {
             String[] aliases = alias.split(",");
             return Arrays.asList(aliases);
         }
+
         private List<String> getParamType(Class<?>[] paramType) {
-            if(paramType == null) {
+            if (paramType == null) {
                 return null;
             }
             List<String> result = new LinkedList<>();
@@ -89,6 +92,7 @@ public class BaseContentsScanner extends Scanner {
             return result;
         }
     }
+
     private final Integer CLASS_SUFFIX_LENGTH = 6;
 
     /**
@@ -97,22 +101,9 @@ public class BaseContentsScanner extends Scanner {
     private final BlockingQueue<String> classesQueue = new LinkedBlockingQueue<>(256);
 
     /**
-     * <p>The flag field represents the states of putting-thread's work.
-     * When it finished, it will update the field into true. While the taking-thread
-     * will keep checking the field, when it has been changed into true and the block queue is empty,
-     * the taking-thread will return to finish the whole scanning progress.
-     * </p>
-     */
-    private volatile Boolean flag = false;
-
-    /**
      * <p>Total num of starting threads in this class</p>
      */
     private final int threadNumber = 2;
-    /**
-     * <p>represents the scanning progress's endpoint</p>
-     */
-    private final CountDownLatch scannerLatch = new CountDownLatch(2);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -128,11 +119,11 @@ public class BaseContentsScanner extends Scanner {
      * <p>The put-thread is used for scanning all of the classpath, and put the string-type class name
      * to the blocking queue, it will wait for other scanner thread </p>
      */
-    class PutThread extends ScanThread {
+    class PutThread extends Thread {
         private List<String> paths;
         private Thread takingThread;
-        public PutThread(List<String> paths, CountDownLatch scannerLatch, Thread takingThread) {
-            super(scannerLatch);
+
+        public PutThread(List<String> paths, Thread takingThread) {
             this.paths = paths;
             this.takingThread = takingThread;
 
@@ -145,22 +136,21 @@ public class BaseContentsScanner extends Scanner {
                 String pathName = classpath + p.replace(".", "\\");
                 getClassesFromClasspath(pathName, p);
             });
-            flag = true;
-            if(takingThread != null) {
-                takingThread.interrupt();
+            try {
+                classesQueue.put("");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            scannerLatch.countDown();
         }
     }
 
     /**
      * The taking thread is for checking if a class is a action class and register it into production
      */
-    class TakeThread extends ScanThread {
+    class TakeThread extends Thread {
         private Configuration production;
 
-        public TakeThread(Configuration production, CountDownLatch scannerLatch) {
-            super(scannerLatch);
+        public TakeThread(Configuration production) {
             this.production = production;
         }
 
@@ -168,19 +158,20 @@ public class BaseContentsScanner extends Scanner {
         public void run() {
             ClassLoader loader = ClassLoader.getSystemClassLoader();
             while (true) {
-                if (flag && classesQueue.size() == 0) {
-                    flag = false;
-                    scannerLatch.countDown();
-                    return;
-                }
                 try {
-                        // get the class's full name
+                    if (Thread.interrupted()) {
+                        throw new InterruptedException();
+                    }
+                    // get the class's full name
                     String classFullName = classesQueue.take();
+                    if("".equals(classFullName)) {
+                        return;
+                    }
                     Class<?> actionClass = loader.loadClass(classFullName);
                     if (actionClass.isAnnotationPresent(ActionClass.class)) {
                         ActionClass annotation = actionClass.getAnnotation(ActionClass.class);
                         String className = annotation.className();
-                        if(className == null) {
+                        if (className == null) {
                             className = classFullName;
                         }
                         production.appendClass(className, classFullName);
@@ -232,27 +223,17 @@ public class BaseContentsScanner extends Scanner {
                 String text = p.getText();
                 paths.add(text);
             });
-            ExecutorService ex = Executors.newCachedThreadPool();
+            ExecutorService ex = Executors.newFixedThreadPool(2);
+            // ThreadPool
             try {
-                // ThreadPool
-                Thread classRegisterThread = new TakeThread(production, scannerLatch);
-                classRegisterThread.setName("take thread");
-                Thread pathScanThread = new PutThread(paths, scannerLatch, classRegisterThread);
-                pathScanThread.setName("put thread");
+                Thread classRegisterThread = new TakeThread(production);
+                Thread pathScanThread = new PutThread(paths, classRegisterThread);
                 ex.submit(pathScanThread);
                 ex.submit(classRegisterThread);
-                try {
-                    scannerLatch.await();
-                } catch (InterruptedException e) {
-                    if (logger.isErrorEnabled()) {
-                        logger.error("The scanning thread has been interrupt");
-                    }
-                } finally {
-                    ex.shutdown();
-                }
             } finally {
                 ex.shutdown();
             }
+
         }
         return true;
     }
