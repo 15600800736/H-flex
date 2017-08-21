@@ -30,11 +30,50 @@ import java.util.concurrent.locks.LockSupport;
  * production to process. you can check it by invoke {@code isDone()}</li>
  * </ol>
  * </p>
- *
- * @param <P> production type
+ * <p>After you execute the line, you can use {@code while(line.hasNext()) {
+ * P production = line.get();
+ * }} to gain the result of the line.</p>
+ * <p>Here is an example of using AppendableLine:</p>
+ * <pre>{@code
+ *      for (int i = 0; i < 2; i++) {
+ *          int finalI = i;
+ *          Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
+ *              @param <P> production type
+ *              @Override
+ *              protected Object exec() throws Exception {
+ *                  this.production += finalI;
+ *                  Thread.sleep(10L);
+ *                  return this.production;
+ *              }
+ *          };
+ *          line.appendWorker(executor);
+ *      }
+ *      Thread t = new Thread(() -> {
+ *          try {
+ *              for (int i = 1; i < 10; i++) {
+ *                  line.appendProduction(i);
+ *              }
+ *              line.execute();
+ *          } catch (Exception e) {
+ *              e.printStackTrace();
+ *          }
+ *      });
+ *      t.start();
+ *      line.close();
+ *      while (line.hasNext()) {
+ *          System.out.println(line.get());
+ *      }
+ *   }
+ * }</pre>
+ * <p>And the out put is :3 4 5 6 7 8 9 10 2</p>
+ * <p>So as we can see, the line can't guarantee the production will went out by its order of putting into the line, means
+ * that the first production can go out as the last one.</p>
  */
 public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
 
+    /**
+     * The class is used for identify the thread
+     */
     protected class NamedThreadFactory implements ThreadFactory {
         ThreadFactory tf = Executors.defaultThreadFactory();
 
@@ -51,9 +90,9 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
     /**
-     * <p>A process is a abstraction of a point in a line of factory, like a Node, it has worker and the next one.
-     * When the next process is null, means there are no more process, and the line will be hanged up until some thread close
-     * the line.</p>
+     * <p>A process is a abstraction of a point in a line of factory, like a Node, it's a unit of processing.
+     * It has worker and the next one, every production will be processed by current process and then pass it to next,
+     * and take </p>
      */
     protected class Process implements Runnable {
         /**
