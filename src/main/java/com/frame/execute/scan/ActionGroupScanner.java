@@ -16,9 +16,6 @@ public class ActionGroupScanner extends Scanner {
         super(production);
     }
 
-    public ActionGroupScanner(CyclicBarrier barrier, Configuration production) {
-        super(barrier, production);
-    }
 
     @Override
     public Object exec() throws Exception {

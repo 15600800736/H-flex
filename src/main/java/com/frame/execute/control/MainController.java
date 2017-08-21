@@ -118,17 +118,16 @@ public class MainController extends Controller<Object, Boolean> {
     private void registerExecutor() {
 
     }
-
-    public static void main(String[] args) {
-        for (int i = 0; i < 1000; i++) {
-            MainController m = new MainController();
-            try {
-                m.execute();
-                System.out.println(i + "----------------------");
-                Thread.sleep(10);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public static void main(String[] args) throws Exception {
+        for(int i = 0; i < 100; i++) {
+            MainController controller = new MainController();
+            controller.execute();
+            controller.configuration.getActions().entrySet().forEach(entry -> {
+                System.out.print(entry.getValue().getName() + " ");
+                entry.getValue().getParam().forEach(System.out::print);
+                System.out.println();
+            });
         }
     }
+
 }

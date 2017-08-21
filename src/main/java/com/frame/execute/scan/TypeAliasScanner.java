@@ -15,9 +15,6 @@ public class TypeAliasScanner extends Scanner {
         super(production);
     }
 
-    public TypeAliasScanner(CyclicBarrier barrier, Configuration production) {
-        super(barrier, production);
-    }
 
     @Override
     public Boolean exec() throws Exception {

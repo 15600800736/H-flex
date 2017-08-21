@@ -167,7 +167,6 @@ public class ReusableTask<P> extends Flow<P, P> {
                 worker.setProduction(production);
                 results.put(worker, re);
             } catch (InterruptedException | ExecutionException e) {
-                System.out.println("got a interruptedException when process result, but we store it");
                 while (!futures.add(future)) ;
             }
         }
@@ -275,7 +274,6 @@ public class ReusableTask<P> extends Flow<P, P> {
             }
         }
 
-        System.out.println(reusableTask.isClosed());
 
     }
 }

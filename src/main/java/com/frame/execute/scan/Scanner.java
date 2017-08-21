@@ -22,8 +22,4 @@ public abstract class Scanner extends Executor<Configuration, Configuration> {
     public Scanner(Configuration production) {
         super(production);
     }
-
-    public Scanner(CyclicBarrier barrier, Configuration production) {
-        super(production);
-    }
 }

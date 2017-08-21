@@ -148,8 +148,6 @@ public class TestAppendableLine {
         t.start();
 
         Thread.sleep(30000);
-        System.out.println(line.isDone());
-        System.out.println(result.size());
         result.forEach(r->{
             if(logger.isDebugEnabled()) {
                 logger.debug(String.valueOf(r));

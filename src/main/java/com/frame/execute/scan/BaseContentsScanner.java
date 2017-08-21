@@ -111,9 +111,6 @@ public class BaseContentsScanner extends Scanner {
         super(production);
     }
 
-    public BaseContentsScanner(CyclicBarrier barrier, Configuration production) {
-        super(barrier, production);
-    }
 
     /**
      * <p>The put-thread is used for scanning all of the classpath, and put the string-type class name

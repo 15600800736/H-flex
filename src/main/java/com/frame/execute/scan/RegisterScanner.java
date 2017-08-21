@@ -7,6 +7,7 @@ import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.Executor;
 import com.frame.execute.structure.AppendableTask;
+import com.frame.execute.structure.ReusableTask;
 
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
@@ -35,11 +36,6 @@ public class RegisterScanner extends Scanner {
         this.actionRegister = actionRegister;
         this.actionGroups = actionGroups;
     }
-    public RegisterScanner(CyclicBarrier barrier, Configuration production, ConfigurationNode actionRegister, ConfigurationNode actionGroups) {
-        super(barrier, production);
-        this.actionRegister = actionRegister;
-        this.actionGroups = actionGroups;
-    }
 
     @Override
     protected Object exec() throws Exception {
@@ -58,18 +54,17 @@ public class RegisterScanner extends Scanner {
                     , "没有可供注册的方法");
         }
         Scanner scanner;
-
+        ReusableTask<Configuration> actionRegisterTask = new ReusableTask<>(2);
         // register scan by xml
         if (actionClasses != null) {
-            scanner = new ActionClassesScanner(production);
-            scanner.execute();
+            actionRegisterTask.appendWorker(new ActionClassesScanner(production));
         }
         // register scan by annotations
         if (baseContents != null) {
-            scanner = new BaseContentsScanner(production);
-            scanner.execute();
+            actionRegisterTask.appendWorker(new BaseContentsScanner(production));
         }
-
+        actionRegisterTask.setProduction(production);
+        actionRegisterTask.execute();
         production.setIsRegisterd(true);
         return production;
     }

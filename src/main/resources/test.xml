@@ -45,6 +45,5 @@
     </action-register>
     <type-alias>
         <type name="java.lang.String" alias="string"/>
-
     </type-alias>
 </frame-haug>

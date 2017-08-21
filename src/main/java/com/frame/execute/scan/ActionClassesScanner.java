@@ -108,9 +108,6 @@ public class ActionClassesScanner extends Scanner {
         super(production);
     }
 
-    public ActionClassesScanner(CyclicBarrier barrier, Configuration production) {
-        super(barrier, production);
-    }
 
     @Override
     public Object exec() throws ScanException {
