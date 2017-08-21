@@ -119,9 +119,8 @@ public class TestAppendableLine {
     }
 
     @Test
-    public void testGetResults() throws InterruptedException {
-        AppendableLine<Integer> line = new AppendableLine<>(100, 100);
-        for (int i = 0; i < 10; i++) {
+    public void testGetResults() throws InterruptedException {     AppendableLine<Integer> line = new AppendableLine<>(100, 100);
+        for (int i = 0; i < 2; i++) {
             int finalI = i;
             Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
                 @Override
@@ -136,21 +135,18 @@ public class TestAppendableLine {
         }
         Thread t = new Thread(() -> {
             try {
-                for (int i = 1; i < 100; i++) {
+                for (int i = 1; i < 10; i++) {
                     line.appendProduction(i);
                 }
+                line.execute();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         t.start();
-        for (; ; ) {
-            if(line.isStarted()) {
-                Integer result = line.get();
-                if (result != null) {
-                    System.out.println(result);
-                }
-            }
-        }
-    }
+        line.close();
+
+        while (line.hasNext()) {
+            System.out.println(line.get());
+        }}
 }

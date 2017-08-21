@@ -413,40 +413,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         return originalProduction;
     }
 
-    protected Boolean hasNext() {
+    public Boolean hasNext() {
         return !(isClosed() && isDone() && tailProcessor.worker.productionCache.isEmpty());
-    }
-
-    public static void main(String[] args) {
-        AppendableLine<Integer> line = new AppendableLine<>(100, 100);
-        for (int i = 0; i < 2; i++) {
-            int finalI = i;
-            Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
-                @Override
-                protected Object exec() throws Exception {
-                    this.production += finalI;
-                    Thread.sleep(10L);
-                    return this.production;
-                }
-            };
-
-            line.appendWorker(executor);
-        }
-        Thread t = new Thread(() -> {
-            try {
-                for (int i = 1; i < 10; i++) {
-                    line.appendProduction(i);
-                }
-                line.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        t.start();
-        line.close();
-
-        while (line.hasNext()) {
-            System.out.println(line.get());
-        }
     }
 }
