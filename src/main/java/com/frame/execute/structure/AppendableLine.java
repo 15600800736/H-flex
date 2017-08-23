@@ -96,7 +96,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
      */
     protected class Process implements Runnable {
         /**
-         * <p>The unit of execute to do work</p>
+         * <p>The object of execute to do work</p>
          */
         WorkerInfo worker;
         /**
@@ -105,10 +105,15 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
         Process nextProcessor;
 
         /**
-         *
+         * <p>The current thread</p>
          */
         Thread currentThread;
 
+        /**
+         * <p>The method will take productions from production cache, process it and pass it to next worker,
+         * when a production is interrupted when being executed, the production will be put into the cache again, but
+         * you should make sure that the production will be reset before interrupt, because the production will be processed again.</p>
+         */
         @Override
         public void run() {
             this.currentThread = Thread.currentThread();
@@ -147,7 +152,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
     /**
-     * <p>The worker pair holds some information about the worker, like where he is and what he deals with</p>
+     * <p>The worker info holds some information about the worker, like where he is and what it deals with</p>
      */
     protected class WorkerInfo {
         /**
@@ -163,9 +168,13 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
          */
         BlockingQueue<P> productionCache;
 
+        /**
+         * <p>If the cache should be infinite.</p>
+         */
         Boolean needMax = false;
 
         /**
+         * Constructor
          * @param worker
          * @param position
          */
@@ -213,42 +222,42 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     private int workerNum = 16;
 
     /**
-     *
+     * <p>The first processor is the next processor of header processor</p>
      */
     public Process firstProcessor;
 
     /**
-     *
+     * <p>The previous processor of tail processor</p>
      */
     public Process lastProcessor = firstProcessor;
 
     /**
-     * <p>Hold the line thread in order to interrupt this thread</p>
+     * <p>Hold the line thread in order to interrupt</p>
      */
     private Thread lineThread;
 
     /**
-     *
+     * <p>Cause the count of worker is certain, so we build a fixed thread pool.</p>
      */
     private ExecutorService pool = Executors.newFixedThreadPool(workerNum, new NamedThreadFactory());
 
     /**
-     *
+     * <p>The size of cache, 16 default</p>
      */
     private Integer productionCacheSize = 16;
 
     /**
-     *
+     * <p>The header processor takes charge of extracting production from cache and push it to first processor to execute </p>
      */
     private Process headerProcessor;
 
     /**
-     *
+     * <p>The tail processor takes charge of accepting the finished productions and let other thread get it.</p>
      */
     private Process tailProcessor;
 
     /**
-     *
+     * <p></p>
      */
     private AtomicInteger countOfProduction = new AtomicInteger(0);
 
