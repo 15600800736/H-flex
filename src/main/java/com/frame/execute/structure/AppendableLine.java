@@ -123,6 +123,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                     P production = worker.productionCache.take();
                     try {
                         injectProduction(worker.worker, production);
+
                         P finishedProduction = worker.worker.execute();
                         // if this is last processor pushing production into tail processor, check if done(There are some mistakes here)
                         nextProcessor.worker.addProdution(finishedProduction);
@@ -132,13 +133,14 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                         }
                     } catch (Exception e) {
                         if (e instanceof InterruptedException) {
+                            System.out.println("execute interrupt");
                             worker.productionCache.put(production);
                         } else {
                             e.printStackTrace();
                         }
                     }
                 } catch (InterruptedException e) {
-                    // todo
+
                 }
             }
         }
@@ -199,7 +201,8 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             try {
                 this.productionCache.put(production);
             } catch (InterruptedException e) {
-                // todo
+                while (!this.productionCache.add(production));
+                System.out.println("inner interrupt");
             }
         }
     }

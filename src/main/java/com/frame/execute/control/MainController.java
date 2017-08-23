@@ -84,9 +84,8 @@ public class MainController extends Controller<Object, Boolean> {
         lineExecThread.start();
         configurationLine.close();
         for (; ; ) {
-            if(configurationLine.isDone()) {
+            if (configurationLine.isDone()) {
                 Configuration configuration = configurationLine.get();
-                System.out.println(configuration);
                 break;
             }
         }
@@ -119,7 +118,7 @@ public class MainController extends Controller<Object, Boolean> {
     }
 
     public static void main(String[] args) throws Exception {
-        for (int i = 0; i < 1000; i++) {
+        for(int i = 0; i < 1000; i++) {
             MainController controller = new MainController();
             controller.execute();
             System.out.println(i);
