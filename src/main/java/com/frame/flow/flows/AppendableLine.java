@@ -1,7 +1,6 @@
-package com.frame.execute.structure;
+package com.frame.flow.flows;
 
 import com.frame.execute.Executor;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -211,7 +210,6 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                 this.productionCache.put(production);
             } catch (InterruptedException e) {
                 while (!this.productionCache.add(production));
-                System.out.println("inner interrupt");
             }
         }
     }

@@ -1,14 +1,11 @@
 package com.frame.testbasic;
 
 import com.frame.execute.Executor;
-import com.frame.execute.structure.AppendableLine;
+import com.frame.flow.flows.AppendableLine;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by fdh on 2017/8/7.

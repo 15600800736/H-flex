@@ -5,21 +5,14 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
-import com.frame.execute.structure.AppendableLine;
-import com.frame.execute.structure.AppendableTask;
+import com.frame.flow.flows.AppendableLine;
+import com.frame.flow.flows.AppendableTask;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.RegisterScanner;
-import com.frame.execute.scan.Scanner;
 import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.read.ConfigurationReader;
-import com.frame.execute.structure.ReusableTask;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.frame.flow.flows.ReusableTask;
 
 /**
  * <p>The main controller takes charge of all processes and states.

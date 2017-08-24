@@ -5,13 +5,7 @@ import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
-import com.frame.execute.Executor;
-import com.frame.execute.structure.AppendableTask;
-import com.frame.execute.structure.ReusableTask;
-
-import java.util.List;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutionException;
+import com.frame.flow.flows.ReusableTask;
 
 
 /**
@@ -53,7 +47,6 @@ public class RegisterScanner extends Scanner {
             throw new ScanException("<action-classes></action-classes> 或 <annotation-scan/><base-contents></base-contents>"
                     , "没有可供注册的方法");
         }
-        Scanner scanner;
         ReusableTask<Configuration> actionRegisterTask = new ReusableTask<>(2);
         // register scan by xml
         if (actionClasses != null) {
