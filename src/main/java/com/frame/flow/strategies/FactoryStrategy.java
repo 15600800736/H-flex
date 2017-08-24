@@ -13,5 +13,5 @@ public abstract class FactoryStrategy<P> {
 
     protected abstract ReusableTask<P> getTask();
 
-    public abstract void buildLine(Executor<P,P>[] executors);
+    public abstract void buildLine(Executor<P,?>[][] executors, P production);
 }

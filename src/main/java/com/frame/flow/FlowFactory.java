@@ -20,7 +20,7 @@ public abstract class FlowFactory<P> {
     }
 
 
-    public void setExecutors(Executor<P,P>[] executors) {
-        strategy.buildLine(executors);
+    public void setExecutors(Executor<P,P>[][] executors, P production) {
+        strategy.buildLine(executors, production);
     }
 }
