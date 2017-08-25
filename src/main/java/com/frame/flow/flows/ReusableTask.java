@@ -244,38 +244,6 @@ public class ReusableTask<P> extends Flow<P, P> {
         futures.clear();
         return returnedResults;
     }
-
-    public static void main(String[] args) {
-        ReusableTask<Map<String, Integer>> reusableTask = new ReusableTask<>(10);
-        reusableTask.setProduction(new ConcurrentHashMap<>(10));
-        for (int i = 0; i < 10; i++) {
-            int j = i;
-            reusableTask.appendWorker(new Executor<Map<String, Integer>, Object>() {
-                @Override
-                protected Object exec() throws Exception {
-                    this.production.putIfAbsent(String.valueOf(j), j);
-                    return j;
-                }
-            });
-        }
-
-        Thread exe = new Thread(() -> {
-            try {
-                reusableTask.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        exe.start();
-        for (; ; ) {
-            if (reusableTask.isDone()) {
-                reusableTask.getProduction().entrySet().forEach(System.out::println);
-                break;
-            }
-        }
-
-
-    }
 }
 
 

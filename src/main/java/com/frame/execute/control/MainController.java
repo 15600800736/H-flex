@@ -5,6 +5,10 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
+import com.frame.context.info.StringInfomation.ActionInfo;
+import com.frame.execute.Executor;
+import com.frame.flow.FlowFactory;
+import com.frame.flow.SimpleFactory;
 import com.frame.flow.flows.AppendableLine;
 import com.frame.flow.flows.AppendableTask;
 import com.frame.enums.ConfigurationStringPool;
@@ -55,16 +59,16 @@ public class MainController extends Controller<Object, Boolean> {
      */
     @Override
     public Boolean exec() throws Exception {
-        //first step: scan from xml
-        AppendableLine<Configuration> configurationLine = new AppendableLine<>(1);
-        ReusableTask<Configuration> registerTask = new ReusableTask<>();
-
-        registerTask.appendWorker(new RegisterScanner(configuration,
-                reader.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
-                reader.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS)));
-
-        configurationLine.appendProduction(configuration);
-        configurationLine.appendWorker(registerTask);
+        FlowFactory<Configuration> factory = new SimpleFactory<>();
+        Executor[][] executors = new Executor[][]{
+                {
+                        new RegisterScanner(configuration,
+                                reader.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
+                                reader.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS))
+                }
+        };
+        factory.setExecutors(executors, configuration);
+        AppendableLine<Configuration> configurationLine = factory.getLine();
 
         Thread lineExecThread = new Thread(() -> {
             try {
@@ -82,6 +86,15 @@ public class MainController extends Controller<Object, Boolean> {
                 break;
             }
         }
+        System.out.println(configuration.getActions().size());
+
+        configuration.getActions().forEach((key, actionInfo) -> {
+            System.out.println("name " + actionInfo.getName());
+            System.out.println("action class " + actionInfo.getActionClass());
+            System.out.println("alias " + actionInfo.getAlias());
+            System.out.println("params " + actionInfo.getParam());
+            System.out.println("-----------------------------");
+        });
         return null;
     }
 
@@ -110,13 +123,9 @@ public class MainController extends Controller<Object, Boolean> {
 
     }
 
-    public static void main(String[] args) throws Exception {
-        for(int i = 0; i < 1000; i++) {
-            MainController controller = new MainController();
-            controller.execute();
-            System.out.println(i);
-            Thread.sleep(10);
-        }
-    }
 
+    public static void main(String[] args) throws Exception {
+        MainController mainController = new MainController();
+        mainController.execute();
+    }
 }

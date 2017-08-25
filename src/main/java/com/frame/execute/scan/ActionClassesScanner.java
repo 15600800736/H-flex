@@ -126,6 +126,7 @@ public class ActionClassesScanner extends Scanner {
         ActionRegisterScanner scanner = new ActionRegisterScanner(production);
         registerAction(actionClassList, classMapper, scanner, production);
         appendClasses(classMapper, production);
+
         return true;
     }
 

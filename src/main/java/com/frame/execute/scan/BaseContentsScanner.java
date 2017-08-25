@@ -225,13 +225,14 @@ public class BaseContentsScanner extends Scanner {
             try {
                 Thread classRegisterThread = new TakeThread(production);
                 Thread pathScanThread = new PutThread(paths, classRegisterThread);
-                ex.submit(pathScanThread);
-                ex.submit(classRegisterThread);
+                ex.submit(pathScanThread).get();
+                ex.submit(classRegisterThread).get();
             } finally {
                 ex.shutdown();
             }
 
         }
+
         return true;
     }
 
