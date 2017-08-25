@@ -9,7 +9,6 @@ import java.util.concurrent.CyclicBarrier;
 /**
  * Created by fdh on 2017/7/20.
  */
-@ActionClass(className = "a")
 public class ActionGroupScanner extends Scanner {
 
     public ActionGroupScanner(Configuration production) {

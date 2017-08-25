@@ -93,6 +93,7 @@ public class MainController extends Controller<Object, Boolean> {
             System.out.println("action class " + actionInfo.getActionClass());
             System.out.println("alias " + actionInfo.getAlias());
             System.out.println("params " + actionInfo.getParam());
+            System.out.println("overload " + actionInfo.getOverload());
             System.out.println("-----------------------------");
         });
         return null;

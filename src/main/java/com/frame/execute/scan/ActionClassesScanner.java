@@ -24,14 +24,12 @@ import java.util.concurrent.CyclicBarrier;
  * It will extract the action classes you configured in xml file and mapped the class name to its path
  * Then create a action register to scan the actions you configured under the class.
  */
-@ActionClass(className = "d")
 public class ActionClassesScanner extends Scanner {
 
     /**
      * The class ActionRegisterScanner is used for register a action
      * include alias,name and id attributes
      */
-    @ActionClass(className = "b")
     class ActionRegisterScanner extends Scanner {
 
         private ConfigurationNode actionClass;
@@ -40,7 +38,6 @@ public class ActionClassesScanner extends Scanner {
             super(production);
         }
 
-        @Action(id = "aaaaa", alias = "lalala")
         public void setActionClass(ConfigurationNode actionClass) {
             this.actionClass = actionClass;
         }
@@ -57,6 +54,7 @@ public class ActionClassesScanner extends Scanner {
                 }
                 String name = null;
                 String id = null;
+                boolean overload = false;
                 if (al.hasAttribute(ConfigurationStringPool.ID_ATTRIBUTE)) {
                     id = al.getAttributeText(ConfigurationStringPool.ID_ATTRIBUTE);
                 }
@@ -65,6 +63,10 @@ public class ActionClassesScanner extends Scanner {
                 }
                 if(!actionClass.hasAttribute(ConfigurationStringPool.PATH_ATTRIBUTE)) {
                     ExceptionUtil.doThrow(new ScanException("<action-class path='com.path.A'", "<action-class>缺少path属性"));
+                }
+                if (al.hasAttribute(ConfigurationStringPool.OVERLOAD)
+                        && "true".equals(al.getAttributeText(ConfigurationStringPool.OVERLOAD))) {
+                    overload = true;
                 }
 
                 String classPath = actionClass.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
@@ -77,7 +79,8 @@ public class ActionClassesScanner extends Scanner {
                     .setName(name)
                     .setActionClass(classPath)
                     .setAlias(getAliases(al))
-                    .setParam(getParamType(al));
+                    .setParam(getParamType(al))
+                    .setOverload(overload)    ;
                 production.appendAction(id, newAction);
             });
             return true;
@@ -130,7 +133,6 @@ public class ActionClassesScanner extends Scanner {
         return true;
     }
 
-    @Action(id = "bbbb", alias = "woaini")
     private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, Scanner actionScanner, Configuration production) {
         actionClassList.forEach(n -> {
             String className = n.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);

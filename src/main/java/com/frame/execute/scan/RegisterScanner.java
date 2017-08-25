@@ -20,7 +20,6 @@ import com.frame.flow.flows.ReusableTask;
  * under the path. You also can configure <action-groups></action-groups> to register your action groups to call
  * in your program.
  */
-@ActionClass(className = "e")
 public class RegisterScanner extends Scanner {
     private ConfigurationNode actionRegister;
     private ConfigurationNode actionGroups;

@@ -33,7 +33,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * and putting them into a blocking queue, the other thread takes charge of instantiating class and check if
  * it is a action class and register it.</p>
  */
-@ActionClass(className = "c")
 public class BaseContentsScanner extends Scanner {
 
     /**
