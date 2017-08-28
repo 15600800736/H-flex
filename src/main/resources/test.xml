@@ -4,15 +4,14 @@
     <action-groups>
         <action-classes>
             <action-class name="TestMethod" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
-                <action alias="findBookIdByName" name="bookId"/>
-                <action alias="insertBook" name="insertBook">
+                <execution action-alias="findBookIdByName" field-name="bookId"/>
+                <execution action-alias="insertBook" field-name="insertBook">
                     <processor path="com.frame.execute.process.DefaultProcessor" type="pre-processor"/>
                     <processor path="com.frame.execute.process.Processor" type="post-processor"/>
-                </action>
-
+                </execution>
             </action-class>
             <action-class name="Test2" path="com.frame.execute.process.DefaultProcessor" prefix="findBook" suffix="hahaha">
-                <action alias="byId" name="bookId"/>
+                <execution action-alias="byId" field-name="bookId"/>
             </action-class>
         </action-classes>
     </action-groups>
@@ -22,8 +21,8 @@
         <action-classes>
             <action-class name="proc" path="com.frame.execute.process.DefaultProcessor">
                 <action alias="a,b" name="test1" id="1">
-                    <param>java.lang.String</param>
-                    <param>java.lang.Integer</param>
+                    <param>string</param>
+                    <param>integer</param>
                 </action>
                 <action alias="c,d" name="test2" id="2"/>
             </action-class>
@@ -32,7 +31,7 @@
                 <action alias="g" name="test4" id="4"/>
                 <action alias="h,i,j" name="test5" id="5" overload="true"/>
                 <action alias="k,l,m,n" name="test5" id="6" overload="true">
-                    <param>java.lang.String</param>
+                    <param>string</param>
                 </action>
             </action-class>
             <action-class path="com.frame.context.info.StringInfomation.ActionInfo">
@@ -44,6 +43,7 @@
         </base-contents>
     </action-register>
     <type-alias>
-        <type name="java.lang.String" alias="string"/>
+        <type name="java.lang.String" alias="string,str"/>
+        <type name="java.lang.Integer" alias="integer"/>
     </type-alias>
 </frame-haug>

@@ -91,7 +91,13 @@ public class ActionClassesScanner extends Scanner {
             List<String> paramList = new LinkedList<>();
             List<ConfigurationNode> param = action.getChildren(ConfigurationStringPool.PARAM);
             param.forEach(p -> {
-                paramList.add(p.getText());
+                String pa = p.getText();
+                if (!pa.contains(".")) {
+                    paramList.add(this.production.getType(pa));
+                } else {
+                    paramList.add(pa);
+
+                }
             });
             return paramList;
         }

@@ -14,7 +14,7 @@
                                         <xsd:element name="action-class" maxOccurs="unbounded">
                                             <xsd:complexType>
                                                 <xsd:sequence>
-                                                    <xsd:element name="action" maxOccurs="unbounded">
+                                                    <xsd:element name="execution" maxOccurs="unbounded">
                                                         <xsd:complexType>
                                                             <xsd:sequence>
                                                                 <xsd:element name="processor" minOccurs="0"
@@ -36,8 +36,8 @@
                                                                     </xsd:complexType>
                                                                 </xsd:element>
                                                             </xsd:sequence>
-                                                            <xsd:attribute name="alias" type="xsd:string"/>
-                                                            <xsd:attribute name="name" use="required"
+                                                            <xsd:attribute name="action-alias" type="xsd:string"/>
+                                                            <xsd:attribute name="field-name" use="required"
                                                                            type="xsd:string"/>
                                                         </xsd:complexType>
                                                     </xsd:element>

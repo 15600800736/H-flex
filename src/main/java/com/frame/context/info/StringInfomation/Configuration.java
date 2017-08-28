@@ -6,6 +6,8 @@ import com.frame.context.info.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,15 +41,19 @@ public class Configuration extends MapperResource {
      */
     private ConcurrentMap<String, ActionInfo> actions = new ConcurrentHashMap<>(256);
     /**
-     * <p>Map type to its alias: alias -> type</p>
-     */
-    private ConcurrentMap<String, String> typeAliasMapper = new ConcurrentHashMap<>(64);
-    /**
      * <p>the count of the direct child node (<action-groups/><action-register/>)</p>
      */
     private Integer countOfResourcesType = 2;
 
+    /**
+     * <p>The type aliases is a short representation of a type, for convenience: alias -> type</p>
+     */
+    private ConcurrentMap<String, String> typeAliases = new ConcurrentHashMap<>(256);
 
+    /**
+     *
+     */
+    private ConcurrentMap<String, ActionGroupInfo> groupActions = new ConcurrentHashMap<>(256);
     /**
      * <p>Has the configuration been well-registered, means if all the actions info has been injected</p>
      */
@@ -95,9 +101,16 @@ public class Configuration extends MapperResource {
     }
 
     public ActionInfo appendAction(String id, ActionInfo actionInfo) {
-        return this.actions.putIfAbsent(id, actionInfo );
+        return this.actions.putIfAbsent(id, actionInfo);
     }
 
+    public String appendTypeAlias(String alias, String name) {
+        return this.typeAliases.putIfAbsent(alias, name);
+    }
+
+    public String getType(String alias) {
+        return this.typeAliases.get(alias);
+    }
     @Override
     public <T extends Resource> Boolean split(T[] resources) {
         Boolean canSplit = resources != null && resources.length == 2 &&
@@ -141,6 +154,10 @@ public class Configuration extends MapperResource {
 
     public ConcurrentMap<String, String> getClassesPathMapper() {
         return classesPathMapper;
+    }
+
+    public ConcurrentMap<String, String> getTypeAliases() {
+        return typeAliases;
     }
 
     /**/

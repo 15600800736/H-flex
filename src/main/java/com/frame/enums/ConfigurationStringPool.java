@@ -19,4 +19,9 @@ public class ConfigurationStringPool {
     public static final String TYPE_ALIAS = "type-alias";
     public static final String PARAM = "param";
     public static final String OVERLOAD = "overload";
+    public static final String TYPE = "type";
+    public static final String PROCESSOR = "processor";
+    public static final String ACTION_ALIAS_ATTRIBUTE = "action-alias";
+    public static final String FIELD_NAME_ATTRIBUTE = "field-name";
+    public static final String EXECUTION = "execution";
 }

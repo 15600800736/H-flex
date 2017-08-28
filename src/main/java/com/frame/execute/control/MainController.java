@@ -7,6 +7,7 @@ package com.frame.execute.control;
 
 import com.frame.context.info.StringInfomation.ActionInfo;
 import com.frame.execute.Executor;
+import com.frame.execute.scan.TypeAliasScanner;
 import com.frame.flow.FlowFactory;
 import com.frame.flow.SimpleFactory;
 import com.frame.flow.flows.AppendableLine;
@@ -62,9 +63,12 @@ public class MainController extends Controller<Object, Boolean> {
         FlowFactory<Configuration> factory = new SimpleFactory<>();
         Executor[][] executors = new Executor[][]{
                 {
-                        new RegisterScanner(configuration,
-                                reader.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
-                                reader.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS))
+                    new TypeAliasScanner(configuration)
+                }
+                ,{
+                    new RegisterScanner(configuration,
+                            reader.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
+                            reader.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS))
                 }
         };
         factory.setExecutors(executors, configuration);
@@ -83,19 +87,21 @@ public class MainController extends Controller<Object, Boolean> {
         for (; ; ) {
             if (configurationLine.isDone()) {
                 Configuration configuration = configurationLine.get();
+                configuration.getTypeAliases().forEach((key, type)->{
+                    System.out.println(key + " " + type);
+                });
+                configuration.getActions().forEach((key, actionInfo) -> {
+                    System.out.println("name " + actionInfo.getName());
+                    System.out.println("action class " + actionInfo.getActionClass());
+                    System.out.println("alias " + actionInfo.getAlias());
+                    System.out.println("params " + actionInfo.getParam());
+                    System.out.println("overload " + actionInfo.getOverload());
+                    System.out.println("-----------------------------");
+                });
                 break;
             }
         }
-        System.out.println(configuration.getActions().size());
 
-        configuration.getActions().forEach((key, actionInfo) -> {
-            System.out.println("name " + actionInfo.getName());
-            System.out.println("action class " + actionInfo.getActionClass());
-            System.out.println("alias " + actionInfo.getAlias());
-            System.out.println("params " + actionInfo.getParam());
-            System.out.println("overload " + actionInfo.getOverload());
-            System.out.println("-----------------------------");
-        });
         return null;
     }
 
