@@ -79,6 +79,7 @@
                                                                     </xsd:restriction>
                                                                 </xsd:simpleType>
                                                             </xsd:attribute>
+                                                            <xsd:attribute name="return-type" type="xsd:string" use="required"/>
                                                         </xsd:complexType>
                                                     </xsd:element>
                                                     <xsd:element name="all"/>

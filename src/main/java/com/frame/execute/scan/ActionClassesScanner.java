@@ -55,6 +55,7 @@ public class ActionClassesScanner extends Scanner {
                 String name = null;
                 String id = null;
                 boolean overload = false;
+                String returnType = null;
                 if (al.hasAttribute(ConfigurationStringPool.ID_ATTRIBUTE)) {
                     id = al.getAttributeText(ConfigurationStringPool.ID_ATTRIBUTE);
                 }
@@ -68,7 +69,9 @@ public class ActionClassesScanner extends Scanner {
                         && "true".equals(al.getAttributeText(ConfigurationStringPool.OVERLOAD))) {
                     overload = true;
                 }
-
+                if(al.hasAttribute(ConfigurationStringPool.RETURN_TYPE)) {
+                    returnType = al.getAttributeText(ConfigurationStringPool.RETURN_TYPE);
+                }
                 String classPath = actionClass.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
                 String methodPath = classPath + "." + name;
                 if (id == null) {
@@ -80,7 +83,8 @@ public class ActionClassesScanner extends Scanner {
                     .setActionClass(classPath)
                     .setAlias(getAliases(al))
                     .setParam(getParamType(al))
-                    .setOverload(overload)    ;
+                    .setOverload(overload)
+                    .setReturnType(returnType);
                 production.appendAction(id, newAction);
             });
             return true;

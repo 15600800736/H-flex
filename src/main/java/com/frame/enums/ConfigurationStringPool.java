@@ -24,4 +24,5 @@ public class ConfigurationStringPool {
     public static final String ACTION_ALIAS_ATTRIBUTE = "action-alias";
     public static final String FIELD_NAME_ATTRIBUTE = "field-name";
     public static final String EXECUTION = "execution";
+    public static final String RETURN_TYPE = "return-type";
 }

@@ -20,17 +20,17 @@
         <annotation-scan/>
         <action-classes>
             <action-class name="proc" path="com.frame.execute.process.DefaultProcessor">
-                <action alias="a,b" name="test1" id="1">
+                <action alias="a,b" name="test1" id="1" return-type="string">
                     <param>string</param>
                     <param>integer</param>
                 </action>
-                <action alias="c,d" name="test2" id="2"/>
+                <action alias="c,d" name="test2" id="2" return-type="string"/>
             </action-class>
             <action-class name="action" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
-                <action alias="e,f" name="test3" id="3"/>
-                <action alias="g" name="test4" id="4"/>
-                <action alias="h,i,j" name="test5" id="5" overload="true"/>
-                <action alias="k,l,m,n" name="test5" id="6" overload="true">
+                <action alias="e,f" name="test3" id="3" return-type="string"/>
+                <action alias="g" name="test4" id="4" return-type="string"/>
+                <action alias="h,i,j" name="test5" id="5" overload="true" return-type="string"/>
+                <action alias="k,l,m,n" name="test5" id="6" overload="true" return-type="string">
                     <param>string</param>
                 </action>
             </action-class>

@@ -11,7 +11,13 @@ import com.frame.annotations.Execution;
 @ActionGroup
 public class Use {
     @Execution(actionAlias = "getBookId")
-    String bookId;
+    private String bookId;
 
+    private String getBookId(int i) {
+        return bookId;
+    }
 
+    public static void main(String...strings) {
+        new Use().getBookId(10);
+    }
 }

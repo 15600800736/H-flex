@@ -5,9 +5,6 @@ package com.frame.context.info.StringInfomation;
  * Created by fdh on 2017/7/17.
  */
 
-import com.frame.context.resource.MapperResource;
-import com.frame.enums.ConfigurationStringPool;
-
 import java.util.List;
 
 /**
@@ -15,7 +12,7 @@ import java.util.List;
  * include all attributes and child nodes.
  * All of the information is a string, wait to be parsed by parser to an Method or something</p>
  */
-public class ActionInfo extends MapperResource{
+public class ActionInfo {
     /**
      * <p>the action's alias, you can also use it to locate an action</p>
      */
@@ -39,6 +36,10 @@ public class ActionInfo extends MapperResource{
      */
     private List<String> param;
 
+    /**
+     * <p>The return type of the method</p>
+     */
+    private String returnType;
     /**
      * <p>Represent if the method has been overloaded</p>
      */
@@ -93,6 +94,15 @@ public class ActionInfo extends MapperResource{
         return this;
     }
 
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public ActionInfo setReturnType(String returnType) {
+        this.returnType = returnType;
+        return this;
+    }
+
     public String getActionClass() {
         return actionClass;
     }
@@ -100,18 +110,6 @@ public class ActionInfo extends MapperResource{
     public ActionInfo setActionClass(String actionClass) {
         this.actionClass = actionClass;
         return this;
-    }
-    @Override
-    protected void initResourceOrder() {
-
-    }
-
-    @Override
-    protected void initInformationRequired() {
-        informationRequired.put(ConfigurationStringPool.ALIAS_ATTRIBUTE, String.class);
-        informationRequired.put(ConfigurationStringPool.NAME_ATTRIBUTE, String.class);
-        informationRequired.put(ConfigurationStringPool.ID_ATTRIBUTE, String.class);
-        informationRequired.put(ConfigurationStringPool.PARAM, String.class);
     }
 
     public static ActionInfo createActionInfo(String id) {

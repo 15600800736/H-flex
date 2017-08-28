@@ -1,6 +1,5 @@
 package com.frame.context.info.StringInfomation;
 
-import com.frame.context.resource.MapperResource;
 import com.frame.exceptions.ScanException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by fdh on 2017/7/17.
  */
-public class ActionInfoHolder extends MapperResource {
+public class ActionInfoHolder {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private Map<String,ActionInfo> actionMapper = new HashMap<>();
     private Lock actionMapperLock = new ReentrantLock();
@@ -26,15 +25,5 @@ public class ActionInfoHolder extends MapperResource {
             throw new ScanException("<action id='" + id + "'></action>", "id为" + id + "的action重复定义，请检查配置");
         }
         actionMapperLock.unlock();
-    }
-
-    @Override
-    protected void initResourceOrder() {
-
-    }
-
-    @Override
-    protected void initInformationRequired() {
-
     }
 }

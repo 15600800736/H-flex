@@ -63,7 +63,7 @@ public class BaseContentsScanner extends Scanner {
                     TrueOrFalse overload = actionAnnotation.overload();
 
                     ActionInfo newAction = ActionInfo.createActionInfo(id)
-                            .setName(method.getName())
+                            .setName(id)
                             .setAlias(getAlias(actionAnnotation))
                             .setParam(getParamType(method.getParameterTypes()))
                             .setActionClass(actionClass.getName())

@@ -11,7 +11,7 @@ import com.frame.annotations.ActionClass;
 public class A {
 
     @Action(id = "getBookId")
-    public int method1() {
+    public int method1(int a) {
         return 0;
     }
 

@@ -14,4 +14,5 @@ import java.lang.annotation.Target;
 public @interface Execution {
     String actionAlias();
     String fieldName() default "";
+    String returnType() default "";
 }

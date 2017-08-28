@@ -1,13 +1,9 @@
 package com.frame.context.info.StringInfomation;
 
-import com.frame.context.resource.MapperResource;
-import com.frame.context.resource.Resource;
 import com.frame.context.info.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * {@link ActionGroupInfo}</p>
  * <p>The information of Configuration also can be extract from other resource because it implements Extractor</p>
  */
-public class Configuration extends MapperResource {
+public class Configuration {
     /**
      * <p>root node</p>
      */
@@ -62,20 +58,11 @@ public class Configuration extends MapperResource {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public Configuration() {
-        initResourceOrder();
-        initInformationRequired();
     }
 
-    protected void initResourceOrder() {
-        resourcesOrder.put(ActionInfoHolder.class, 0);
-        resourcesOrder.put(ActionGroupInfo.class, 1);
-    }
 
-    @Override
-    protected void initInformationRequired() {
-        // wait to fix
 
-    }
+
 
     public void setRoot(Node root) {
         this.root = root;
@@ -111,42 +98,7 @@ public class Configuration extends MapperResource {
     public String getType(String alias) {
         return this.typeAliases.get(alias);
     }
-    @Override
-    public <T extends Resource> Boolean split(T[] resources) {
-        Boolean canSplit = resources != null && resources.length == 2 &&
-                ((resources[0] instanceof ActionInfoHolder && resources[1] instanceof ActionGroupInfo) ||
-                        (resources[0] instanceof ActionGroupInfo && resources[1] instanceof ActionInfoHolder));
-        if (canSplit) {
-            // get the split type and instance
-            Resource[] orderedResources = transformResourcesToSpecificOrder(resources);
-            ActionInfoHolder actionInfoHolder = (ActionInfoHolder) orderedResources[resourcesOrder.get(ActionInfoHolder.class)];
-            ActionGroupInfo actionGroupInfo = (ActionGroupInfo) orderedResources[resourcesOrder.get(ActionGroupInfo.class)];
 
-        } else {
-            if (logger.isWarnEnabled()) {
-                StringBuilder errorMessage = new StringBuilder("configuration can't be split by ");
-                for (T resource : resources) {
-                    errorMessage.append(resource.getType() + " ");
-                }
-            }
-        }
-        return canSplit;
-    }
-
-
-    @Override
-    public Resource[] transformResourcesToSpecificOrder(Resource... resources) {
-        Resource[] orderedResource = new Resource[countOfResourcesType];
-        for (Resource resource : resources) {
-            Integer index = resourcesOrder.get(resource.getClass());
-            if (index == null) {
-                return null;
-            }
-            orderedResource[index] = resource;
-        }
-        return orderedResource;
-    }
-    /**/
 
     public ConcurrentMap<String, ActionInfo> getActions() {
         return actions;
@@ -160,7 +112,6 @@ public class Configuration extends MapperResource {
         return typeAliases;
     }
 
-    /**/
 
     public Boolean isRegisterd() {
         return registered.get();
