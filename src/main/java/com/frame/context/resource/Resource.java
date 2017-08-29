@@ -1,6 +1,8 @@
 package com.frame.context.resource;
 
 import com.frame.context.info.Information;
+import com.frame.context.read.Reader;
+import com.frame.exceptions.ScanException;
 
 /**
  * Created by fdh on 2017/7/17.
@@ -12,5 +14,5 @@ import com.frame.context.info.Information;
  *
  */
 public interface Resource {
-    
+    Reader getReader() throws ScanException;
 }

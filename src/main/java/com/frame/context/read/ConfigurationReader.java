@@ -30,10 +30,6 @@ public class ConfigurationReader implements Reader{
         }
     }
 
-    @Override
-    public void fromResource(Resource resource) {
-
-    }
 
     public Node getRoot() {
         return new ConfigurationNode(document.getRootElement());

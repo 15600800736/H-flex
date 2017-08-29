@@ -6,6 +6,8 @@ package com.frame.execute.control;
  */
 
 import com.frame.context.info.StringInfomation.ActionInfo;
+import com.frame.context.resource.Resource;
+import com.frame.context.resource.XmlResource;
 import com.frame.execute.Executor;
 import com.frame.execute.scan.TypeAliasScanner;
 import com.frame.flow.FlowFactory;
@@ -43,7 +45,6 @@ public class MainController extends Controller<Object, Boolean> {
 
     @Override
     public void prepareForExecute() {
-
         reader = createConfigurationReader("F:\\SourceTreeGit\\H-flex\\src\\main\\resources\\test.xml");
         configuration = reader.createConfiguration();
         registerExecutor();
@@ -112,13 +113,13 @@ public class MainController extends Controller<Object, Boolean> {
      * @return
      */
     private ConfigurationReader createConfigurationReader(String configurationPath) {
-        ConfigurationReader reader = null;
+        Resource xmlResource = new XmlResource(configurationPath);
         try {
-            reader = new ConfigurationReader(configurationPath);
+            return (ConfigurationReader) xmlResource.getReader();
         } catch (ScanException e) {
             e.printStackTrace();
         }
-        return reader;
+        return null;
     }
 
 

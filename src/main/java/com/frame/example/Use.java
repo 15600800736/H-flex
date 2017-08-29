@@ -3,6 +3,7 @@ package com.frame.example;
 import com.frame.annotations.Action;
 import com.frame.annotations.ActionGroup;
 import com.frame.annotations.Execution;
+import com.frame.context.ExecutionContext;
 
 /**
  * Created by fdh on 2017/8/28.
@@ -18,6 +19,6 @@ public class Use {
     }
 
     public static void main(String...strings) {
-        new Use().getBookId(10);
+        ((Use)new ExecutionContext().get("Use")).getBookId(10);
     }
 }

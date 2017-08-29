@@ -11,5 +11,12 @@ package com.frame.context;
  *
  */
 public abstract class Context {
+    /**
+     *
+     * @param alias
+     * @return
+     */
+    public abstract Object get(String alias);
 
+    public abstract <T> T get(String alias, Class<T> clazz);
 }
