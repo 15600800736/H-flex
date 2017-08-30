@@ -5,7 +5,6 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
-import com.frame.context.info.StringInfomation.ActionInfo;
 import com.frame.context.resource.Resource;
 import com.frame.context.resource.XmlResource;
 import com.frame.execute.Executor;
@@ -19,7 +18,6 @@ import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.RegisterScanner;
 import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.read.ConfigurationReader;
-import com.frame.flow.flows.ReusableTask;
 
 /**
  * <p>The main controller takes charge of all processes and states.
@@ -69,7 +67,7 @@ public class MainController extends Controller<Object, Boolean> {
                 ,{
                     new RegisterScanner(configuration,
                             reader.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
-                            reader.getRoot().getChild(ConfigurationStringPool.ACTION_GROUPS))
+                            reader.getRoot().getChild(ConfigurationStringPool.EXECUTIONS))
                 }
         };
         factory.setExecutors(executors, configuration);

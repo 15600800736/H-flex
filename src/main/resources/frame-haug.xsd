@@ -5,40 +5,45 @@
     <xsd:element name="frame-haug">
         <xsd:complexType>
             <xsd:all>
-                <xsd:element name="action-groups">
+                <xsd:element name="executions">
                     <xsd:complexType>
                         <xsd:all>
-                            <xsd:element name="action-classes">
+                            <xsd:element name="execution-classes">
                                 <xsd:complexType>
                                     <xsd:sequence>
-                                        <xsd:element name="action-class" maxOccurs="unbounded">
+                                        <xsd:element name="execution-class" maxOccurs="unbounded">
                                             <xsd:complexType>
                                                 <xsd:sequence>
-                                                    <xsd:element name="execution" maxOccurs="unbounded">
+                                                    <xsd:element name="field" maxOccurs="unbounded">
                                                         <xsd:complexType>
                                                             <xsd:sequence>
-                                                                <xsd:element name="processor" minOccurs="0"
-                                                                             maxOccurs="unbounded">
+                                                                <xsd:element name="execution" maxOccurs="unbounded">
                                                                     <xsd:complexType>
-                                                                        <xsd:attribute name="path"
-                                                                                       use="required"/>
-                                                                        <xsd:attribute name="type"
-                                                                                       use="required">
-                                                                            <xsd:simpleType>
-                                                                                <xsd:restriction base="xsd:string">
-                                                                                    <xsd:enumeration
-                                                                                            value="pre-processor"/>
-                                                                                    <xsd:enumeration
-                                                                                            value="post-processor"/>
-                                                                                </xsd:restriction>
-                                                                            </xsd:simpleType>
-                                                                        </xsd:attribute>
+                                                                        <xsd:sequence>
+                                                                            <xsd:element name="processor" minOccurs="0"
+                                                                                         maxOccurs="unbounded">
+                                                                                <xsd:complexType>
+                                                                                    <xsd:attribute name="path"
+                                                                                                   use="required"/>
+                                                                                    <xsd:attribute name="type"
+                                                                                                   use="required">
+                                                                                        <xsd:simpleType>
+                                                                                            <xsd:restriction base="xsd:string">
+                                                                                                <xsd:enumeration
+                                                                                                        value="pre-processor"/>
+                                                                                                <xsd:enumeration
+                                                                                                        value="post-processor"/>
+                                                                                            </xsd:restriction>
+                                                                                        </xsd:simpleType>
+                                                                                    </xsd:attribute>
+                                                                                </xsd:complexType>
+                                                                            </xsd:element>
+                                                                        </xsd:sequence>
+                                                                        <xsd:attribute name="action-alias" type="xsd:string"/>
                                                                     </xsd:complexType>
                                                                 </xsd:element>
                                                             </xsd:sequence>
-                                                            <xsd:attribute name="action-alias" type="xsd:string"/>
-                                                            <xsd:attribute name="field-name" use="required"
-                                                                           type="xsd:string"/>
+                                                            <xsd:attribute name="name" type="xsd:string" use="required"/>
                                                         </xsd:complexType>
                                                     </xsd:element>
                                                 </xsd:sequence>
@@ -48,6 +53,15 @@
                                                 <xsd:attribute name="suffix" type="xsd:string"/>
                                             </xsd:complexType>
                                         </xsd:element>
+
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="annotation-scan" minOccurs="0"/>
+                            <xsd:element name="base-contents" minOccurs="0">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:element name="path" maxOccurs="unbounded"/>
                                     </xsd:sequence>
                                 </xsd:complexType>
                             </xsd:element>
@@ -91,8 +105,8 @@
                                     </xsd:sequence>
                                 </xsd:complexType>
                             </xsd:element>
-                            <xsd:element name="annotation-scan"/>
-                            <xsd:element name="base-contents">
+                            <xsd:element name="annotation-scan" minOccurs="0"/>
+                            <xsd:element name="base-contents" minOccurs="0">
                                 <xsd:complexType>
                                     <xsd:sequence>
                                         <xsd:element name="path" maxOccurs="unbounded"/>

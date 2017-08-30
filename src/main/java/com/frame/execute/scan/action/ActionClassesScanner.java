@@ -1,10 +1,11 @@
-package com.frame.execute.scan;
+package com.frame.execute.scan.action;
 
 import com.frame.annotations.Action;
 import com.frame.annotations.ActionClass;
 import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
+import com.frame.execute.scan.*;
 import com.frame.execute.valid.Validor;
 import com.frame.context.info.StringInfomation.ActionInfo;
 import com.frame.context.info.StringInfomation.Configuration;
@@ -13,6 +14,7 @@ import com.frame.context.info.Node;
 import com.frame.util.ExceptionUtil;
 
 import java.util.*;
+import java.util.Scanner;
 import java.util.concurrent.CyclicBarrier;
 
 /**
@@ -24,13 +26,13 @@ import java.util.concurrent.CyclicBarrier;
  * It will extract the action classes you configured in xml file and mapped the class name to its path
  * Then create a action register to scan the actions you configured under the class.
  */
-public class ActionClassesScanner extends Scanner {
+public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
 
     /**
      * The class ActionRegisterScanner is used for register a action
      * include alias,name and id attributes
      */
-    class ActionRegisterScanner extends Scanner {
+    class ActionRegisterScanner extends com.frame.execute.scan.Scanner {
 
         private ConfigurationNode actionClass;
 
@@ -143,7 +145,7 @@ public class ActionClassesScanner extends Scanner {
         return true;
     }
 
-    private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, Scanner actionScanner, Configuration production) {
+    private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, com.frame.execute.scan.Scanner actionScanner, Configuration production) {
         actionClassList.forEach(n -> {
             String className = n.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
             String classPath = n.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);

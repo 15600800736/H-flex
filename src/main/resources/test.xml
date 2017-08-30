@@ -1,23 +1,33 @@
 <frame-haug xmlns="http://www.haug.org/frame"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.haug.org/frame frame-haug.xsd ">
-    <action-groups>
-        <action-classes>
-            <action-class name="TestMethod" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
-                <execution action-alias="findBookIdByName" field-name="bookId"/>
-                <execution action-alias="insertBook" field-name="insertBook">
-                    <processor path="com.frame.execute.process.DefaultProcessor" type="pre-processor"/>
-                    <processor path="com.frame.execute.process.Processor" type="post-processor"/>
-                </execution>
-            </action-class>
-            <action-class name="Test2" path="com.frame.execute.process.DefaultProcessor" prefix="findBook" suffix="hahaha">
-                <execution action-alias="byId" field-name="bookId"/>
-            </action-class>
-        </action-classes>
-    </action-groups>
+    <executions>
+        <execution-classes>
+            <execution-class name="TestMethod" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
+                <field name="bookId">
+                    <execution action-alias="findBookIdByName">
+                        <processor path="com.frame.execute.process.DefaultProcessor" type="pre-processor"/>
+                        <processor path="com.frame.execute.process.ProcessorChain" type="post-processor"/>
+                    </execution>
+                    <execution action-alias="findBookIdByISBN"/>
+                </field>
+                <field name="bookISBN">
+                    <execution action-alias="findBook"/>
+                </field>
+            </execution-class>
+            <execution-class name="Test2" path="com.frame.execute.process.DefaultProcessor">
+                <field name="bookId">
+                    <execution action-alias="findBookIdByName"/>
+                </field>
+            </execution-class>
+        </execution-classes>
+        <annotation-scan/>
+        <base-contents>
+            <path>com.frame</path>
+        </base-contents>
+    </executions>
 
     <action-register>
-        <annotation-scan/>
         <action-classes>
             <action-class name="proc" path="com.frame.execute.process.DefaultProcessor">
                 <action alias="a,b" name="test1" id="1" return-type="string">
@@ -38,9 +48,6 @@
                 <all/>
             </action-class>
         </action-classes>
-        <base-contents>
-            <path>com.frame</path>
-        </base-contents>
     </action-register>
     <type-alias>
         <type name="java.lang.String" alias="string,str"/>

@@ -29,7 +29,7 @@ public class TypeAliasScanner extends Scanner {
         if(typeAlias == null) {
             return false;
         }
-        List<Node> types = typeAlias.getChildren(ConfigurationStringPool.TYPE);
+        List<Node> types = typeAlias.getChildren(ConfigurationStringPool.TYPE_ATTRIBUTE);
         types.forEach(t -> {
             String name = t.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
             String alias = t.getAttributeText(ConfigurationStringPool.ALIAS_ATTRIBUTE);

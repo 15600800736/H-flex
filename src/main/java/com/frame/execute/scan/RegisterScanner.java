@@ -1,10 +1,13 @@
 package com.frame.execute.scan;
 
-import com.frame.annotations.ActionClass;
 import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
+import com.frame.execute.scan.Scanner;
+import com.frame.execute.scan.action.ActionClassesScanner;
+import com.frame.execute.scan.action.BaseContentsScanner;
+import com.frame.execute.scan.execution.ExecutionScanner;
 import com.frame.flow.flows.ReusableTask;
 
 
@@ -22,12 +25,12 @@ import com.frame.flow.flows.ReusableTask;
  */
 public class RegisterScanner extends Scanner {
     private ConfigurationNode actionRegister;
-    private ConfigurationNode actionGroups;
+    private ConfigurationNode executions;
 
-    public RegisterScanner(Configuration production, ConfigurationNode actionRegister, ConfigurationNode actionGroups) {
+    public RegisterScanner(Configuration production, ConfigurationNode actionRegister, ConfigurationNode executions) {
         super(production);
         this.actionRegister = actionRegister;
-        this.actionGroups = actionGroups;
+        this.executions = executions;
     }
 
     @Override
@@ -47,13 +50,17 @@ public class RegisterScanner extends Scanner {
                     , "没有可供注册的方法");
         }
         ReusableTask<Configuration> actionRegisterTask = new ReusableTask<>(2);
-        // register scan by xml
+        // register action scan by xml
         if (actionClasses != null) {
             actionRegisterTask.appendWorker(new ActionClassesScanner(production));
         }
-        // register scan by annotations
+        // register action scan by annotations
         if (baseContents != null) {
             actionRegisterTask.appendWorker(new BaseContentsScanner(production));
+        }
+        // register execution scan by xml
+        if (executions != null) {
+            actionRegisterTask.appendWorker(new ExecutionScanner(production));
         }
         actionRegisterTask.setProduction(production);
         actionRegisterTask.execute();

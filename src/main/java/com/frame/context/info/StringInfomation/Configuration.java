@@ -1,5 +1,6 @@
 package com.frame.context.info.StringInfomation;
 
+import com.frame.annotations.Execution;
 import com.frame.context.info.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>The configuration records all information you can configured, no matter in xml or java code.
  * So, it extends the abstract class MapperSource, So it can offer information as resource, use
  * {@code setInformation} or {@code getInformation}, It also can be split by {@link ActionInfo} and
- * {@link ActionGroupInfo}</p>
  * <p>The information of Configuration also can be extract from other resource because it implements Extractor</p>
  */
 public class Configuration {
@@ -49,7 +49,12 @@ public class Configuration {
     /**
      *
      */
-    private ConcurrentMap<String, ActionGroupInfo> groupActions = new ConcurrentHashMap<>(256);
+    private ConcurrentMap<String, ExecutionInfo> executions = new ConcurrentHashMap<>(256);
+
+    /**
+     *
+     */
+    private ConcurrentMap<String, String> executionClassesPath = new ConcurrentHashMap<>(64);
     /**
      * <p>Has the configuration been well-registered, means if all the actions info has been injected</p>
      */
@@ -59,9 +64,6 @@ public class Configuration {
 
     public Configuration() {
     }
-
-
-
 
 
     public void setRoot(Node root) {
@@ -93,6 +95,15 @@ public class Configuration {
 
     public String appendTypeAlias(String alias, String name) {
         return this.typeAliases.putIfAbsent(alias, name);
+    }
+
+    public String appendExecutionClass(String name, String path) {
+        return this.executionClassesPath.putIfAbsent(name, path);
+    }
+
+    public Boolean appendExecution(String name, ExecutionInfo execution) {
+
+        return false;
     }
 
     public String getType(String alias) {
