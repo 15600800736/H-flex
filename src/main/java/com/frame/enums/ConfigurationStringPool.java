@@ -26,4 +26,5 @@ public class ConfigurationStringPool {
     public static final String EXECUTION = "execution";
     public static final String RETURN_TYPE = "return-type";
     public static final String FIELD = "field";
+    public static final String EXECUTION_CLASS = "execution-class";
 }

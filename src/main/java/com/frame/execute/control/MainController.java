@@ -86,16 +86,10 @@ public class MainController extends Controller<Object, Boolean> {
         for (; ; ) {
             if (configurationLine.isDone()) {
                 Configuration configuration = configurationLine.get();
-                configuration.getTypeAliases().forEach((key, type)->{
-                    System.out.println(key + " " + type);
-                });
-                configuration.getActions().forEach((key, actionInfo) -> {
-                    System.out.println("name " + actionInfo.getName());
-                    System.out.println("action class " + actionInfo.getActionClass());
-                    System.out.println("alias " + actionInfo.getAlias());
-                    System.out.println("params " + actionInfo.getParam());
-                    System.out.println("overload " + actionInfo.getOverload());
-                    System.out.println("-----------------------------");
+
+                configuration.getExecutionClassesPath().forEach((key, ei) -> {
+                    System.out.println(key + " " + ei);
+                    System.out.println("---------------------------");
                 });
                 break;
             }

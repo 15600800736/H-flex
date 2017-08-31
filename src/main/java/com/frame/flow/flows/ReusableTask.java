@@ -165,7 +165,9 @@ public class ReusableTask<P> extends Flow<P, P> {
                 Executor<P, ?> worker = workerInfo.worker;
                 P production = workerInfo.production;
                 worker.setProduction(production);
-                results.put(worker, re);
+                if (re != null) {
+                    results.put(worker, re);
+                }
             } catch (InterruptedException | ExecutionException e) {
                 while (!futures.add(future)) ;
             }

@@ -7,8 +7,10 @@ import com.frame.context.info.StringInfomation.ProcessorInfo;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.execute.scan.Scanner;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by fdh on 2017/7/20.
@@ -19,11 +21,12 @@ public class ExecutionScanner extends Scanner {
 
     public ExecutionScanner(Configuration production) {
         super(production);
+        this.executions = this.production.getRoot().getChild(ConfigurationStringPool.EXECUTIONS);
     }
 
-    class GroupClassesScanner extends Scanner {
+    class ExecutionClassScanner extends Scanner {
         private ConfigurationNode executionClass;
-        public GroupClassesScanner(Configuration production, ConfigurationNode executionClass) {
+        public ExecutionClassScanner(Configuration production, ConfigurationNode executionClass) {
             super(production);
             this.executionClass = executionClass;
         }
@@ -36,6 +39,7 @@ public class ExecutionScanner extends Scanner {
                 String name = f.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
                 ei.fieldName = name;
                 List<ConfigurationNode> exs = f.getChildren(ConfigurationStringPool.EXECUTION);
+                Set<ExecutionInfo.Execution> executions = new HashSet<>(128);
                 exs.forEach(ex -> {
                     ExecutionInfo.Execution e = new ExecutionInfo.Execution();
                     String alias = ex.getAttributeText(ConfigurationStringPool.ACTION_ALIAS_ATTRIBUTE);
@@ -48,8 +52,10 @@ public class ExecutionScanner extends Scanner {
                         pi.type = p.getAttributeText(ConfigurationStringPool.TYPE_ATTRIBUTE);
                         e.processors.add(pi);
                     });
+                    executions.add(e);
                 });
-
+                ei.executions = executions;
+                this.production.appendExecution(name, ei);
             });
             return null;
         }
@@ -58,16 +64,20 @@ public class ExecutionScanner extends Scanner {
 
     @Override
     public Object exec() throws Exception {
-        List<ConfigurationNode> actionClasses = executions == null ? null : executions.getChildren(ConfigurationStringPool.EXECUTION_CLASSES);
-        if (actionClasses == null) {
+        ConfigurationNode executionClasses = executions == null ? null : executions.getChild(ConfigurationStringPool.EXECUTION_CLASSES);
+        if (executionClasses == null) {
             return false;
         }
-        actionClasses.forEach(ac -> {
+        List<ConfigurationNode> executionClass = executionClasses.getChildren(ConfigurationStringPool.EXECUTION_CLASS);
+        if(executionClass == null) {
+            return false;
+        }
+        executionClass.forEach(ec -> {
             try {
-                String name = ac.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
-                String path = ac.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
+                String name = ec.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
+                String path = ec.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
                 this.production.appendExecutionClass(name, path);
-                new GroupClassesScanner(this.production, ac).execute();
+                new ExecutionClassScanner(this.production, ec).execute();
             } catch (Exception e) {
                 e.printStackTrace();
             }

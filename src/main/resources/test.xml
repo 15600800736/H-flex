@@ -48,6 +48,10 @@
                 <all/>
             </action-class>
         </action-classes>
+        <annotation-scan/>
+        <base-contents>
+            <path>com.frame</path>
+        </base-contents>
     </action-register>
     <type-alias>
         <type name="java.lang.String" alias="string,str"/>

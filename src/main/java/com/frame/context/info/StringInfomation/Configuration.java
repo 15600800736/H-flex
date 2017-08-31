@@ -5,6 +5,7 @@ import com.frame.context.info.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -102,8 +103,16 @@ public class Configuration {
     }
 
     public Boolean appendExecution(String name, ExecutionInfo execution) {
-
-        return false;
+        ExecutionInfo ei = this.executions.get(name);
+        if (ei == null) {
+            this.executions.putIfAbsent(name, execution);
+            return true;
+        } else {
+            if (ei.executions == null) {
+                ei.executions = new HashSet<>(128);
+            }
+            return ei.executions.addAll(execution.executions);
+        }
     }
 
     public String getType(String alias) {
@@ -123,6 +132,13 @@ public class Configuration {
         return typeAliases;
     }
 
+    public ConcurrentMap<String, ExecutionInfo> getExecutions() {
+        return executions;
+    }
+
+    public ConcurrentMap<String, String> getExecutionClassesPath() {
+        return executionClassesPath;
+    }
 
     public Boolean isRegisterd() {
         return registered.get();
