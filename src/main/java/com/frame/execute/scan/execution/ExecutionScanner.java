@@ -19,6 +19,8 @@ public class ExecutionScanner extends Scanner {
 
     private ConfigurationNode executions;
 
+    private final String fieldSeperator = "&";
+
     public ExecutionScanner(Configuration production) {
         super(production);
         this.executions = this.production.getRoot().getChild(ConfigurationStringPool.EXECUTIONS);
@@ -33,17 +35,26 @@ public class ExecutionScanner extends Scanner {
 
         @Override
         protected Object exec() throws Exception {
-            List<ConfigurationNode> fileds = executionClass.getChildren(ConfigurationStringPool.FIELD);
-            fileds.forEach(f -> {
+            List<ConfigurationNode> fields = executionClass.getChildren(ConfigurationStringPool.FIELD);
+            fields.forEach(f -> {
+                String prefix = f.getAttributeText(ConfigurationStringPool.PREFIX);
+                String suffix = f.getAttributeText(ConfigurationStringPool.SUFFIX);
                 ExecutionInfo ei = new ExecutionInfo();
                 String name = f.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
-                ei.fieldName = name;
+                ei.fieldName = executionClass.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE) + fieldSeperator + name;
                 List<ConfigurationNode> exs = f.getChildren(ConfigurationStringPool.EXECUTION);
                 Set<ExecutionInfo.Execution> executions = new HashSet<>(128);
                 exs.forEach(ex -> {
                     ExecutionInfo.Execution e = new ExecutionInfo.Execution();
-                    String alias = ex.getAttributeText(ConfigurationStringPool.ACTION_ALIAS_ATTRIBUTE);
-                    e.alias = alias;
+                    StringBuilder aliasAppender = new StringBuilder();
+                    if (prefix != null) {
+                        aliasAppender.append(prefix);
+                    }
+                    aliasAppender.append(ex.getAttributeText(ConfigurationStringPool.ACTION_ALIAS_ATTRIBUTE));
+                    if (suffix != null) {
+                        aliasAppender.append(suffix);
+                    }
+                    e.alias = aliasAppender.toString();
                     e.processors = new LinkedList<>();
                     List<ConfigurationNode> processors = ex.getChildren(ConfigurationStringPool.PROCESSOR);
                     processors.forEach(p -> {
@@ -52,10 +63,12 @@ public class ExecutionScanner extends Scanner {
                         pi.type = p.getAttributeText(ConfigurationStringPool.TYPE_ATTRIBUTE);
                         e.processors.add(pi);
                     });
+                    e.returnType = ex.getAttributeText(ConfigurationStringPool.RETURN_TYPE);
                     executions.add(e);
                 });
                 ei.executions = executions;
-                this.production.appendExecution(name, ei);
+                ei.actionClass = executionClass.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
+                this.production.appendExecution(ei.fieldName, ei);
             });
             return null;
         }

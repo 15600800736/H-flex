@@ -40,28 +40,20 @@
                                                                             </xsd:element>
                                                                         </xsd:sequence>
                                                                         <xsd:attribute name="action-alias" type="xsd:string"/>
+                                                                        <xsd:attribute name="return-type" type="xsd:string"/>
                                                                     </xsd:complexType>
                                                                 </xsd:element>
                                                             </xsd:sequence>
                                                             <xsd:attribute name="name" type="xsd:string" use="required"/>
+                                                            <xsd:attribute name="prefix" type="xsd:string"/>
+                                                            <xsd:attribute name="suffix" type="xsd:string"/>
                                                         </xsd:complexType>
                                                     </xsd:element>
                                                 </xsd:sequence>
                                                 <xsd:attribute name="name" type="xsd:string"/>
                                                 <xsd:attribute name="path" type="xsd:string" use="required"/>
-                                                <xsd:attribute name="prefix" type="xsd:string"/>
-                                                <xsd:attribute name="suffix" type="xsd:string"/>
                                             </xsd:complexType>
                                         </xsd:element>
-
-                                    </xsd:sequence>
-                                </xsd:complexType>
-                            </xsd:element>
-                            <xsd:element name="annotation-scan" minOccurs="0"/>
-                            <xsd:element name="base-contents" minOccurs="0">
-                                <xsd:complexType>
-                                    <xsd:sequence>
-                                        <xsd:element name="path" maxOccurs="unbounded"/>
                                     </xsd:sequence>
                                 </xsd:complexType>
                             </xsd:element>
@@ -93,7 +85,6 @@
                                                                     </xsd:restriction>
                                                                 </xsd:simpleType>
                                                             </xsd:attribute>
-                                                            <xsd:attribute name="return-type" type="xsd:string" use="required"/>
                                                         </xsd:complexType>
                                                     </xsd:element>
                                                     <xsd:element name="all"/>
@@ -105,17 +96,17 @@
                                     </xsd:sequence>
                                 </xsd:complexType>
                             </xsd:element>
-                            <xsd:element name="annotation-scan" minOccurs="0"/>
-                            <xsd:element name="base-contents" minOccurs="0">
-                                <xsd:complexType>
-                                    <xsd:sequence>
-                                        <xsd:element name="path" maxOccurs="unbounded"/>
-                                    </xsd:sequence>
-                                </xsd:complexType>
-                            </xsd:element>
                         </xsd:all>
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element name="base-contents" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="path" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="annotation-scan" minOccurs="0"/>
                 <xsd:element name="type-alias" minOccurs="0">
                     <xsd:complexType>
                         <xsd:sequence>

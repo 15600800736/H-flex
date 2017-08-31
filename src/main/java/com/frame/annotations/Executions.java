@@ -10,8 +10,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ActionGroup {
-    String prefix() default "";
-    String suffix() default "";
-    String value() default "";
+public @interface Executions {
+    String name() default "";
 }

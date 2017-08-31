@@ -4,12 +4,12 @@
     <executions>
         <execution-classes>
             <execution-class name="TestMethod" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
-                <field name="bookId">
-                    <execution action-alias="findBookIdByName">
+                <field name="bookId" prefix="findBookIdBy">
+                    <execution action-alias="Name">
                         <processor path="com.frame.execute.process.DefaultProcessor" type="pre-processor"/>
                         <processor path="com.frame.execute.process.ProcessorChain" type="post-processor"/>
                     </execution>
-                    <execution action-alias="findBookIdByISBN"/>
+                    <execution action-alias="ISBN" return-type="[string]"/>
                 </field>
                 <field name="bookISBN">
                     <execution action-alias="findBook"/>
@@ -21,38 +21,34 @@
                 </field>
             </execution-class>
         </execution-classes>
-        <annotation-scan/>
-        <base-contents>
-            <path>com.frame</path>
-        </base-contents>
     </executions>
 
     <action-register>
         <action-classes>
             <action-class name="proc" path="com.frame.execute.process.DefaultProcessor">
-                <action alias="a,b" name="test1" id="1" return-type="string">
-                    <param>string</param>
-                    <param>integer</param>
+                <action alias="a,b" name="test1" id="1">
+                    <param>[string]</param>
+                    <param>[integer]</param>
                 </action>
-                <action alias="c,d" name="test2" id="2" return-type="string"/>
+                <action alias="c,d" name="test2" id="2"/>
             </action-class>
             <action-class name="action" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
-                <action alias="e,f" name="test3" id="3" return-type="string"/>
-                <action alias="g" name="test4" id="4" return-type="string"/>
-                <action alias="h,i,j" name="test5" id="5" overload="true" return-type="string"/>
-                <action alias="k,l,m,n" name="test5" id="6" overload="true" return-type="string">
-                    <param>string</param>
+                <action alias="e,f" name="test3" id="3"/>
+                <action alias="g" name="test4" id="4"/>
+                <action alias="h,i,j" name="test5" id="5" overload="true"/>
+                <action alias="k,l,m,n" name="test5" id="6" overload="true">
+                    <param>[string]</param>
                 </action>
             </action-class>
             <action-class path="com.frame.context.info.StringInfomation.ActionInfo">
                 <all/>
             </action-class>
         </action-classes>
-        <annotation-scan/>
-        <base-contents>
-            <path>com.frame</path>
-        </base-contents>
     </action-register>
+    <base-contents>
+        <path>com.frame</path>
+    </base-contents>
+    <annotation-scan/>
     <type-alias>
         <type name="java.lang.String" alias="string,str"/>
         <type name="java.lang.Integer" alias="integer"/>

@@ -4,9 +4,7 @@ import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
-import com.frame.execute.scan.Scanner;
 import com.frame.execute.scan.action.ActionClassesScanner;
-import com.frame.execute.scan.action.BaseContentsScanner;
 import com.frame.execute.scan.execution.ExecutionScanner;
 import com.frame.flow.flows.ReusableTask;
 
@@ -42,7 +40,7 @@ public class RegisterScanner extends Scanner {
         // get all of the child node
         ConfigurationNode actionClasses = actionRegister.getChild(ConfigurationStringPool.ACTION_CLASSES);
         ConfigurationNode annotationScan = actionRegister.getChild(ConfigurationStringPool.ANNOTATION_SCAN);
-        ConfigurationNode baseContents = actionRegister.getChild(ConfigurationStringPool.BASE_CONTENTS);
+        ConfigurationNode baseContents = this.production.getRoot().getChild(ConfigurationStringPool.BASE_CONTENTS);
         Boolean canRegisterAction = (actionClasses != null) || (annotationScan != null && baseContents != null);
 
         if (!canRegisterAction) {

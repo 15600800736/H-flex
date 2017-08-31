@@ -5,6 +5,7 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
+import com.frame.context.info.StringInfomation.ExecutionInfo;
 import com.frame.context.resource.Resource;
 import com.frame.context.resource.XmlResource;
 import com.frame.execute.Executor;
@@ -18,6 +19,9 @@ import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.RegisterScanner;
 import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.read.ConfigurationReader;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>The main controller takes charge of all processes and states.
@@ -85,12 +89,16 @@ public class MainController extends Controller<Object, Boolean> {
         configurationLine.close();
         for (; ; ) {
             if (configurationLine.isDone()) {
-                Configuration configuration = configurationLine.get();
-
-                configuration.getExecutionClassesPath().forEach((key, ei) -> {
-                    System.out.println(key + " " + ei);
-                    System.out.println("---------------------------");
-                });
+                while (configurationLine.hasNext()) {
+                    Configuration configuration = configurationLine.get();
+                    configuration.getExecutions().forEach((key, ex) -> {
+                        System.out.println(ex.fieldName);
+                        ex.executions.forEach(e -> {
+                            System.out.println(e.alias + " " + e.returnType);
+                        });
+                        System.out.println("-----------------------------");
+                    });
+                }
                 break;
             }
         }

@@ -1,7 +1,10 @@
-package com.frame.execute.scan.action;
+package com.frame.execute.scan;
 
 import com.frame.annotations.Action;
 import com.frame.annotations.ActionClass;
+import com.frame.annotations.Execution;
+import com.frame.annotations.Executions;
+import com.frame.context.info.StringInfomation.ExecutionInfo;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.enums.TrueOrFalse;
 import com.frame.exceptions.ScanException;
@@ -14,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -36,6 +41,8 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class BaseContentsScanner extends Scanner {
 
+
+    private final String fieldSeperator = "&";
     /**
      *
      */
@@ -62,7 +69,6 @@ public class BaseContentsScanner extends Scanner {
                     Action actionAnnotation = method.getAnnotation(Action.class);
                     String id = actionAnnotation.id();
                     TrueOrFalse overload = actionAnnotation.overload();
-
                     ActionInfo newAction = ActionInfo.createActionInfo(id)
                             .setName(id)
                             .setAlias(getAlias(actionAnnotation))
@@ -93,6 +99,32 @@ public class BaseContentsScanner extends Scanner {
         }
     }
 
+    class ExecutionRegisterScanner extends Scanner {
+
+        private Class<?> executionClass;
+        public ExecutionRegisterScanner(Configuration production, Class<?> executionClass) {
+            super(production);
+            this.executionClass = executionClass;
+        }
+
+        @Override
+        protected Object exec() throws Exception {
+            Field[] fields = executionClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(Execution.class)) {
+                    ExecutionInfo ei = new ExecutionInfo();
+                    String fieldName = executionClass.getName() + fieldSeperator + field.getName();
+                    ei.actionClass = executionClass.getName();
+                    ei.executions = new HashSet<>(128);
+                    Execution[] executionAnnotation = field.getAnnotationsByType(Execution.class);
+                    for (Execution execution : executionAnnotation) {
+
+                    }
+                }
+            }
+            return null;
+        }
+    }
     private final Integer CLASS_SUFFIX_LENGTH = 6;
 
     /**
@@ -175,6 +207,13 @@ public class BaseContentsScanner extends Scanner {
                         Scanner actionRegisterScanner = new ActionRegisterScanner(production, actionClass);
                         actionRegisterScanner.execute();
                     }
+                    if (actionClass.isAnnotationPresent(Executions.class)) {
+                        Executions annotation = actionClass.getAnnotation(Executions.class);
+                        String name = annotation.name();
+                        String path = actionClass.getName();
+                        this.production.appendExecutionClass(name, path);
+
+                    }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -209,7 +248,7 @@ public class BaseContentsScanner extends Scanner {
         }
 
         if (production.isAnnotationScan()) {
-            ConfigurationNode baseContents = root.getChild(ConfigurationStringPool.ACTION_REGISTER).getChild(ConfigurationStringPool.BASE_CONTENTS);
+            ConfigurationNode baseContents = root.getChild(ConfigurationStringPool.BASE_CONTENTS);
             if (baseContents == null) {
                 throw new ScanException("<base-contents></base-contents>", "缺少<base-contents>元素");
             }

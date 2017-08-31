@@ -1,14 +1,12 @@
 package com.frame.testmethod;
 
-import com.frame.annotations.Action;
 import com.frame.annotations.ActionClass;
-import com.frame.annotations.ActionGroup;
-import com.frame.execute.process.DefaultProcessor;
+import com.frame.annotations.Executions;
 
 /**
  * Created by fdh on 2017/7/13.
  */
-@ActionGroup
+@Executions
 public class TestMethod  {
     private Integer bookId;
     private Integer insertNumber;
@@ -24,7 +22,7 @@ public class TestMethod  {
     }
 }
 
-@ActionGroup(prefix = "findBookId")
+@Executions
 class Test {
     private Integer bookId;
 

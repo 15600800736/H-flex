@@ -1,24 +1,48 @@
 package com.frame.example;
 
-import com.frame.annotations.Action;
-import com.frame.annotations.ActionGroup;
 import com.frame.annotations.Execution;
-import com.frame.context.ExecutionContext;
+import com.frame.annotations.ExecutionSet;
+import com.frame.annotations.Executions;
+
+import java.lang.reflect.Field;
 
 /**
  * Created by fdh on 2017/8/28.
  */
 
-@ActionGroup
+@Executions
 public class Use {
     @Execution(actionAlias = "getBookId")
     private String bookId;
 
-    private String getBookId(int i) {
+    @Execution(actionAlias = "getBookISBNById")
+    @Execution(actionAlias = "getBookISBNByName")
+    private String ISBN;
+
+    public String getBookId(int i) {
         return bookId;
     }
 
+    public String getISBN(String name) {
+        return ISBN;
+    }
+
+    public String getISBN(int id) {
+        return ISBN;
+    }
+
+    public void setISBN(String ISBN) {
+        this.ISBN = ISBN;
+    }
+
     public static void main(String...strings) {
-        ((Use)new ExecutionContext().get("Use")).getBookId(10);
+        try {
+            Field field = Use.class.getDeclaredField("ISBN");
+            System.out.println(field.isAnnotationPresent(Execution.class));
+            Execution[] executions = field.getAnnotationsByType(Execution.class);
+            System.out.println(executions.length);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
     }
 }

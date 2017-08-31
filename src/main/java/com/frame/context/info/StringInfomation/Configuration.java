@@ -111,6 +111,8 @@ public class Configuration {
             if (ei.executions == null) {
                 ei.executions = new HashSet<>(128);
             }
+            ei.fieldName = execution.fieldName;
+            ei.actionClass = execution.actionClass;
             return ei.executions.addAll(execution.executions);
         }
     }
@@ -139,6 +141,8 @@ public class Configuration {
     public ConcurrentMap<String, String> getExecutionClassesPath() {
         return executionClassesPath;
     }
+
+
 
     public Boolean isRegisterd() {
         return registered.get();

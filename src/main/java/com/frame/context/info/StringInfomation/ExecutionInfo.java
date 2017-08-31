@@ -13,6 +13,12 @@ public class ExecutionInfo {
          * <p>The alias of the method</p>
          */
         public String alias;
+
+        /**
+         *
+         */
+        public String returnType;
+
         /**
          * <p>The processors</p>
          */
@@ -28,7 +34,6 @@ public class ExecutionInfo {
      * <p>The field combined with the method</p>
      */
     public String fieldName;
-
     /**
      *
      */

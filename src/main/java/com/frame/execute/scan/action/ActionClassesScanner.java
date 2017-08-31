@@ -27,7 +27,6 @@ import java.util.concurrent.CyclicBarrier;
  * Then create a action register to scan the actions you configured under the class.
  */
 public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
-
     /**
      * The class ActionRegisterScanner is used for register a action
      * include alias,name and id attributes
@@ -71,9 +70,7 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
                         && "true".equals(al.getAttributeText(ConfigurationStringPool.OVERLOAD))) {
                     overload = true;
                 }
-                if(al.hasAttribute(ConfigurationStringPool.RETURN_TYPE)) {
-                    returnType = al.getAttributeText(ConfigurationStringPool.RETURN_TYPE);
-                }
+
                 String classPath = actionClass.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
                 String methodPath = classPath + "." + name;
                 if (id == null) {
@@ -98,8 +95,8 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
             List<ConfigurationNode> param = action.getChildren(ConfigurationStringPool.PARAM);
             param.forEach(p -> {
                 String pa = p.getText();
-                if (!pa.contains(".")) {
-                    paramList.add(this.production.getType(pa));
+                if (pa.startsWith("[") && pa.endsWith("]")) {
+                    paramList.add(this.production.getType(pa.substring(1, pa.length() - 1)));
                 } else {
                     paramList.add(pa);
 
@@ -139,13 +136,13 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
         List<ConfigurationNode> actionClassList = actionClasses.getChildren(ConfigurationStringPool.ACTION_CLASS);
         Map<String, String> classMapper = new HashMap<>(64);
         ActionRegisterScanner scanner = new ActionRegisterScanner(production);
-        registerAction(actionClassList, classMapper, scanner, production);
+        registerAction(actionClassList, classMapper, scanner);
         appendClasses(classMapper, production);
 
         return true;
     }
 
-    private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, com.frame.execute.scan.Scanner actionScanner, Configuration production) {
+    private void registerAction(List<ConfigurationNode> actionClassList, Map<String, String> classMapper, com.frame.execute.scan.Scanner actionScanner) {
         actionClassList.forEach(n -> {
             String className = n.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
             String classPath = n.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
