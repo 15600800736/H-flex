@@ -11,7 +11,6 @@ import java.lang.annotation.*;
 @Repeatable(ExecutionSet.class)
 public @interface Execution {
     String actionAlias();
-    String fieldName() default "";
     String returnType() default "";
-    String[] processors() default {};
+    Processor[] processors() default {};
 }

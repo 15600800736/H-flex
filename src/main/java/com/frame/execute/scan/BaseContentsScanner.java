@@ -1,28 +1,20 @@
 package com.frame.execute.scan;
 
-import com.frame.annotations.Action;
-import com.frame.annotations.ActionClass;
-import com.frame.annotations.Execution;
-import com.frame.annotations.Executions;
-import com.frame.context.info.StringInfomation.ExecutionInfo;
+import com.frame.annotations.*;
+import com.frame.context.info.StringInfomation.*;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.enums.TrueOrFalse;
 import com.frame.exceptions.ScanException;
-import com.frame.context.info.StringInfomation.ActionInfo;
-import com.frame.context.info.StringInfomation.Configuration;
-import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.context.info.Node;
 import com.frame.execute.scan.Scanner;
+import com.frame.util.ScanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -102,27 +94,51 @@ public class BaseContentsScanner extends Scanner {
     class ExecutionRegisterScanner extends Scanner {
 
         private Class<?> executionClass;
-        public ExecutionRegisterScanner(Configuration production, Class<?> executionClass) {
+
+        private Executions executions;
+
+        public ExecutionRegisterScanner(Configuration production, Class<?> executionClass, Executions executions) {
             super(production);
             this.executionClass = executionClass;
+            this.executions = executions;
         }
 
         @Override
         protected Object exec() throws Exception {
             Field[] fields = executionClass.getDeclaredFields();
+
             for (Field field : fields) {
                 if (field.isAnnotationPresent(Execution.class)) {
                     ExecutionInfo ei = new ExecutionInfo();
                     String fieldName = executionClass.getName() + fieldSeperator + field.getName();
+                    ei.fieldName = fieldName;
                     ei.actionClass = executionClass.getName();
                     ei.executions = new HashSet<>(128);
                     Execution[] executionAnnotation = field.getAnnotationsByType(Execution.class);
                     for (Execution execution : executionAnnotation) {
-
+                        ExecutionInfo.Execution ex = new ExecutionInfo.Execution();
+                        ex.alias = execution.actionAlias();
+                        String rawReturnType = execution.returnType();
+                        String returnType = ScanUtil.getRealType(rawReturnType, this.production.getTypeAliases());
+                        ex.returnType = returnType;
+                        Processor[] processors = execution.processors();
+                        List<ProcessorInfo> processorInfos = new ArrayList<>(processors.length);
+                        for (Processor processor : processors) {
+                            String rawProcessorType = processor.type().getType();
+                            String processorType = ScanUtil.getRealType(rawProcessorType, this.production.getTypeAliases());
+                            String processorPath = processor.path();
+                            ProcessorInfo processorInfo = new ProcessorInfo();
+                            processorInfo.type = processorType;
+                            processorInfo.path = processorPath;
+                            processorInfos.add(processorInfo);
+                        }
+                        ex.processors = processorInfos;
+                        ei.executions.add(ex);
                     }
+                    this.production.appendExecution(ei.fieldName, ei);
                 }
             }
-            return null;
+            return true;
         }
     }
     private final Integer CLASS_SUFFIX_LENGTH = 6;

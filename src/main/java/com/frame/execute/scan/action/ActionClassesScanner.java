@@ -12,6 +12,7 @@ import com.frame.context.info.StringInfomation.Configuration;
 import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.context.info.Node;
 import com.frame.util.ExceptionUtil;
+import com.frame.util.ScanUtil;
 
 import java.util.*;
 import java.util.Scanner;
@@ -95,12 +96,8 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
             List<ConfigurationNode> param = action.getChildren(ConfigurationStringPool.PARAM);
             param.forEach(p -> {
                 String pa = p.getText();
-                if (pa.startsWith("[") && pa.endsWith("]")) {
-                    paramList.add(this.production.getType(pa.substring(1, pa.length() - 1)));
-                } else {
-                    paramList.add(pa);
-
-                }
+                String paramType = ScanUtil.getRealType(pa, this.production.getTypeAliases());
+                paramList.add(paramType);
             });
             return paramList;
         }
