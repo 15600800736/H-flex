@@ -91,20 +91,22 @@ public class MainController extends Controller<Object, Boolean> {
             if (configurationLine.isDone()) {
                 while (configurationLine.hasNext()) {
                     Configuration configuration = configurationLine.get();
-//                    configuration.getExecutions().forEach((key, ex) -> {
-//                        System.out.println(ex.fieldName);
-//                        ex.executions.forEach(e -> {
-//                            System.out.println(e.alias + " " + e.returnType);
-//                        });
-//                        System.out.println("-----------------------------");
-//                    });
-                    configuration.getActions().forEach((key, ac) -> {
-                        System.out.print(ac.getName());
-                        ac.getParam().forEach(p -> {
-                            System.out.print(" " + p);
+                    configuration.getExecutions().forEach((key, ex) -> {
+                        System.out.println(ex.fieldName);
+                        System.out.println(ex.actionClass);
+                        System.out.println(this.configuration.getExecutionClassesPath().get(ex.actionClass));
+                        ex.executions.forEach(e -> {
+                            System.out.println(e.alias + " " + e.returnType);
                         });
-                        System.out.println("__________________");
+                        System.out.println("-----------------------------");
                     });
+//                    configuration.getActions().forEach((key, ac) -> {
+//                        System.out.print(ac.getName());
+//                        ac.getParam().forEach(p -> {
+//                            System.out.print(" " + p);
+//                        });
+//                        System.out.println("__________________");
+//                    });
                 }
                 break;
             }

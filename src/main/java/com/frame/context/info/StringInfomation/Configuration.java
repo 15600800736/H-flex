@@ -15,14 +15,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 
 /**
- * <p>The configuration records all information you can configured, no matter in xml or java code.
- * So, it extends the abstract class MapperSource, So it can offer information as resource, use
- * {@code setInformation} or {@code getInformation}, It also can be split by {@link ActionInfo} and
- * <p>The information of Configuration also can be extract from other resource because it implements Extractor</p>
+ * <p>The configuration records all information you can configured, no matter from xml or java code.
+ * It stores all information as string type.</p>
  */
 public class Configuration {
     /**
-     * <p>root node</p>
+     * <p>root node, the configuration keep a node as root, from which you can reach all of the information.</p>
+     * <p>So, no matter what form the configuration is, it should seems like a tree.</p>
      */
     private Node root;
     /**
@@ -30,17 +29,13 @@ public class Configuration {
      */
     private AtomicBoolean annotationScan = new AtomicBoolean();
     /**
-     * <p>the class of action mapper: name -> path</p>
+     * <p>the class of action: name -> path</p>
      */
     private ConcurrentMap<String, String> classesPathMapper = new ConcurrentHashMap<>(64);
     /**
-     * <p>the action's name mapper: id -> name</p>
+     * <p>the actions: id -> action's info</p>
      */
     private ConcurrentMap<String, ActionInfo> actions = new ConcurrentHashMap<>(256);
-    /**
-     * <p>the count of the direct child node (<action-groups/><action-register/>)</p>
-     */
-    private Integer countOfResourcesType = 2;
 
     /**
      * <p>The type aliases is a short representation of a type, for convenience: alias -> type</p>
@@ -48,32 +43,46 @@ public class Configuration {
     private ConcurrentMap<String, String> typeAliases = new ConcurrentHashMap<>(256);
 
     /**
-     *
+     * <p>Executions contains all of the executions, which is invoked by a field: action alias -> execution's info</p>
      */
     private ConcurrentMap<String, ExecutionInfo> executions = new ConcurrentHashMap<>(256);
 
     /**
-     *
+     * <p></p>
      */
     private ConcurrentMap<String, String> executionClassesPath = new ConcurrentHashMap<>(64);
     /**
-     * <p>Has the configuration been well-registered, means if all the actions info has been injected</p>
+     * <p>Has the configuration been well-registered, means if all the actions' and executions' info has been injected</p>
      */
     private AtomicBoolean registered = new AtomicBoolean(false);
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Constructor
+     */
     public Configuration() {
     }
+    /**
+     * Getters and setters
+     */
 
-
+    /**
+     * <p>Set the configuration's node, other scanner will get the root by calling {@code getRoot()}</p>
+     * @param root
+     */
     public void setRoot(Node root) {
         this.root = root;
     }
 
+    /**
+     * <p>Get the root node of the configuration to get other nodes</p>
+     * @return
+     */
     public Node getRoot() {
         return root;
     }
+
 
     public void setAnnotationScan(Boolean annotationScan) {
         this.annotationScan.set(annotationScan);
@@ -86,36 +95,6 @@ public class Configuration {
         return annotationScan.get();
     }
 
-    public String appendClass(String name, String path) {
-        return this.classesPathMapper.putIfAbsent(name, path);
-    }
-
-    public ActionInfo appendAction(String id, ActionInfo actionInfo) {
-        return this.actions.putIfAbsent(id, actionInfo);
-    }
-
-    public String appendTypeAlias(String alias, String name) {
-        return this.typeAliases.putIfAbsent(alias, name);
-    }
-
-    public String appendExecutionClass(String name, String path) {
-        return this.executionClassesPath.putIfAbsent(name, path);
-    }
-
-    public Boolean appendExecution(String name, ExecutionInfo execution) {
-        ExecutionInfo ei = this.executions.get(name);
-        if (ei == null) {
-            this.executions.putIfAbsent(name, execution);
-            return true;
-        } else {
-            if (ei.executions == null) {
-                ei.executions = new HashSet<>(128);
-            }
-            ei.fieldName = execution.fieldName;
-            ei.actionClass = execution.actionClass;
-            return ei.executions.addAll(execution.executions);
-        }
-    }
 
     public String getType(String alias) {
         return this.typeAliases.get(alias);
@@ -143,14 +122,80 @@ public class Configuration {
     }
 
 
-
     public Boolean isRegisterd() {
         return registered.get();
     }
 
     public void setIsRegisterd(Boolean isRegisterd) {
+
         this.registered.set(isRegisterd);
     }
+
+    /**
+     * Append info into maps
+     */
+
+    /**
+     * append action's classes
+     * @param name action's class name, may be full name of class, or the name attribute.
+     * @param path the path of action's class
+     * @return
+     */
+    public String appendClass(String name, String path) {
+        return this.classesPathMapper.putIfAbsent(name, path);
+    }
+
+    /**
+     * append actions
+     * @param id action's id, the only identify of an action
+     * @param actionInfo information of an action
+     * @return
+     */
+    public ActionInfo appendAction(String id, ActionInfo actionInfo) {
+        return this.actions.putIfAbsent(id, actionInfo);
+    }
+
+    /**
+     * append type alias
+     * @param alias the type alias
+     * @param name the full name of the an class
+     * @return
+     */
+    public String appendTypeAlias(String alias, String name) {
+        return this.typeAliases.putIfAbsent(alias, name);
+    }
+
+    /**
+     * append execution's class
+     * @param name execution's class name, may be full name of class, or the name attribute.
+     * @param path the full path of the class
+     * @return
+     */
+    public String appendExecutionClass(String name, String path) {
+        return this.executionClassesPath.putIfAbsent(name, path);
+    }
+
+    /**
+     * append executions
+     * @param name the field name(include field's class) that the execution bonding with.
+     * @param execution the info of an execution
+     * @return
+     */
+    public Boolean appendExecution(String name, ExecutionInfo execution) {
+        ExecutionInfo ei = this.executions.get(name);
+        if (ei == null) {
+            this.executions.putIfAbsent(name, execution);
+            return true;
+        } else {
+            if (ei.executions == null) {
+                ei.executions = new HashSet<>(128);
+            }
+            ei.fieldName = execution.fieldName;
+            ei.actionClass = execution.actionClass;
+            return ei.executions.addAll(execution.executions);
+        }
+    }
+
 }
 
 

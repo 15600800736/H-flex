@@ -35,6 +35,7 @@ public class BaseContentsScanner extends Scanner {
 
 
     private final String fieldSeperator = "&";
+
     /**
      *
      */
@@ -95,12 +96,13 @@ public class BaseContentsScanner extends Scanner {
 
         private Class<?> executionClass;
 
-        private Executions executions;
 
-        public ExecutionRegisterScanner(Configuration production, Class<?> executionClass, Executions executions) {
+        private String clazzName;
+
+        public ExecutionRegisterScanner(Configuration production, Class<?> executionClass, String clazzName) {
             super(production);
             this.executionClass = executionClass;
-            this.executions = executions;
+            this.clazzName = clazzName;
         }
 
         @Override
@@ -110,9 +112,9 @@ public class BaseContentsScanner extends Scanner {
             for (Field field : fields) {
                 if (field.isAnnotationPresent(Execution.class)) {
                     ExecutionInfo ei = new ExecutionInfo();
-                    String fieldName = executionClass.getName() + fieldSeperator + field.getName();
+                    String fieldName = clazzName + fieldSeperator + field.getName();
                     ei.fieldName = fieldName;
-                    ei.actionClass = executionClass.getName();
+                    ei.actionClass = clazzName;
                     ei.executions = new HashSet<>(128);
                     Execution[] executionAnnotation = field.getAnnotationsByType(Execution.class);
                     for (Execution execution : executionAnnotation) {
@@ -141,6 +143,7 @@ public class BaseContentsScanner extends Scanner {
             return true;
         }
     }
+
     private final Integer CLASS_SUFFIX_LENGTH = 6;
 
     /**
@@ -209,7 +212,7 @@ public class BaseContentsScanner extends Scanner {
                     }
                     // get the class's full name
                     String classFullName = classesQueue.take();
-                    if("".equals(classFullName)) {
+                    if ("".equals(classFullName)) {
                         return;
                     }
                     Class<?> actionClass = loader.loadClass(classFullName);
@@ -226,9 +229,13 @@ public class BaseContentsScanner extends Scanner {
                     if (actionClass.isAnnotationPresent(Executions.class)) {
                         Executions annotation = actionClass.getAnnotation(Executions.class);
                         String name = annotation.name();
+                        if (name == null || "".equals(name)) {
+                            name = actionClass.getName();
+                        }
                         String path = actionClass.getName();
                         this.production.appendExecutionClass(name, path);
-
+                        Scanner executionRegisterScanner = new ExecutionRegisterScanner(production, actionClass, name);
+                        executionRegisterScanner.execute();
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();

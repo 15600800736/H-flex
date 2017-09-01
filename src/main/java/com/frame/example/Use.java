@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * Created by fdh on 2017/8/28.
  */
 
-@Executions
+@Executions(name = "Use")
 public class Use {
     @Execution(actionAlias = "getBookId")
     private String bookId;

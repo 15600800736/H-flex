@@ -1,8 +1,9 @@
 package com.frame.execute.parse;
 
-import com.frame.context.Context;
 import com.frame.context.ExecutionContext;
 import com.frame.context.info.StringInfomation.Configuration;
+
+import java.util.Map;
 
 /**
  * Created by fdh on 2017/8/29.
@@ -24,6 +25,8 @@ public class CreateProxyParser extends Parser {
 
     @Override
     protected Object exec() throws Exception {
+        Map<String, String> executionClassesPath = configuration.getExecutionClassesPath();
+
         return null;
     }
 }

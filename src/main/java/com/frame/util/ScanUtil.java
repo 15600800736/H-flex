@@ -17,5 +17,4 @@ public class ScanUtil {
             return typeAlias.get(text.substring(1, text.length() - 1));
         }
     }
-    
 }
