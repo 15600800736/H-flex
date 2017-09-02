@@ -62,7 +62,7 @@ public class BaseContentsScanner extends Scanner {
                     Action actionAnnotation = method.getAnnotation(Action.class);
                     String id = actionAnnotation.id();
                     TrueOrFalse overload = actionAnnotation.overload();
-                    ActionInfo newAction = ActionInfo.createActionInfo(id)
+                    ActionInfo newAction =  ActionInfo.createActionInfo(id)
                             .setName(id)
                             .setAlias(getAlias(actionAnnotation))
                             .setParam(getParamType(method.getParameterTypes()))
@@ -80,15 +80,15 @@ public class BaseContentsScanner extends Scanner {
             return Arrays.asList(aliases);
         }
 
-        private List<String> getParamType(Class<?>[] paramType) {
+        private String[] getParamType(Class<?>[] paramType) {
             if (paramType == null) {
                 return null;
             }
-            List<String> result = new LinkedList<>();
-            for (Class<?> pt : paramType) {
-                result.add(pt.getName());
+            String[] params = new String[paramType.length];
+            for (int i = 0; i < params.length; i++) {
+                params[i] = paramType[i].getName();
             }
-            return result;
+            return params;
         }
     }
 

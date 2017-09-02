@@ -2,6 +2,8 @@ package com.frame.execute.parse;
 
 import com.frame.context.ExecutionContext;
 import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.example.Use;
+import com.frame.execute.proxy.ProxyCreator;
 
 import java.util.Map;
 
@@ -29,4 +31,15 @@ public class CreateProxyParser extends Parser {
 
         return null;
     }
+
+
+//    public static void main(String[] args) {
+//        ProxyCreator<Use> proxyCreator = new ProxyCreator(Use.class);
+//        try {
+//            Use use = proxyCreator.execute();
+//            use.getBookId(10);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

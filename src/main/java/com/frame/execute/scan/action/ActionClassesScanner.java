@@ -114,15 +114,22 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
          * @param action &lt;action&gt;&lt;/action&gt; node
          * @return
          */
-        private List<String> getParamType(ConfigurationNode action) {
-            List<String> paramList = new LinkedList<>();
-            List<ConfigurationNode> param = action.getChildren(ConfigurationStringPool.PARAM);
-            param.forEach(p -> {
-                String pa = p.getText();
-                String paramType = ScanUtil.getRealType(pa, this.production.getTypeAliases());
-                paramList.add(paramType);
-            });
-            return paramList;
+        private String[] getParamType(ConfigurationNode action) {
+            if (action == null) {
+                return null;
+            }
+            List<ConfigurationNode> parameterTypes = action.getChildren(ConfigurationStringPool.PARAM);
+            if (parameterTypes == null) {
+                return null;
+            }
+            String[] params = new String[parameterTypes.size()];
+            Iterator<ConfigurationNode> iter = parameterTypes.iterator();
+            for (int i = 0; i < params.length && iter.hasNext(); i++) {
+                ConfigurationNode param = iter.next();
+                String rawParam = param.getText();
+                params[i] = ScanUtil.getRealType(rawParam, this.production.getTypeAliases());
+            }
+            return params;
         }
 
         /**

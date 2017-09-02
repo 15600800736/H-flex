@@ -35,14 +35,6 @@ public class Use {
         this.ISBN = ISBN;
     }
 
-    public static void main(String...strings) {
-        try {
-            Field field = Use.class.getDeclaredField("ISBN");
-            System.out.println(field.isAnnotationPresent(Execution.class));
-            Execution[] executions = field.getAnnotationsByType(Execution.class);
-            System.out.println(executions.length);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+    public static void main(String... strings) {
     }
 }

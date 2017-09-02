@@ -34,7 +34,7 @@ public class ActionInfo {
     /**
      * <p>the parameter's type, maybe include type alias.</p>
      */
-    private List<String> param;
+    private String[] param;
 
     /**
      * <p>The return type of the method</p>
@@ -58,11 +58,11 @@ public class ActionInfo {
         return this;
     }
 
-    public List<String> getParam() {
+    public String[] getParam() {
         return param;
     }
 
-    public ActionInfo setParam(List<String> param) {
+    public ActionInfo setParam(String[] param) {
         this.param = param;
         return this;
     }
