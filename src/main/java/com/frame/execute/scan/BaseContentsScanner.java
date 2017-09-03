@@ -64,10 +64,11 @@ public class BaseContentsScanner extends Scanner {
                     TrueOrFalse overload = actionAnnotation.overload();
                     ActionInfo newAction =  ActionInfo.createActionInfo(id)
                             .setName(id)
-                            .setAlias(getAlias(actionAnnotation))
                             .setParam(getParamType(method.getParameterTypes()))
                             .setActionClass(actionClass.getName())
                             .setOverload(overload.getBool());
+                    List<String> alias = getAlias(actionAnnotation);
+                    this.production.appendAlias(alias, id);
                     production.appendAction(id, newAction);
                 }
             }

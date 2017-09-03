@@ -13,10 +13,7 @@ import java.util.List;
  * All of the information is a string, wait to be parsed by parser to an Method or something</p>
  */
 public class ActionInfo {
-    /**
-     * <p>the action's alias, you can also use it to locate an action</p>
-     */
-    private List<String> alias;
+
     /**
 
      * <p>the action's method name in its class</p>
@@ -67,14 +64,6 @@ public class ActionInfo {
         return this;
     }
 
-    public List<String> getAlias() {
-        return alias;
-    }
-
-    public ActionInfo setAlias(List<String> alias) {
-        this.alias = alias;
-        return this;
-    }
 
     public String getName() {
         return name;

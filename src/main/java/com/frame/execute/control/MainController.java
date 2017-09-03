@@ -66,13 +66,13 @@ public class MainController extends Controller<Object, Boolean> {
         FlowFactory<Configuration> factory = new SimpleFactory<>();
         Executor[][] executors = new Executor[][]{
                 {
-                    new TypeAliasScanner(configuration)
+                        new TypeAliasScanner(configuration)
                 }
-                ,{
-                    new RegisterScanner(configuration,
-                            reader.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
-                            reader.getRoot().getChild(ConfigurationStringPool.EXECUTIONS))
-                }
+                , {
+                new RegisterScanner(configuration,
+                        reader.getRoot().getChild(ConfigurationStringPool.ACTION_REGISTER),
+                        reader.getRoot().getChild(ConfigurationStringPool.EXECUTIONS))
+        }
         };
         factory.setExecutors(executors, configuration);
         AppendableLine<Configuration> configurationLine = factory.getLine();
@@ -100,11 +100,16 @@ public class MainController extends Controller<Object, Boolean> {
 //                        });
 //                        System.out.println("-----------------------------");
 //                    });
-                    configuration.getActions().forEach((key, ac) -> {
-                        System.out.print(ac.getName());
-                        for (String s : ac.getParam()) {
-                            System.out.println(s);
-                        }});
+//                    configuration.getActions().forEach((key, ac) -> {
+//                        System.out.print(ac.getName());
+//                        for (String s : ac.getParam()) {
+//                            System.out.println(s);
+//                        }
+//                    });
+                    configuration.getActionAlias().forEach((k, v) -> {
+                        System.out.println(k + " " + v);
+                    });
+
                 }
                 break;
             }

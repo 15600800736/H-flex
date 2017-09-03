@@ -99,10 +99,13 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
                 ActionInfo newAction = ActionInfo.createActionInfo(id)
                     .setName(name)
                     .setActionClass(classPath)
-                    .setAlias(getAliases(al))
                     .setParam(getParamType(al))
                     .setOverload(overload)
                     .setReturnType(returnType);
+
+
+                List<String> alias = getAliases(al);
+                this.production.appendAlias(alias, id);
                 // add it into production
                 production.appendAction(id, newAction);
             });

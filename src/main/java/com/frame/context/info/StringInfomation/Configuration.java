@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,6 +56,11 @@ public class Configuration {
      * <p>Has the configuration been well-registered, means if all the actions' and executions' info has been injected</p>
      */
     private AtomicBoolean registered = new AtomicBoolean(false);
+
+    /**
+     * <p>action alias -> action id</p>
+     */
+    private ConcurrentMap<String, String> actionAlias = new ConcurrentHashMap<>(1024);
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -121,6 +127,9 @@ public class Configuration {
         return executionClassesPath;
     }
 
+    public ConcurrentMap<String, String> getActionAlias() {
+        return actionAlias;
+    }
 
     public Boolean isRegisterd() {
         return registered.get();
@@ -131,7 +140,11 @@ public class Configuration {
         this.registered.set(isRegisterd);
     }
 
-    /**
+    public void setActionAlias(ConcurrentMap<String, String> actionAlias) {
+        this.actionAlias = actionAlias;
+    }
+
+/**
      * Append info into maps
      */
 
@@ -194,6 +207,15 @@ public class Configuration {
             ei.actionClass = execution.actionClass;
             return ei.executions.addAll(execution.executions);
         }
+    }
+
+    public Boolean appendAlias(List<String> alias, String methodId) {
+        for (String a : alias) {
+            if (this.actionAlias.putIfAbsent(a, methodId) != null) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
