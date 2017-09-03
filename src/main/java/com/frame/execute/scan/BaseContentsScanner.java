@@ -1,12 +1,11 @@
 package com.frame.execute.scan;
 
 import com.frame.annotations.*;
+import com.frame.context.info.Node;
 import com.frame.context.info.StringInfomation.*;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.enums.TrueOrFalse;
 import com.frame.exceptions.ScanException;
-import com.frame.context.info.Node;
-import com.frame.execute.scan.Scanner;
 import com.frame.util.ScanUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +14,10 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by fdh on 2017/7/2.
@@ -43,20 +42,22 @@ public class BaseContentsScanner extends Scanner {
         /**
          *
          */
-        private Class<?> actionClass;
+        private Class<?> actionClazz;
 
-        protected ActionRegisterScanner(Configuration production, Class<?> actionClass) {
+        private ActionClass ac;
+        protected ActionRegisterScanner(Configuration production, Class<?> actionClazz, ActionClass ac) {
             super(production);
-            this.actionClass = actionClass;
+            this.actionClazz = actionClazz;
+            this.ac = ac;
         }
 
         @Override
         public Object exec() throws Exception {
-            if (actionClass == null) {
+            if (actionClazz == null) {
                 throw new ScanException(null, "actionClasses is null");
             }
             // get all methods
-            Method[] methods = actionClass.getDeclaredMethods();
+            Method[] methods = actionClazz.getDeclaredMethods();
             for (Method method : methods) {
                 if (method.isAnnotationPresent(Action.class)) {
                     Action actionAnnotation = method.getAnnotation(Action.class);
@@ -65,7 +66,7 @@ public class BaseContentsScanner extends Scanner {
                     ActionInfo newAction =  ActionInfo.createActionInfo(id)
                             .setName(id)
                             .setParam(getParamType(method.getParameterTypes()))
-                            .setActionClass(actionClass.getName())
+                            .setActionClass(getActionClazz(ac, actionClazz))
                             .setOverload(overload.getBool());
                     List<String> alias = getAlias(actionAnnotation);
                     this.production.appendAlias(alias, id);
@@ -90,6 +91,16 @@ public class BaseContentsScanner extends Scanner {
                 params[i] = paramType[i].getName();
             }
             return params;
+        }
+        private String getActionClazz(ActionClass ac, Class<?> actionClazz) {
+            String name;
+            String actionClazzName = ac.className();
+            if (actionClazzName == null || "".equals(actionClazzName)) {
+                name = actionClazz.getName();
+            } else {
+                name = actionClazzName;
+            }
+            return name;
         }
     }
 
@@ -223,8 +234,8 @@ public class BaseContentsScanner extends Scanner {
                         if (className == null) {
                             className = classFullName;
                         }
-                        production.appendClass(className, classFullName);
-                        Scanner actionRegisterScanner = new ActionRegisterScanner(production, actionClass);
+                        production.appendClazz(className, classFullName);
+                        Scanner actionRegisterScanner = new ActionRegisterScanner(production, actionClass, annotation);
                         actionRegisterScanner.execute();
                     }
                     if (actionClass.isAnnotationPresent(Executions.class)) {
@@ -234,7 +245,7 @@ public class BaseContentsScanner extends Scanner {
                             name = actionClass.getName();
                         }
                         String path = actionClass.getName();
-                        this.production.appendExecutionClass(name, path);
+                        this.production.appendExecutionClazz(name, path);
                         Scanner executionRegisterScanner = new ExecutionRegisterScanner(production, actionClass, name);
                         executionRegisterScanner.execute();
                     }

@@ -93,7 +93,7 @@ public class ExecutionScanner extends Scanner {
             try {
                 String name = ec.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
                 String path = ec.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
-                this.production.appendExecutionClass(name, path);
+                this.production.appendExecutionClazz(name, path);
                 new ExecutionClassScanner(this.production, ec).execute();
             } catch (Exception e) {
                 e.printStackTrace();

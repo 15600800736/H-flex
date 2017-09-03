@@ -30,7 +30,7 @@ public class ActionParser extends Parser {
     @Override
     protected Object exec() throws Exception {
         if (configuration == null) {
-            return null;
+            return false;
         }
 
         String methodId = configuration.getActionAlias() == null ?
@@ -44,8 +44,27 @@ public class ActionParser extends Parser {
                 null : configuration.getActions().get(methodId);
 
         if (actionInfo == null) {
-            return null;
+            return false;
         }
+
+        String clazzName = actionInfo.getActionClass();
+
+        Class<?> actionClazz = this.production.getActionClazz(clazzName);
+        if (actionClazz == null) {
+            Parser clazzParser = new ActionClassParser(production, configuration, clazzName);
+
+            clazzParser.execute();
+        }
+        actionClazz = this.production.getActionClazz(clazzName);
+        if (actionClazz == null) {
+            return false;
+        }
+
+
+
+
+
+
 
         return null;
 

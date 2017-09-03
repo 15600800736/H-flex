@@ -5,11 +5,14 @@ package com.frame.execute.control;
  * Created by fdh on 2017/7/24.
  */
 
+import com.frame.context.ParserContext;
 import com.frame.context.info.StringInfomation.ExecutionInfo;
 import com.frame.context.resource.Resource;
 import com.frame.context.resource.XmlResource;
 import com.frame.execute.Executor;
+import com.frame.execute.parse.ActionClassParser;
 import com.frame.execute.scan.TypeAliasScanner;
+import com.frame.execute.scan.action.ActionClassesScanner;
 import com.frame.flow.FlowFactory;
 import com.frame.flow.SimpleFactory;
 import com.frame.flow.flows.AppendableLine;
@@ -106,10 +109,12 @@ public class MainController extends Controller<Object, Boolean> {
 //                            System.out.println(s);
 //                        }
 //                    });
-                    configuration.getActionAlias().forEach((k, v) -> {
-                        System.out.println(k + " " + v);
-                    });
-
+//                    configuration.getActionAlias().forEach((k, v) -> {
+//                        System.out.println(k + " " + v);
+//                    });
+                    ActionClassParser parser = new ActionClassParser(new ParserContext(),configuration,"a");
+                    parser.execute();
+                    System.out.println(parser.getProduction().getActionClazz("a"));
                 }
                 break;
             }

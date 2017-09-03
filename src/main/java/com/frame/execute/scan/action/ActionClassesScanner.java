@@ -36,7 +36,7 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
         /**
          * <p>&lt;action-class&gt;&lt;/action-class&gt; node</p>
          */
-        private ConfigurationNode actionClass;
+        private ConfigurationNode actionClazz;
 
         /**
          * Configuration
@@ -48,19 +48,19 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
 
         /**
          *
-         * @param actionClass
+         * @param actionClazz
          */
-        public void setActionClass(ConfigurationNode actionClass) {
-            this.actionClass = actionClass;
+        public void setActionClass(ConfigurationNode actionClazz) {
+            this.actionClazz = actionClazz;
         }
 
 
         @Override
         public Object exec() throws Exception {
-            if (actionClass == null) {
+            if (actionClazz == null) {
                 throw new ScanException("<action-class></action-class>", "缺少<action-class>标签");
             }
-            List<ConfigurationNode> actionList = actionClass.getChildren(ConfigurationStringPool.ACTION);
+            List<ConfigurationNode> actionList = actionClazz.getChildren(ConfigurationStringPool.ACTION);
             actionList.forEach((ConfigurationNode al) -> {
                 if (!al.hasAttribute(ConfigurationStringPool.NAME_ATTRIBUTE)) {
                     ExceptionUtil.doThrow(new ScanException("<action path='xxx'></action>", "标签" + al.getName() + "缺少属性" + ConfigurationStringPool.NAME_ATTRIBUTE));
@@ -78,14 +78,14 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
                 if (al.hasAttribute(ConfigurationStringPool.ID_ATTRIBUTE)) {
                     id = al.getAttributeText(ConfigurationStringPool.ID_ATTRIBUTE);
                 }
-                String classPath = actionClass.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
+                String classPath = actionClazz.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
                 String methodPath = classPath + "." + name;
                 if (id == null) {
                     id = methodPath;
                 }
 
                 // extract the path of class
-                if(!actionClass.hasAttribute(ConfigurationStringPool.PATH_ATTRIBUTE)) {
+                if(!actionClazz.hasAttribute(ConfigurationStringPool.PATH_ATTRIBUTE)) {
                     ExceptionUtil.doThrow(new ScanException("<action-class path='com.path.A'", "<action-class>缺少path属性"));
                 }
                 // extract the overload attribute, true or false
@@ -98,7 +98,7 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
                 // create a new action
                 ActionInfo newAction = ActionInfo.createActionInfo(id)
                     .setName(name)
-                    .setActionClass(classPath)
+                    .setActionClass(getActionClazz(actionClazz))
                     .setParam(getParamType(al))
                     .setOverload(overload)
                     .setReturnType(returnType);
@@ -147,6 +147,16 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
             String alias = action.getAttributeText(ConfigurationStringPool.ALIAS_ATTRIBUTE);
             String[] aliases = alias.split(",");
             return Arrays.asList(aliases);
+        }
+
+        private String getActionClazz(ConfigurationNode actionClazz) {
+            String name;
+            if (actionClazz.hasAttribute(ConfigurationStringPool.NAME_ATTRIBUTE)) {
+                name = actionClazz.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
+            } else {
+                name = actionClazz.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
+            }
+            return name;
         }
     }
 
@@ -211,7 +221,7 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
      */
     private void appendClasses(Map<String, String> classMapper, Configuration production) {
         classMapper.entrySet().forEach(es->{
-            production.appendClass(es.getKey(), es.getValue());
+            production.appendClazz(es.getKey(), es.getValue());
         });
     }
 }

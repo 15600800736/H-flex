@@ -154,7 +154,7 @@ public class Configuration {
      * @param path the path of action's class
      * @return
      */
-    public String appendClass(String name, String path) {
+    public String appendClazz(String name, String path) {
         return this.classesPathMapper.putIfAbsent(name, path);
     }
 
@@ -184,7 +184,7 @@ public class Configuration {
      * @param path the full path of the class
      * @return
      */
-    public String appendExecutionClass(String name, String path) {
+    public String appendExecutionClazz(String name, String path) {
         return this.executionClassesPath.putIfAbsent(name, path);
     }
 
