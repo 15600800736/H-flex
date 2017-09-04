@@ -16,6 +16,13 @@ public class ActionClassParser extends Parser {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public ActionClassParser(Configuration configuration) {
+        super(configuration);
+    }
+
+    public ActionClassParser(ParserContext production, Configuration configuration) {
+        super(production, configuration);
+    }
 
     public ActionClassParser(ParserContext production, Configuration configuration, String clazzName) {
         super(production, configuration);
@@ -71,5 +78,13 @@ public class ActionClassParser extends Parser {
             return null;
         }
         return clazz;
+    }
+
+    public String getClazzName() {
+        return clazzName;
+    }
+
+    public void setClazzName(String clazzName) {
+        this.clazzName = clazzName;
     }
 }

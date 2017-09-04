@@ -62,4 +62,22 @@ public class ParserContext {
     public Method getActions(String methodId) {
         return this.actions.get(methodId);
     }
+
+
+
+
+
+
+
+    public Map<String, Object> getProxies() {
+        return proxies;
+    }
+
+    public Map<String, Method> getActions() {
+        return actions;
+    }
+
+    public Map<String, Class> getActionsClazz() {
+        return actionsClazz;
+    }
 }

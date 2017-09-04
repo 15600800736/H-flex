@@ -11,6 +11,7 @@ import com.frame.context.resource.Resource;
 import com.frame.context.resource.XmlResource;
 import com.frame.execute.Executor;
 import com.frame.execute.parse.ActionClassParser;
+import com.frame.execute.parse.CreateProxyParser;
 import com.frame.execute.scan.TypeAliasScanner;
 import com.frame.execute.scan.action.ActionClassesScanner;
 import com.frame.flow.FlowFactory;
@@ -94,6 +95,12 @@ public class MainController extends Controller<Object, Boolean> {
             if (configurationLine.isDone()) {
                 while (configurationLine.hasNext()) {
                     Configuration configuration = configurationLine.get();
+                    
+//                    CreateProxyParser createProxyParser = new CreateProxyParser(new ParserContext(), configuration);
+//                    createProxyParser.execute();
+//                    createProxyParser.getProduction().getActionsClazz().forEach((k, v) -> {
+//                        System.out.println(k + " " + v);
+//                    });
 //                    configuration.getExecutions().forEach((key, ex) -> {
 //                        System.out.println(ex.fieldName);
 //                        System.out.println(ex.actionClass);
@@ -112,9 +119,6 @@ public class MainController extends Controller<Object, Boolean> {
 //                    configuration.getActionAlias().forEach((k, v) -> {
 //                        System.out.println(k + " " + v);
 //                    });
-                    ActionClassParser parser = new ActionClassParser(new ParserContext(),configuration,"a");
-                    parser.execute();
-                    System.out.println(parser.getProduction().getActionClazz("a"));
                 }
                 break;
             }

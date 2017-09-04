@@ -34,6 +34,9 @@ public class ExecutionProxy implements MethodInterceptor {
         }
         Method action = getAction(field, method, actions);
 
+        if (action == null) {
+
+        }
         return null;
     }
 
@@ -56,22 +59,22 @@ public class ExecutionProxy implements MethodInterceptor {
 
     }
 
-    private Method getAction(Field field, Method method, Map<String, ActionInfo> actions) {
-        if (field == null || method == null || actions == null) {
+    private Method getAction(Field field, Method getter, Map<String, ActionInfo> actions) {
+        if (field == null || getter == null || actions == null) {
             return null;
         }
         Execution[] executions = field.getAnnotationsByType(Execution.class);
-        for (Execution execution : executions) {
-            Method action = getAppropriateMethod(execution, method);
-            if (action == null) {
-                return action;
-            }
-        }
-        return null;
+        Method action = getAppropriateMethod(executions, getter);
+        return action;
     }
 
-    private Method getAppropriateMethod(Execution execution, Method method) {
+    private Method getAppropriateMethod(Execution[] executions, Method getter) {
+        if (getter == null) {
+            return null;
+        }
+        Class<?>[] parameters = getter.getParameterTypes();
         return null;
+
     }
 
 }

@@ -26,18 +26,15 @@ public class CreateProxyParser extends Parser {
     @Override
     protected Object exec() throws Exception {
         Map<String, String> executionClassesPath = configuration.getExecutionClassesPath();
-
+        ActionClassParser actionClassParser = new ActionClassParser(this.production, configuration);
+        executionClassesPath.forEach((k,v) -> {
+            actionClassParser.setClazzName(v);
+            try {
+                actionClassParser.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
         return null;
     }
-
-
-//    public static void main(String[] args) {
-//        ProxyCreator<Use> proxyCreator = new ProxyCreator(Use.class);
-//        try {
-//            Use use = proxyCreator.execute();
-//            use.getBookId(10);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
