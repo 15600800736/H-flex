@@ -18,14 +18,17 @@ public class ExecutionProxy implements MethodInterceptor {
 
     private final Map<String, ActionInfo> actions;
 
-    public ExecutionProxy(Map<String, ActionInfo> actions) {
+    private final Map<String, String> actionAliases;
+
+    private final Map<String, Method> actionCache;
+    public ExecutionProxy(Map<String, ActionInfo> actions, Map<String, String> actionAliases, Map<String, Method> actionCache) {
         this.actions = actions;
+        this.actionAliases = actionAliases;
+        this.actionCache = actionCache;
     }
 
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        System.out.println("111111111111111111");
-        System.out.println(method.getName());
         if (method == null) {
             return null;
         }
@@ -54,7 +57,7 @@ public class ExecutionProxy implements MethodInterceptor {
         } catch (NoSuchFieldException e) {
             return null;
         }
-        if (field.isAnnotationPresent(Execution.class)) {
+        if (!field.isAnnotationPresent(Execution.class)) {
             return null;
         }
         return field;
@@ -75,6 +78,19 @@ public class ExecutionProxy implements MethodInterceptor {
             return null;
         }
         Class<?>[] parameters = getter.getParameterTypes();
+        for (Execution execution : executions) {
+            Method action = null;
+            String actionAlias = execution.actionAlias();
+            if (actionAlias == null) {
+                return null;
+            }
+            String methodId = this.actionAliases.get(actionAlias);
+            action = this.actionCache.get(methodId);
+            if (action == null) {
+                ActionInfo actionInfo = this.actions.get(methodId);
+
+            }
+        }
         return null;
 
     }

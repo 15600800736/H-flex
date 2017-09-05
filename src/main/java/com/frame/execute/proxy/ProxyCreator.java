@@ -1,5 +1,6 @@
 package com.frame.execute.proxy;
 
+import com.frame.context.ParserContext;
 import com.frame.context.info.StringInformation.Configuration;
 import com.frame.example.UseB;
 import com.frame.execute.Executor;
@@ -12,15 +13,17 @@ public class ProxyCreator extends Executor<Class<?>, Object> {
 
     private Configuration configuration;
 
-    public ProxyCreator(Class<?> production, Configuration configuration) {
+    private ParserContext context;
+    public ProxyCreator(Class<?> production, Configuration configuration, ParserContext context) {
         super(production);
         this.configuration = configuration;
+        this.context = context;
     }
 
 
     @Override
     protected Object exec() throws Exception {
-        ExecutionProxy executionProxy = new ExecutionProxy(configuration.getActions());
+        ExecutionProxy executionProxy = new ExecutionProxy(configuration.getActions(), configuration.getActionAlias(), context.getActions());
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(this.production);
         enhancer.setCallback(executionProxy);
@@ -28,7 +31,7 @@ public class ProxyCreator extends Executor<Class<?>, Object> {
     }
 
     public static void main(String[] args) throws Exception {
-        ProxyCreator proxyCreator = new ProxyCreator(UseB.class, new Configuration());
+        ProxyCreator proxyCreator = new ProxyCreator(UseB.class, new Configuration(), new ParserContext());
         UseB b = (UseB) proxyCreator.execute();
         b.getTest();
     }

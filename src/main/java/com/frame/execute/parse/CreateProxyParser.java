@@ -44,7 +44,7 @@ public class CreateProxyParser extends Parser {
             return false;
         }
 
-        ProxyCreator proxyCreator = new ProxyCreator(executionClazz, configuration);
+        ProxyCreator proxyCreator = new ProxyCreator(executionClazz, configuration, this.production);
         Object proxy = null;
         try {
              proxy = proxyCreator.execute();
