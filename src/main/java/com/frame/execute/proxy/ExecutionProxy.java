@@ -21,10 +21,17 @@ public class ExecutionProxy implements MethodInterceptor {
     private final Map<String, String> actionAliases;
 
     private final Map<String, Method> actionCache;
-    public ExecutionProxy(Map<String, ActionInfo> actions, Map<String, String> actionAliases, Map<String, Method> actionCache) {
+
+    private final Map<String, Class> actionClazz;
+
+    private final Map<String, String> actionClazzPath;
+
+    public ExecutionProxy(Map<String, ActionInfo> actions, Map<String, String> actionAliases, Map<String, Method> actionCache, Map<String, Class> actionClazz, Map<String, String> actionClazzPath) {
         this.actions = actions;
         this.actionAliases = actionAliases;
         this.actionCache = actionCache;
+        this.actionClazz = actionClazz;
+        this.actionClazzPath = actionClazzPath;
     }
 
     @Override
@@ -88,6 +95,19 @@ public class ExecutionProxy implements MethodInterceptor {
             action = this.actionCache.get(methodId);
             if (action == null) {
                 ActionInfo actionInfo = this.actions.get(methodId);
+                String actionClazzName = actionInfo.getActionClass();
+                Class<?> actionClazz = this.actionClazz.get(actionClazzName);
+                if (actionClazz == null) {
+                    String clazzPath = this.actionClazzPath.get(actionClazzName);
+                    if (clazzPath == null) {
+                        try {
+                            actionClazz = Class.forName(clazzPath);
+                        } catch (ClassNotFoundException e) {
+                            return null;
+                        }
+                    }
+                }
+
 
             }
         }

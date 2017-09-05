@@ -23,7 +23,12 @@ public class ProxyCreator extends Executor<Class<?>, Object> {
 
     @Override
     protected Object exec() throws Exception {
-        ExecutionProxy executionProxy = new ExecutionProxy(configuration.getActions(), configuration.getActionAlias(), context.getActions());
+        ExecutionProxy executionProxy = new ExecutionProxy(
+                this.configuration.getActions(),
+                this.configuration.getActionAlias(),
+                this.context.getActions(),
+                this.context.getActionsClazz(),
+                this.configuration.getClassesPathMapper());
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(this.production);
         enhancer.setCallback(executionProxy);
