@@ -1,6 +1,7 @@
 package com.frame.execute.proxy;
 
 import com.frame.context.info.StringInformation.Configuration;
+import com.frame.example.UseB;
 import com.frame.execute.Executor;
 import net.sf.cglib.proxy.Enhancer;
 
@@ -24,5 +25,11 @@ public class ProxyCreator extends Executor<Class<?>, Object> {
         enhancer.setSuperclass(this.production);
         enhancer.setCallback(executionProxy);
         return enhancer.create();
+    }
+
+    public static void main(String[] args) throws Exception {
+        ProxyCreator proxyCreator = new ProxyCreator(UseB.class, new Configuration());
+        UseB b = (UseB) proxyCreator.execute();
+        b.getTest();
     }
 }

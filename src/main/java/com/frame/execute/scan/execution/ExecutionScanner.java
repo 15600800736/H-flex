@@ -32,6 +32,7 @@ public class ExecutionScanner extends Scanner {
 
     class ExecutionClassScanner extends Scanner {
         private ConfigurationNode executionClass;
+
         public ExecutionClassScanner(Configuration production, ConfigurationNode executionClass) {
             super(production);
             this.executionClass = executionClass;
@@ -86,13 +87,16 @@ public class ExecutionScanner extends Scanner {
             return false;
         }
         List<ConfigurationNode> executionClass = executionClasses.getChildren(ConfigurationStringPool.EXECUTION_CLASS);
-        if(executionClass == null) {
+        if (executionClass == null) {
             return false;
         }
         executionClass.forEach(ec -> {
             try {
                 String name = ec.getAttributeText(ConfigurationStringPool.NAME_ATTRIBUTE);
                 String path = ec.getAttributeText(ConfigurationStringPool.PATH_ATTRIBUTE);
+                if (name == null) {
+                    name = path;
+                }
                 this.production.appendExecutionClazz(name, path);
                 new ExecutionClassScanner(this.production, ec).execute();
             } catch (Exception e) {

@@ -63,6 +63,9 @@ public class ParserContext {
         return this.actions.get(methodId);
     }
 
+    public Object getProxy(String name) {
+        return this.proxies.get(name);
+    }
 
 
 

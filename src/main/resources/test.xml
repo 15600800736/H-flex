@@ -3,7 +3,7 @@
             xsi:schemaLocation="http://www.haug.org/frame frame-haug.xsd ">
     <executions>
         <execution-classes>
-            <execution-class path="com.frame.example.UseB">
+            <execution-class path="com.frame.example.UseB" name="UseB">
                 <field name="test">
                     <execution action-alias="testInteger"/>
                 </field>

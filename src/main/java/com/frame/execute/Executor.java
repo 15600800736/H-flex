@@ -71,7 +71,6 @@ public abstract class Executor<P, T>
         prepareForExecute();
         Object rawResult = exec();
         return postProcessForExecute(rawResult);
-
     }
 
     /**

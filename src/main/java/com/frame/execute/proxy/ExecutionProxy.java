@@ -24,13 +24,15 @@ public class ExecutionProxy implements MethodInterceptor {
 
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+        System.out.println("111111111111111111");
+        System.out.println(method.getName());
         if (method == null) {
             return null;
         }
         String methodName = method.getName();
         Field field = getField(methodName, method.getDeclaringClass());
         if (field == null) {
-            return methodProxy.invoke(o, objects);
+            return methodProxy.invokeSuper(o, objects);
         }
         Method action = getAction(field, method, actions);
 

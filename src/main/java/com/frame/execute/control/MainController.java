@@ -8,8 +8,10 @@ package com.frame.execute.control;
 import com.frame.context.ParserContext;
 import com.frame.context.resource.Resource;
 import com.frame.context.resource.XmlResource;
+import com.frame.example.UseB;
 import com.frame.execute.Executor;
 import com.frame.execute.parse.CreateProxyParser;
+import com.frame.execute.proxy.ProxyCreator;
 import com.frame.execute.scan.TypeAliasScanner;
 import com.frame.flow.FlowFactory;
 import com.frame.flow.SimpleFactory;
@@ -92,16 +94,11 @@ public class MainController extends Controller<Object, Boolean> {
                     configuration.getClassesPathMapper().forEach((k, v) -> {
                         System.out.println(k + " " + v);
                     });
-
-
                     CreateProxyParser createProxyParser = new CreateProxyParser(new ParserContext(), configuration);
                     createProxyParser.execute();
                     createProxyParser.getProduction().getProxies().forEach((k,v) -> {
                         System.out.println(k + " " + v);
                     });
-//                    createProxyParser.getProduction().getActionsClazz().forEach((k, v) -> {
-//                        System.out.println(k + " " + v);
-//                    });
 //                    configuration.getExecutions().forEach((key, ex) -> {
 //                        System.out.println(ex.fieldName);
 //                        System.out.println(ex.actionClass);
