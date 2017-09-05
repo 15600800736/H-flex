@@ -1,4 +1,4 @@
-package com.frame.context.info.StringInfomation;
+package com.frame.context.info.StringInformation;
 
 import java.util.List;
 import java.util.Set;

@@ -2,7 +2,7 @@ package com.frame.execute.scan;
 
 import com.frame.annotations.*;
 import com.frame.context.info.Node;
-import com.frame.context.info.StringInfomation.*;
+import com.frame.context.info.StringInformation.*;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.enums.TrueOrFalse;
 import com.frame.exceptions.ScanException;

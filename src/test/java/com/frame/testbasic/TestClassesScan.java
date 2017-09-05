@@ -3,7 +3,7 @@ package com.frame.testbasic;
 import com.frame.annotations.ActionClass;
 import com.frame.execute.control.Controller;
 import com.frame.execute.control.MainController;
-import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.StringInformation.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.frame.context.info.StringInfomation;
+package com.frame.context.info.StringInformation;
 
 /**
  * Created by fdh on 2017/8/28.

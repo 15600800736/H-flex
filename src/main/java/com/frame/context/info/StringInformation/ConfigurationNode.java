@@ -1,4 +1,4 @@
-package com.frame.context.info.StringInfomation;
+package com.frame.context.info.StringInformation;
 
 import com.frame.execute.transform.ElementTransformer;
 import com.frame.execute.transform.Transformer;

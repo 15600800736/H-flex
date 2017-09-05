@@ -1,10 +1,7 @@
 package com.frame.execute.scan;
 
-import com.frame.context.info.StringInfomation.ConfigurationNode;
 import com.frame.execute.Executor;
-import com.frame.context.info.StringInfomation.Configuration;
-
-import java.util.concurrent.CyclicBarrier;
+import com.frame.context.info.StringInformation.Configuration;
 
 /*
   Created by fdh on 2017/6/17.

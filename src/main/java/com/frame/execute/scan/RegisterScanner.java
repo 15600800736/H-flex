@@ -1,7 +1,7 @@
 package com.frame.execute.scan;
 
-import com.frame.context.info.StringInfomation.Configuration;
-import com.frame.context.info.StringInfomation.ConfigurationNode;
+import com.frame.context.info.StringInformation.Configuration;
+import com.frame.context.info.StringInformation.ConfigurationNode;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.action.ActionClassesScanner;

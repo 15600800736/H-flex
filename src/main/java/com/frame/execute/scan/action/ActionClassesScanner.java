@@ -1,22 +1,15 @@
 package com.frame.execute.scan.action;
 
-import com.frame.annotations.Action;
-import com.frame.annotations.ActionClass;
-import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
-import com.frame.execute.scan.*;
-import com.frame.execute.valid.Validor;
-import com.frame.context.info.StringInfomation.ActionInfo;
-import com.frame.context.info.StringInfomation.Configuration;
-import com.frame.context.info.StringInfomation.ConfigurationNode;
+import com.frame.context.info.StringInformation.ActionInfo;
+import com.frame.context.info.StringInformation.Configuration;
+import com.frame.context.info.StringInformation.ConfigurationNode;
 import com.frame.context.info.Node;
 import com.frame.util.ExceptionUtil;
 import com.frame.util.ScanUtil;
 
 import java.util.*;
-import java.util.Scanner;
-import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by fdh on 2017/7/15.
@@ -105,7 +98,9 @@ public class ActionClassesScanner extends com.frame.execute.scan.Scanner {
 
 
                 List<String> alias = getAliases(al);
-                this.production.appendAlias(alias, id);
+                if(alias != null) {
+                    this.production.appendAlias(alias, id);
+                }
                 // add it into production
                 production.appendAction(id, newAction);
             });

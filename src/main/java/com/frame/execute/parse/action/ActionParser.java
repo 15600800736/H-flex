@@ -1,11 +1,9 @@
-package com.frame.execute.parse;
+package com.frame.execute.parse.action;
 
-import com.frame.context.Context;
 import com.frame.context.ParserContext;
-import com.frame.context.info.StringInfomation.ActionInfo;
-import com.frame.context.info.StringInfomation.Configuration;
-
-import java.util.Map;
+import com.frame.context.info.StringInformation.ActionInfo;
+import com.frame.context.info.StringInformation.Configuration;
+import com.frame.execute.parse.Parser;
 
 /**
  * Created by fdh on 2017/9/2.

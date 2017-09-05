@@ -1,11 +1,9 @@
-package com.frame.context.info.StringInfomation;
+package com.frame.context.info.StringInformation;
 
 
 /**
  * Created by fdh on 2017/7/17.
  */
-
-import java.util.List;
 
 /**
  * <p>ActionInfo is a delegate of the basic unit in the frame -- action

@@ -6,14 +6,11 @@ package com.frame.execute.control;
  */
 
 import com.frame.context.ParserContext;
-import com.frame.context.info.StringInfomation.ExecutionInfo;
 import com.frame.context.resource.Resource;
 import com.frame.context.resource.XmlResource;
 import com.frame.execute.Executor;
-import com.frame.execute.parse.ActionClassParser;
 import com.frame.execute.parse.CreateProxyParser;
 import com.frame.execute.scan.TypeAliasScanner;
-import com.frame.execute.scan.action.ActionClassesScanner;
 import com.frame.flow.FlowFactory;
 import com.frame.flow.SimpleFactory;
 import com.frame.flow.flows.AppendableLine;
@@ -21,11 +18,8 @@ import com.frame.flow.flows.AppendableTask;
 import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.RegisterScanner;
-import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.StringInformation.Configuration;
 import com.frame.context.read.ConfigurationReader;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * <p>The main controller takes charge of all processes and states.
@@ -95,9 +89,16 @@ public class MainController extends Controller<Object, Boolean> {
             if (configurationLine.isDone()) {
                 while (configurationLine.hasNext()) {
                     Configuration configuration = configurationLine.get();
-                    
-//                    CreateProxyParser createProxyParser = new CreateProxyParser(new ParserContext(), configuration);
-//                    createProxyParser.execute();
+                    configuration.getClassesPathMapper().forEach((k, v) -> {
+                        System.out.println(k + " " + v);
+                    });
+
+
+                    CreateProxyParser createProxyParser = new CreateProxyParser(new ParserContext(), configuration);
+                    createProxyParser.execute();
+                    createProxyParser.getProduction().getProxies().forEach((k,v) -> {
+                        System.out.println(k + " " + v);
+                    });
 //                    createProxyParser.getProduction().getActionsClazz().forEach((k, v) -> {
 //                        System.out.println(k + " " + v);
 //                    });
@@ -119,6 +120,7 @@ public class MainController extends Controller<Object, Boolean> {
 //                    configuration.getActionAlias().forEach((k, v) -> {
 //                        System.out.println(k + " " + v);
 //                    });
+
                 }
                 break;
             }

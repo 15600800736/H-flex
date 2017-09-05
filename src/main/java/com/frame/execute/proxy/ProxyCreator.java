@@ -1,21 +1,20 @@
 package com.frame.execute.proxy;
 
-import com.frame.context.info.StringInfomation.Configuration;
-import com.frame.example.Use;
+import com.frame.context.info.StringInformation.Configuration;
 import com.frame.execute.Executor;
 import net.sf.cglib.proxy.Enhancer;
 
 /**
  * Created by fdh on 2017/9/1.
  */
-public class ProxyCreator<T> extends Executor<Class<T>, T> {
+public class ProxyCreator extends Executor<Class<?>, Object> {
 
     private Configuration configuration;
-    public ProxyCreator(Class<T> production, Configuration configuration) {
+
+    public ProxyCreator(Class<?> production, Configuration configuration) {
         super(production);
         this.configuration = configuration;
     }
-
 
 
     @Override
@@ -25,10 +24,5 @@ public class ProxyCreator<T> extends Executor<Class<T>, T> {
         enhancer.setSuperclass(this.production);
         enhancer.setCallback(executionProxy);
         return enhancer.create();
-    }
-
-    @Override
-    public T postProcessForExecute(Object result) {
-        return (T)result;
     }
 }

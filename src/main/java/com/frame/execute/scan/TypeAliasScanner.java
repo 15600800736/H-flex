@@ -1,14 +1,10 @@
 package com.frame.execute.scan;
 
-import com.frame.context.resource.Resource;
 import com.frame.enums.ConfigurationStringPool;
-import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.StringInformation.Configuration;
 import com.frame.context.info.Node;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by fdh on 2017/7/26.

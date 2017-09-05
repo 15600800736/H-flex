@@ -1,13 +1,11 @@
 package com.frame.execute.transform;
 
-import com.frame.context.resource.Resource;
-import com.frame.context.info.StringInfomation.ConfigurationNode;
+import com.frame.context.info.StringInformation.ConfigurationNode;
 
 import org.dom4j.Element;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by fdh on 2017/7/4.

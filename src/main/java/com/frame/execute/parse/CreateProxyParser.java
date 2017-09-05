@@ -1,10 +1,9 @@
 package com.frame.execute.parse;
 
-import com.frame.context.Context;
-import com.frame.context.ExecutionContext;
 import com.frame.context.ParserContext;
-import com.frame.context.info.StringInfomation.Configuration;
-import com.frame.example.Use;
+import com.frame.context.info.StringInformation.Configuration;
+import com.frame.exceptions.ParseException;
+import com.frame.execute.parse.action.ActionClassParser;
 import com.frame.execute.proxy.ProxyCreator;
 
 import java.util.Map;
@@ -26,15 +25,37 @@ public class CreateProxyParser extends Parser {
     @Override
     protected Object exec() throws Exception {
         Map<String, String> executionClassesPath = configuration.getExecutionClassesPath();
-        ActionClassParser actionClassParser = new ActionClassParser(this.production, configuration);
-        executionClassesPath.forEach((k,v) -> {
-            actionClassParser.setClazzName(v);
-            try {
-                actionClassParser.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        executionClassesPath.forEach(this::createProxy);
         return null;
+    }
+
+    private Boolean createProxy(String executionName, String executionPath) {
+        if (executionName == null || executionPath == null) {
+            return false;
+        }
+
+        Class<?> executionClazz;
+        try {
+            executionClazz = Class.forName(executionPath);
+        } catch (ClassNotFoundException e) {
+            throw new ParseException("execution  class", "there is no such a class");
+        }
+        if (executionClazz == null) {
+            return false;
+        }
+
+        ProxyCreator proxyCreator = new ProxyCreator(executionClazz, configuration);
+        Object proxy = null;
+        try {
+             proxy = proxyCreator.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (proxy == null) {
+            return false;
+        }
+
+        this.production.appendProxy(executionName, proxy);
+        return true;
     }
 }

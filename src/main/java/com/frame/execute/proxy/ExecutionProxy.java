@@ -1,7 +1,7 @@
 package com.frame.execute.proxy;
 
 import com.frame.annotations.Execution;
-import com.frame.context.info.StringInfomation.ActionInfo;
+import com.frame.context.info.StringInformation.ActionInfo;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 

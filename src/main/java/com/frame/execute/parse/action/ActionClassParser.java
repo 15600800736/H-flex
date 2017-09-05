@@ -1,7 +1,8 @@
-package com.frame.execute.parse;
+package com.frame.execute.parse.action;
 
 import com.frame.context.ParserContext;
-import com.frame.context.info.StringInfomation.Configuration;
+import com.frame.context.info.StringInformation.Configuration;
+import com.frame.execute.parse.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

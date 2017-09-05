@@ -3,21 +3,9 @@
             xsi:schemaLocation="http://www.haug.org/frame frame-haug.xsd ">
     <executions>
         <execution-classes>
-            <execution-class name="TestMethod" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
-                <field name="bookId" prefix="findBookIdBy">
-                    <execution action-alias="Name">
-                        <processor path="com.frame.execute.process.DefaultProcessor" type="pre-processor"/>
-                        <processor path="com.frame.execute.process.ProcessorChain" type="post-processor"/>
-                    </execution>
-                    <execution action-alias="ISBN" return-type="[string]"/>
-                </field>
-                <field name="bookISBN">
-                    <execution action-alias="findBook"/>
-                </field>
-            </execution-class>
-            <execution-class name="Test2" path="com.frame.execute.process.DefaultProcessor">
-                <field name="bookId">
-                    <execution action-alias="findBookIdByName"/>
+            <execution-class path="com.frame.example.UseB">
+                <field name="test">
+                    <execution action-alias="testInteger"/>
                 </field>
             </execution-class>
         </execution-classes>
@@ -25,23 +13,15 @@
 
     <action-register>
         <action-classes>
-            <action-class name="proc" path="com.frame.execute.process.DefaultProcessor">
-                <action alias="a,b" name="test1" id="1">
-                    <param>[string]</param>
-                    <param>[integer]</param>
-                </action>
-                <action alias="c,d" name="test2" id="2"/>
-            </action-class>
-            <action-class name="action" path="com.frame.context.info.StringInfomation.ActionInfoHolder">
-                <action alias="e,f" name="test3" id="3"/>
-                <action alias="g" name="test4" id="4"/>
-                <action alias="h,i,j" name="test5" id="5" overload="true"/>
-                <action alias="k,l,m,n" name="test5" id="6" overload="true">
-                    <param>[string]</param>
+            <action-class name="action" path="com.frame.context.info.StringInformation.ActionInfoHolder">
+                <action name="addAction" id="addAction">
+                    <param>actionInfo</param>
                 </action>
             </action-class>
-            <action-class path="com.frame.context.info.StringInfomation.ActionInfo">
-                <all/>
+            <action-class path="com.frame.example.B">
+                <action name="testInteger" alias="ti">
+                    <param>integer</param>
+                </action>
             </action-class>
         </action-classes>
     </action-register>
@@ -52,5 +32,6 @@
     <type-alias>
         <type name="java.lang.String" alias="string,str"/>
         <type name="java.lang.Integer" alias="integer"/>
+        <type name="com.frame.context.info.StringInformation.ActionInfo" alias="actionInfo"/>
     </type-alias>
 </frame-haug>
