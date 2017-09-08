@@ -1,9 +1,9 @@
 package com.frame.context.read;
 
-import com.frame.exceptions.ScanException;
+import com.frame.context.info.Node;
 import com.frame.context.info.StringInformation.Configuration;
 import com.frame.context.info.StringInformation.ConfigurationNode;
-import com.frame.context.info.Node;
+import com.frame.exceptions.ScanException;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
