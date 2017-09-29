@@ -28,7 +28,8 @@ public class ProxyCreator extends Executor<Class<?>, Object> {
                 this.configuration.getActionAlias(),
                 this.context.getActions(),
                 this.context.getActionsClazz(),
-                this.configuration.getClassesPathMapper());
+                this.configuration.getClassesPathMapper(),
+                this.configuration.getTypeAliases());
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(this.production);
         enhancer.setCallback(executionProxy);
