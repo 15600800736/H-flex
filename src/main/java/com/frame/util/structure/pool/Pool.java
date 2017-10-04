@@ -1,6 +1,7 @@
 package com.frame.util.structure.pool;
 
-import com.frame.util.structure.pool.poolstrategy.PoolStrategy;
+import com.frame.util.structure.LimitableCache;
+import com.frame.util.structure.strategy.Strategy;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -10,7 +11,8 @@ import java.util.Map;
 /**
  * Created by fdh on 2017/9/29.
  */
-public abstract class Pool {
+public abstract class Pool<E>
+        implements LimitableCache<E> {
 
     /**
      * The numbers of level of pool
@@ -25,12 +27,12 @@ public abstract class Pool {
     /**
      * strategy mode
      */
-    protected PoolStrategy poolStrategy;
+    protected Strategy poolStrategy;
 
     /**
      * store methods
      */
-    protected Map<String, Method> pool;
+    protected Map<String, E> pool;
     /**
      *
      * @param level
@@ -45,11 +47,11 @@ public abstract class Pool {
      * @param size
      * @param poolStrategy
      */
-    public Pool(int level, int[] size, PoolStrategy poolStrategy) {
+    public Pool(int level, int[] size, Strategy poolStrategy) {
         this.level = level;
-        if (this.level == this.size.length) {
+        if (this.level == size.length) {
             this.size = size;
-        } else if (this.level > this.size.length) {
+        } else {
             this.size = Arrays.copyOf(size, this.level);
         }
         this.poolStrategy = poolStrategy;
@@ -66,7 +68,7 @@ public abstract class Pool {
         }
     }
 
-    public void setPoolStrategy(PoolStrategy poolStrategy) {
+    public void setPoolStrategy(Strategy poolStrategy) {
         this.poolStrategy = poolStrategy;
     }
 

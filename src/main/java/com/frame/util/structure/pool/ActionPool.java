@@ -1,6 +1,6 @@
 package com.frame.util.structure.pool;
 
-import com.frame.util.structure.pool.poolstrategy.PoolStrategy;
+import com.frame.util.structure.strategy.Strategy;
 
 import java.lang.reflect.Method;
 
@@ -12,7 +12,7 @@ public class ActionPool extends Pool{
         super(2);
     }
 
-    public ActionPool(int[] size, PoolStrategy poolStrategy) {
+    public ActionPool(int[] size, Strategy poolStrategy) {
         super(2, size, poolStrategy);
     }
 
@@ -25,5 +25,20 @@ public class ActionPool extends Pool{
     @Override
     public Method getMethod() {
         return null;
+    }
+
+    @Override
+    public int getCacheSize() {
+        return 0;
+    }
+
+    @Override
+    public Object weedOutElement() {
+        return null;
+    }
+
+    @Override
+    public int weedOutElementIndex() {
+        return 0;
     }
 }
