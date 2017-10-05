@@ -1,7 +1,8 @@
 package com.frame.util.structure.pool;
 
+import com.frame.traits.Addable;
 import com.frame.util.structure.LimitableCache;
-import com.frame.util.structure.strategy.Strategy;
+import com.frame.util.structure.strategy.specific.PoolStrategy;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -12,13 +13,14 @@ import java.util.Map;
  * Created by fdh on 2017/9/29.
  */
 public abstract class Pool<E>
-        implements LimitableCache<E> {
+        implements LimitableCache<E>, Addable<String, E> {
 
     /**
      * The numbers of level of pool
      */
     protected int level = 2;
 
+    protected int currentLevel = 0;
     /**
      * size of each level
      */
@@ -27,14 +29,13 @@ public abstract class Pool<E>
     /**
      * strategy mode
      */
-    protected Strategy poolStrategy;
+    protected PoolStrategy poolStrategy;
 
     /**
      * store methods
      */
     protected Map<String, E> pool;
     /**
-     *
      * @param level
      */
     protected Pool(int level) {
@@ -42,12 +43,11 @@ public abstract class Pool<E>
     }
 
     /**
-     *
      * @param level
      * @param size
      * @param poolStrategy
      */
-    public Pool(int level, int[] size, Strategy poolStrategy) {
+    public Pool(int level, int[] size, PoolStrategy poolStrategy) {
         this.level = level;
         if (this.level == size.length) {
             this.size = size;
@@ -63,17 +63,15 @@ public abstract class Pool<E>
     }
 
     public void setLevelSize(int level, int size) {
-        if (level > -1 && size > -1) {
+        if (level > -1 && size > -1 && level < this.level) {
             this.size[level] = size;
         }
     }
 
-    public void setPoolStrategy(Strategy poolStrategy) {
+    public void setPoolStrategy(PoolStrategy poolStrategy) {
         this.poolStrategy = poolStrategy;
     }
 
-    public abstract boolean addMethod(String key, Method method);
-
-    public abstract Method getMethod();
+    public abstract Method getMethod(String key);
 
 }
