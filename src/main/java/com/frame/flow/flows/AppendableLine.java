@@ -222,12 +222,12 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     /**
      * <p>The first processor is the next processor of header processor</p>
      */
-    public Process firstProcessor;
+    private Process firstProcessor;
 
     /**
      * <p>The previous processor of tail processor</p>
      */
-    public Process lastProcessor = firstProcessor;
+    private Process lastProcessor = firstProcessor;
 
     /**
      * <p>Hold the line thread in order to interrupt</p>

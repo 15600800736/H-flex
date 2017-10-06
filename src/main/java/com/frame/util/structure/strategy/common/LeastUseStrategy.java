@@ -26,7 +26,6 @@ public class LeastUseStrategy<K> extends Strategy<Collection<K>> {
     public void setTarget(Collection<K> target) {
 
     }
-
     private int findLeastUseElement() {
         return 0;
     }
