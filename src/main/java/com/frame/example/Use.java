@@ -19,16 +19,14 @@ public class Use {
     @Execution(actionAlias = "getBookISBNByName")
     private String ISBN;
 
-    public String getBookId(int i) {
+    public String getBookId(Object...args) {
         return bookId;
     }
-
-    public String getISBN(String name) {
-        return ISBN;
+    public String getBookId(String name, Object...args) {
+        return bookId;
     }
-
-    public String getISBN(int id) {
-        return ISBN;
+    public String getBookId() {
+        return bookId;
     }
 
     public void setISBN(String ISBN) {

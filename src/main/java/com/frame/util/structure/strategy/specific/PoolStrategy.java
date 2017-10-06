@@ -18,4 +18,6 @@ public abstract class PoolStrategy<K,V> extends Strategy<Pool>
     public abstract void weedOutStrategy();
 
     public abstract void addStrategy(K key, V val);
+
+    public abstract void getMethodStrategy(K key);
 }

@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by fdh on 2017/9/29.
@@ -34,7 +35,7 @@ public abstract class Pool<E>
     /**
      * store methods
      */
-    protected Map<String, E> pool;
+    protected Map<String, E>[] pool;
     /**
      * @param level
      */
@@ -55,13 +56,14 @@ public abstract class Pool<E>
             this.size = Arrays.copyOf(size, this.level);
         }
         this.poolStrategy = poolStrategy;
-        if (this.level > 1 && this.size[0] > 1) {
-            pool = new HashMap<>(this.size[0]);
-        } else {
-            pool = new HashMap<>(64);
+        if (this.level > 1) {
+            // only the first cache will be used by multi thread
+            pool[0] = new ConcurrentHashMap<>(this.size[0]);
+            for (int i = 1; i < this.size.length; i++) {
+                pool[i] = new HashMap<>(this.size[i]);
+            }
         }
     }
-
     public void setLevelSize(int level, int size) {
         if (level > -1 && size > -1 && level < this.level) {
             this.size[level] = size;

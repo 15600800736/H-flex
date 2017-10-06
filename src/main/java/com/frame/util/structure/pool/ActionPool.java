@@ -21,7 +21,7 @@ public class ActionPool extends Pool<Method> {
 
     @Override
     public Method getMethod(String key) {
-        return this.pool.get(key);
+        return null;
     }
 
     @Override

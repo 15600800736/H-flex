@@ -1,7 +1,7 @@
 package com.frame.util.structure.strategy;
 
 import com.frame.util.structure.pool.Pool;
-import com.frame.util.structure.strategy.common.LeastRecentUseStrategy;
+import com.frame.util.structure.strategy.common.LeastUseStrategy;
 import com.frame.util.structure.strategy.specific.PoolStrategy;
 
 /**
@@ -9,12 +9,12 @@ import com.frame.util.structure.strategy.specific.PoolStrategy;
  */
 public class PoolLeastRecentUseStrategy<K,V> extends PoolStrategy<K,V> {
 
-    private LeastRecentUseStrategy<K> LRUStrategy = new LeastRecentUseStrategy<>();
+    private LeastUseStrategy<K> LUStrategy = new LeastUseStrategy<>();
 
     @Override
     public void add(K key, V val) {
         // pre-check
-        addStrategy(key,val);
+        addStrategy(    key,val);
         // after-process
     }
 
@@ -45,6 +45,11 @@ public class PoolLeastRecentUseStrategy<K,V> extends PoolStrategy<K,V> {
 
     @Override
     public void addStrategy(K key, V val) {
+
+    }
+
+    @Override
+    public void getMethodStrategy(K key) {
 
     }
 }
