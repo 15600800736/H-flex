@@ -41,7 +41,7 @@ public class TestAppendableLine {
             }
         });
         t.start();
-        Thread.sleep(10);
+        Thread.sleep(100);
         Assert.assertTrue(line.isStarted());
         Assert.assertFalse(line.isDone());
         Assert.assertFalse(line.isClosed());
@@ -210,6 +210,42 @@ public class TestAppendableLine {
         });
         t1.start();
         t2.start();
+    }
+
+    @Test
+    public void testAppendProductionWhileDone() throws InterruptedException {
+        AppendableLine<Integer> line = new AppendableLine<>(100);
+        for (int i = 0; i < 10; i++) {
+            int finalI = i;
+            Executor<Integer, Integer> executor = new Executor<Integer, Integer>() {
+                @Override
+                protected Object exec() throws Exception {
+                    this.production += finalI;
+                    Thread.sleep(10L);
+                    return this.production;
+                }
+            };
+
+            line.appendWorker(executor);
+        }
+        Thread t = new Thread(() -> {
+            try {
+                for (int i = 1; i < 100; i++) {
+                    line.appendProduction(i);
+                }
+                line.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        t.start();
+
+        Thread closeThread = new Thread(line::close);
+        closeThread.start();
+        Thread.sleep(1000);
+        Assert.assertFalse(line.appendProduction(50));
+
+
     }
 
 }

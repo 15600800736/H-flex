@@ -131,7 +131,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                         injectProduction(worker.worker, production);
 
                         P finishedProduction = worker.worker.execute();
-                        // if this is last processor pushing production into tail processor, check if done(There are some mistakes here)
+                        // if this is last processor pushing production into tail processor, check if done
                         nextProcessor.worker.addProdution(finishedProduction);
                         if (this == lastProcessor) {
                             processedProduction.incrementAndGet();
@@ -146,7 +146,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                         }
                     }
                 } catch (InterruptedException e) {
-
+                    // nothing todo
                 }
             }
         }
@@ -313,28 +313,39 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
             }
             Process currentProcessor = firstProcessor;
 
+            // get thread from thread pool to execute the task
             while (currentProcessor != tailProcessor) {
                 if (!pool.isShutdown()) {
                     pool.submit(currentProcessor);
+                } else {
+                    return tailProcessor.worker.productionCache;
                 }
                 currentProcessor = currentProcessor.nextProcessor;
             }
+
+            // check if all of the task has been finished
             for (; ; ) {
+                // if all of the task has been finished
                 if (isDone()) {
+                    // if some thread has close this line
                     if (isClosed()) {
                         if (tailProcessor != null) {
+                            // return the productions processed
                             return tailProcessor.worker.productionCache;
                         }
-                        return null;
+                        // else if you didn't create any executors
+                        return this.production;
                     } else {
                         LockSupport.park();
                     }
                 }
+                // use countOfProduction and processedProduction to judge if all of the production has been processed
                 if (countOfProduction.get() == processedProduction.get()) {
                     if (!isDone()) {
                         compareAndSetDone(false, true);
                     }
                 } else {
+                    // this just a compromise for the missing interrupt
                     LockSupport.parkNanos(1000000000L);
                 }
             }
@@ -355,20 +366,25 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     }
 
 
-    public void appendProduction(P production) {
+    public boolean appendProduction(P production) {
         if (isClosed()) {
-            return;
+            return false;
         }
-        try {
-            this.production.put(production);
-            countOfProduction.incrementAndGet();
-            if (isDone()) {
-                compareAndSetDone(true, false);
+        // prevent the interrupt
+        for (; ; ) {
+            try {
+                this.production.put(production);
+                countOfProduction.incrementAndGet();
+                if (isDone()) {
+                    compareAndSetDone(true, false);
+                }
+                break;
+            } catch (InterruptedException e) {
+                // todo
+                e.printStackTrace();
             }
-        } catch (InterruptedException e) {
-            // todo
-            e.printStackTrace();
         }
+        return true;
     }
 
     public AppendableLine appendWorker(Executor<P, P> worker) {
