@@ -2,28 +2,31 @@ package com.frame.flow.flows;
 
 import com.frame.execute.Executor;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 /**
  * Created by fdh on 2017/10/6.
  */
 public class SingleProductionLine<P> extends Flow<P,P> {
 
-    /**
-     *
-     */
-    private Process headerProcessor = new Process();
 
     /**
-     *
+     * <p>Represent if the line should stop</p>
      */
-    private Process tailProcessor = new Process();
+    private boolean isClosed;
+    /**
+     * <p>Used for interrupting</p>
+     */
+    private Thread currentThread;
+    /**
+     * <p>The executor's queue, each of the executors appended will be executed only once</p>
+     */
+    private BlockingQueue<Process> blockingQueue = new LinkedBlockingQueue<>();
 
     public SingleProductionLine(P production) {
         super(production);
-        headerProcessor.nextProcessor = tailProcessor;
-        headerProcessor.worker = new WorkerInfo();
-        headerProcessor.worker.position = 0;
-        tailProcessor.worker = new WorkerInfo();
-        tailProcessor.worker.position = 1;
+        this.currentThread = Thread.currentThread();
     }
 
     protected class Process {
@@ -57,24 +60,14 @@ public class SingleProductionLine<P> extends Flow<P,P> {
 
     @Override
     protected Object exec() throws Exception {
-        Process processor = headerProcessor.nextProcessor;
-        P production = this.production;
-
-        while (processor != tailProcessor) {
-            processor.worker.worker.setProduction(production);
-            production = processor.worker.worker.execute();
-            processor = processor.nextProcessor;
+        while(true) {
+            Process process = blockingQueue.take();
         }
-        return production;
+
+
     }
 
     public void appendWorker(Executor<P,P> worker) {
-        int position = this.tailProcessor.worker.position;
-        Process newTail = new Process();
-        newTail.worker = new WorkerInfo();
-        newTail.worker.position = position + 1;
-        this.tailProcessor.worker.worker = worker;
-        this.tailProcessor.nextProcessor = newTail;
-        this.tailProcessor = this.tailProcessor.nextProcessor;
+
     }
 }

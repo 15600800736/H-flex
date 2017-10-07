@@ -7,7 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by fdh on 2017/7/29.
@@ -255,15 +257,20 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
     private Process tailProcessor;
 
     /**
-     * <p></p>
+     * <p>the number of the production you have added</p>
      */
     private AtomicInteger countOfProduction = new AtomicInteger(0);
 
     /**
-     *
+     * <p>the number of the production the line have processed, when it equals {@code countOfProduction}
+     * means the line has finish its work for now, and can be closed immediately</p>
      */
     private AtomicInteger processedProduction = new AtomicInteger(0);
 
+    /**
+     * <p>Prevent multi thread closing the line</p>
+     */
+    private Lock closeLock = new ReentrantLock();
     /**
      * Constructors
      */
