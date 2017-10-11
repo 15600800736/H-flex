@@ -1,6 +1,8 @@
 package com.frame.flow.flows;
 
 import com.frame.execute.Executor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -8,7 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Created by fdh on 2017/10/6.
  */
-public class SingleProductionLine<P> extends Flow<P,P> {
+public class SingleProductionLine<P> extends Flow<P, P> {
 
 
     /**
@@ -22,7 +24,12 @@ public class SingleProductionLine<P> extends Flow<P,P> {
     /**
      * <p>The executor's queue, each of the executors appended will be executed only once</p>
      */
-    private BlockingQueue<Process> blockingQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<Process> worker = new LinkedBlockingQueue<>();
+
+    /**
+     * <p>logger</p>
+     */
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public SingleProductionLine(P production) {
         super(production);
@@ -31,28 +38,18 @@ public class SingleProductionLine<P> extends Flow<P,P> {
 
     protected class Process {
         /**
-         * <p>The main of the process</p>
-         */
-        WorkerInfo worker;
-
-        /**
-         * <p>net processor</p>
-         */
-        Process nextProcessor;
-
-    }
-
-    protected class WorkerInfo {
-        /**
          * <p>The execute unit</p>
          */
-        Executor<P,P> worker;
+        Executor<P, P> worker;
 
-        /**
-         * <p>The order of the worker</p>
-         */
-        int position;
+        P execute(P production) throws Exception {
+            worker.setProduction(production);
+            return worker.execute();
+        }
+
     }
+
+
     @Override
     public void close() {
 
@@ -60,14 +57,27 @@ public class SingleProductionLine<P> extends Flow<P,P> {
 
     @Override
     protected Object exec() throws Exception {
-        while(true) {
-            Process process = blockingQueue.take();
+        P production = this.production;
+        while (!isClosed) {
+            Process process = this.worker.take();
+            process.execute(production);
         }
-
-
+        return null;
     }
 
-    public void appendWorker(Executor<P,P> worker) {
-
+    public void appendWorker(Executor<P, P> worker) {
+        Process process = new Process();
+        process.worker = worker;
+        // if some thread interrupt the line, then try put it again, means make it twice
+        for (int i = 0; i < 2; i++) {
+            try {
+                this.worker.put(process);
+                return;
+            } catch (InterruptedException e) {
+                if (isClosed) {
+                    return;
+                }
+            }
+        }
     }
 }
