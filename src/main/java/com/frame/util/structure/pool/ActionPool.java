@@ -20,11 +20,6 @@ public class ActionPool extends Pool<Method> {
     }
 
     @Override
-    public Method getMethod(String key) {
-        return null;
-    }
-
-    @Override
     public int getCacheSize() {
         return size[currentLevel];
     }

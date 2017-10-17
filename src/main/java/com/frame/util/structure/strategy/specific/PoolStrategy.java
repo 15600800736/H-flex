@@ -11,7 +11,6 @@ import com.frame.util.structure.strategy.Strategy;
 public abstract class PoolStrategy<K,V> extends Strategy<Pool>
         implements Addable<K,V> {
 
-
     public abstract void sizeControlStrategy();
 
     public abstract void rejectionStrategy();
@@ -20,5 +19,5 @@ public abstract class PoolStrategy<K,V> extends Strategy<Pool>
 
     public abstract void addStrategy(K key, V val);
 
-    public abstract void getMethodStrategy(K key);
+    public abstract void getDataStrategy(K key);
 }

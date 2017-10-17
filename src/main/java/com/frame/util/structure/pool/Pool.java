@@ -30,10 +30,10 @@ public abstract class Pool<E>
     /**
      * strategy mode
      */
-    protected PoolStrategy poolStrategy;
+    protected PoolStrategy<String, E> poolStrategy;
 
     /**
-     * store methods
+     * store elements
      */
     protected Map<String, E>[] pool;
     /**
@@ -70,10 +70,13 @@ public abstract class Pool<E>
         }
     }
 
+    public void add(String key, E elements) {
+        this.poolStrategy.add(key, elements);
+    }
+
     public void setPoolStrategy(PoolStrategy poolStrategy) {
         this.poolStrategy = poolStrategy;
     }
 
-    public abstract Method getMethod(String key);
 
 }

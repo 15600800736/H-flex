@@ -13,10 +13,6 @@ public class FirstLeastUseStrategy<K> extends Strategy<Collection<K>> {
 
     private Map<K, Integer> useMap = new ConcurrentHashMap<>(target.size(), 1);
 
-    public FirstLeastUseStrategy() {
-
-    }
-
     @Override
     public Collection<K> getTarget() {
         return target;
@@ -27,7 +23,7 @@ public class FirstLeastUseStrategy<K> extends Strategy<Collection<K>> {
         this.target = target;
     }
 
-    private K findLeastUseElement() {
+    public K findLeastUseElement() {
         int least = Integer.MAX_VALUE;
         for (Integer u : useMap.values()) {
             least = u < least ? u : least;
