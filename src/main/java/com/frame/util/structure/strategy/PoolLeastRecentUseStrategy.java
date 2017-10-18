@@ -29,28 +29,33 @@ public class PoolLeastRecentUseStrategy<K,V> extends PoolStrategy<K,V> {
     }
 
     @Override
-    public void sizeControlStrategy() {
+    protected void sizeControlStrategy() {
 
     }
 
     @Override
-    public void rejectionStrategy() {
+    protected void rejectionStrategy() {
 
     }
 
     @Override
-    public void weedOutStrategy() {
+    protected void weedOutStrategy() {
         K key = strategy.findLeastUseElement();
 
     }
 
     @Override
-    public void addStrategy(K key, V val) {
+    protected void addStrategy(K key, V val) {
 
     }
 
     @Override
-    public void getDataStrategy(K key) {
+    protected void removeStrategy(K key) {
+
+    }
+
+    @Override
+    protected void getDataStrategy(K key) {
 
     }
 }
