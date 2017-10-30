@@ -7,12 +7,12 @@ import com.frame.util.structure.strategy.specific.PoolStrategy;
 /**
  * Created by fdh on 2017/10/5.
  */
-public class PoolLeastRecentUseStrategy<K,V> extends PoolStrategy<K,V> {
+public class PoolLeastRecentUseStrategy<V> extends PoolStrategy<V> {
 
-    private FirstLeastUseStrategy<K> strategy = new FirstLeastUseStrategy<>();
+    private FirstLeastUseStrategy<String> strategy = new FirstLeastUseStrategy<>();
 
     @Override
-    public void add(K key, V val) {
+    public void add(String key, V val) {
         // pre-check
         addStrategy(key,val);
         // after-process
@@ -29,33 +29,37 @@ public class PoolLeastRecentUseStrategy<K,V> extends PoolStrategy<K,V> {
     }
 
     @Override
-    protected void sizeControlStrategy() {
+    public void sizeControlStrategy() {
 
     }
 
     @Override
-    protected void rejectionStrategy() {
+    public void rejectionStrategy() {
 
     }
 
     @Override
-    protected void weedOutStrategy() {
-        K key = strategy.findLeastUseElement();
+    public void weedOutStrategy(int level) {
+        String key = strategy.findLeastUseElement();
+        this.target.remove(key, level);
+    }
+
+    @Override
+    public void addStrategy(String key, V val) {
+        sizeControlStrategy();
+        // if the pool is full,
+        if (this.target.getSize() == this.target.getCapacity()) {
+
+        }
+    }
+
+    @Override
+    public void removeStrategy(String key) {
 
     }
 
     @Override
-    protected void addStrategy(K key, V val) {
-
-    }
-
-    @Override
-    protected void removeStrategy(K key) {
-
-    }
-
-    @Override
-    protected void getDataStrategy(K key) {
+    public void getDataStrategy(String key) {
 
     }
 }

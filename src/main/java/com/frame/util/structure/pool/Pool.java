@@ -17,57 +17,40 @@ public abstract class Pool<E>
         implements LimitableCache<E>, Addable<String, E> {
 
     /**
-     * The numbers of level of pool
+     * capacity of pool
      */
-    protected int level = 2;
-
-    protected int currentLevel = 0;
-    /**
-     * size of each level
-     */
-    protected int[] size = new int[level];
+    protected int capacity;
 
     /**
      * strategy mode
      */
-    protected PoolStrategy<String, E> poolStrategy;
+    protected PoolStrategy<E> poolStrategy;
 
     /**
      * store elements
      */
-    protected Map<String, E>[] pool;
-    /**
-     * @param level
-     */
-    protected Pool(int level) {
-        this.level = level;
-    }
+    protected Map<String, E> pool;
 
     /**
-     * @param level
-     * @param size
+     * @param capacity
      * @param poolStrategy
      */
-    public Pool(int level, int[] size, PoolStrategy poolStrategy) {
-        this.level = level;
-        if (this.level == size.length) {
-            this.size = size;
-        } else {
-            this.size = Arrays.copyOf(size, this.level);
-        }
+    public Pool(int capacity, PoolStrategy poolStrategy) {
         this.poolStrategy = poolStrategy;
-        if (this.level > 1) {
-            // only the first cache will be used by multi thread
-            pool[0] = new ConcurrentHashMap<>(this.size[0]);
-            for (int i = 1; i < this.size.length; i++) {
-                pool[i] = new HashMap<>(this.size[i]);
-            }
-        }
+        this.pool = new ConcurrentHashMap<>(capacity * 2);
+        this.poolStrategy = poolStrategy;
     }
-    public void setLevelSize(int level, int size) {
-        if (level > -1 && size > -1 && level < this.level) {
-            this.size[level] = size;
-        }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public int getSize() {
+        return this.pool.size();
     }
 
     public void add(String key, E elements) {
@@ -78,5 +61,7 @@ public abstract class Pool<E>
         this.poolStrategy = poolStrategy;
     }
 
-
+    public E remove(String key,int level) {
+        return this.pool.remove(key);
+    }
 }

@@ -8,19 +8,19 @@ import com.frame.util.structure.strategy.Strategy;
  * Created by fdh on 2017/9/30.
  */
 
-public abstract class PoolStrategy<K,V> extends Strategy<Pool>
-        implements Addable<K,V> {
+public abstract class PoolStrategy<V> extends Strategy<Pool>
+        implements Addable<String,V> {
 
-    protected abstract void sizeControlStrategy();
+    public abstract void sizeControlStrategy();
 
-    protected abstract void rejectionStrategy();
+    public abstract void rejectionStrategy();
 
-    protected abstract void weedOutStrategy();
+    public abstract void weedOutStrategy(int level);
 
-    protected abstract void addStrategy(K key, V val);
+    public abstract void addStrategy(String key, V val);
 
-    protected abstract void removeStrategy(K key);
+    public abstract void removeStrategy(String key);
 
-    protected abstract void getDataStrategy(K key);
+    public abstract void getDataStrategy(String key);
 
 }

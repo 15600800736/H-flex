@@ -11,22 +11,19 @@ import java.util.Collection;
  */
 public class ActionPool extends Pool<Method> {
 
-    public ActionPool() {
-        super(2);
-    }
 
-    public ActionPool(int[] size, PoolStrategy poolStrategy) {
-        super(2, size, poolStrategy);
+    public ActionPool(int size, PoolStrategy poolStrategy) {
+        super(size, poolStrategy);
     }
 
     @Override
     public int getCacheSize() {
-        return size[currentLevel];
+        return size;
     }
 
     @Override
-    public Method weedOutElement() {
-        return null;
+    public void weedOutElement() {
+
     }
 
 

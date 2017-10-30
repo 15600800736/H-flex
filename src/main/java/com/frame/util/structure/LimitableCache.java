@@ -6,7 +6,7 @@ package com.frame.util.structure;
 public interface LimitableCache<E> {
     int getCacheSize();
 
-    E weedOutElement();
+    void weedOutElement();
 
     int weedOutElementIndex();
 }
