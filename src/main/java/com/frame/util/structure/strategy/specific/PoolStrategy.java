@@ -15,7 +15,7 @@ public abstract class PoolStrategy<V> extends Strategy<Pool>
 
     public abstract void rejectionStrategy();
 
-    public abstract void weedOutStrategy(int level);
+    public abstract void weedOutStrategy();
 
     public abstract void addStrategy(String key, V val);
 

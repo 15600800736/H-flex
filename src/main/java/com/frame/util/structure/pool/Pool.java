@@ -1,12 +1,9 @@
 package com.frame.util.structure.pool;
 
 import com.frame.traits.Addable;
-import com.frame.util.structure.LimitableCache;
+import com.frame.util.structure.LimitCache;
 import com.frame.util.structure.strategy.specific.PoolStrategy;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by fdh on 2017/9/29.
  */
 public abstract class Pool<E>
-        implements LimitableCache<E>, Addable<String, E> {
+        implements LimitCache<E>, Addable<String, E> {
 
     /**
      * capacity of pool
@@ -61,7 +58,7 @@ public abstract class Pool<E>
         this.poolStrategy = poolStrategy;
     }
 
-    public E remove(String key,int level) {
+    public E remove(String key) {
         return this.pool.remove(key);
     }
 }

@@ -2,18 +2,29 @@ package com.frame.util.structure.strategy;
 
 import com.frame.util.structure.pool.Pool;
 import com.frame.util.structure.strategy.common.FirstLeastUseStrategy;
+import com.frame.util.structure.strategy.specific.MultiLevelPoolStrategy;
 import com.frame.util.structure.strategy.specific.PoolStrategy;
 
 /**
  * Created by fdh on 2017/10/5.
  */
-public class PoolLeastRecentUseStrategy<V> extends PoolStrategy<V> {
+public class PoolLeastRecentUseStrategy<V> extends MultiLevelPoolStrategy<V> {
 
     private FirstLeastUseStrategy<String> strategy = new FirstLeastUseStrategy<>();
+    private int countOfLack = 0;
+    private int countToResize;
+    private int countToTransmit;
+
+    public PoolLeastRecentUseStrategy(int countToResize, int countToTransmit) {
+        this.countToResize = countToResize;
+        this.countToTransmit = countToTransmit;
+    }
 
     @Override
     public void add(String key, V val) {
         // pre-check
+        sizeControlStrategy();
+        weedOutStrategy();
         addStrategy(key,val);
         // after-process
     }
@@ -30,7 +41,9 @@ public class PoolLeastRecentUseStrategy<V> extends PoolStrategy<V> {
 
     @Override
     public void sizeControlStrategy() {
-
+        if (this.countOfLack > countToResize) {
+            //todo resize
+        }
     }
 
     @Override
@@ -39,18 +52,15 @@ public class PoolLeastRecentUseStrategy<V> extends PoolStrategy<V> {
     }
 
     @Override
-    public void weedOutStrategy(int level) {
+    public void weedOutStrategy() {
         String key = strategy.findLeastUseElement();
-        this.target.remove(key, level);
+        removeStrategy(key);
+        transmitStrategy();
     }
 
     @Override
     public void addStrategy(String key, V val) {
-        sizeControlStrategy();
-        // if the pool is full,
-        if (this.target.getSize() == this.target.getCapacity()) {
 
-        }
     }
 
     @Override
@@ -60,6 +70,10 @@ public class PoolLeastRecentUseStrategy<V> extends PoolStrategy<V> {
 
     @Override
     public void getDataStrategy(String key) {
+        this.target.remove(key);
+    }
+    @Override
+    public void transmitStrategy() {
 
     }
 }

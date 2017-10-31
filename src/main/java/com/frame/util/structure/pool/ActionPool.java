@@ -1,24 +1,17 @@
 package com.frame.util.structure.pool;
 
-import com.frame.util.structure.strategy.Strategy;
 import com.frame.util.structure.strategy.specific.PoolStrategy;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 /**
  * Created by fdh on 2017/9/29.
  */
-public class ActionPool extends Pool<Method> {
+public class ActionPool extends MultiLevelPool<Method> {
 
 
-    public ActionPool(int size, PoolStrategy poolStrategy) {
-        super(size, poolStrategy);
-    }
-
-    @Override
-    public int getCacheSize() {
-        return size;
+    public ActionPool(int size, PoolStrategy poolStrategy, Pool<Method> deeperPool) {
+        super(size, poolStrategy, deeperPool);
     }
 
     @Override
@@ -37,4 +30,5 @@ public class ActionPool extends Pool<Method> {
     public void add(String key, Method val) {
 
     }
+
 }
