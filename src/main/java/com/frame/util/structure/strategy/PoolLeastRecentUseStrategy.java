@@ -1,5 +1,6 @@
 package com.frame.util.structure.strategy;
 
+import com.frame.util.structure.State;
 import com.frame.util.structure.pool.Pool;
 import com.frame.util.structure.strategy.common.FirstLeastUseStrategy;
 import com.frame.util.structure.strategy.specific.MultiLevelPoolStrategy;
@@ -14,6 +15,7 @@ public class PoolLeastRecentUseStrategy<V> extends MultiLevelPoolStrategy<V> {
     private int countOfLack = 0;
     private int countToResize;
     private int countToTransmit;
+    private State state;
 
     public PoolLeastRecentUseStrategy(int countToResize, int countToTransmit) {
         this.countToResize = countToResize;
@@ -42,7 +44,7 @@ public class PoolLeastRecentUseStrategy<V> extends MultiLevelPoolStrategy<V> {
     @Override
     public void sizeControlStrategy() {
         if (this.countOfLack > countToResize) {
-            //todo resize
+
         }
     }
 
