@@ -1,6 +1,7 @@
 package com.frame.util.structure;
 
 import com.frame.exceptions.invalid.InvalidArgumentsException;
+import com.frame.exceptions.invalid.InvalidStateException;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -29,7 +30,16 @@ public class State<C, T> {
 
     private Iterator<C> itr;
 
+    /**
+     * 0-for initial value
+     * 1-for starting initialization
+     * 2-for completing initialization but there are no state registered
+     * 3-for state registering
+     * 4-for registering completely and being ready for initialize value
+     * 5-for initializing value completely
+     */
     private AtomicInteger stage = new AtomicInteger(0);
+
     final private StateMode mode;
 
     private State(StateMode mode) {
@@ -42,23 +52,31 @@ public class State<C, T> {
 
     public static <C, T> State createState(T instance, StateMode mode) {
         State<C, T> state = new State(mode);
-        if (state.getMode() == StateMode.LINK_MODE) {
-            state.stateChain = new LinkedList<>();
-            state.itr = state.stateChain.iterator();
+        if (state.stage.compareAndSet(0,1)) {
+            if (state.getMode() == StateMode.LINK_MODE) {
+                state.stateChain = new LinkedList<>();
+                state.itr = state.stateChain.iterator();
+            }
+            state.instance = instance;
+            if (state.states == null) {
+                state.states = new ConcurrentHashMap<>(8);
+            }
         }
-        state.instance = instance;
-        if (state.states == null) {
-            state.states = new ConcurrentHashMap<>(8);
-        }
+        state.stage.compareAndSet(1,2);
         return state;
     }
 
     public State registerState(C code, String description) {
-        String old = this.states.putIfAbsent(code, description);
-        if (old != null) {
-            throw new InvalidArgumentsException("code", code.toString(), "repeated state code.");
+        this.stage.compareAndSet(2,3);
+        if (stage.get() == 3) {
+            String old = this.states.putIfAbsent(code, description);
+            if (old != null) {
+                throw new InvalidArgumentsException("code", code.toString(), "repeated state code.");
+            }
+            return this;
+        } else {
+            throw new InvalidStateException("initialed but not registered", "", this.instance.getClass(), null);
         }
-        return this;
     }
 
     public State initialState(C code) {

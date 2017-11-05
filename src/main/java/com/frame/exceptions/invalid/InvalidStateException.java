@@ -7,24 +7,24 @@ import java.util.List;
  * Created by fdh on 2017/11/4.
  */
 public class InvalidStateException extends RuntimeException {
-    private String expectedException;
+    private String expectedState;
 
-    private String currentException;
+    private String currentState;
 
     private Class<?> clazz;
 
     private List<String> solutions;
 
-    public InvalidStateException(String expectedException, String currentException, Class<?> clazz, List<String> solutions) {
-        this.expectedException = expectedException;
-        this.currentException = currentException;
+    public InvalidStateException(String expectedState, String currentState, Class<?> clazz, List<String> solutions) {
+        this.expectedState = expectedState;
+        this.currentState = currentState;
         this.clazz = clazz;
         this.solutions = solutions;
     }
 
     public String getMessage() {
-        StringBuilder info = new StringBuilder("You got an invalid state in your " + clazz.getName() + " class, expected " + expectedException +
-                ", found " + currentException);
+        StringBuilder info = new StringBuilder("You got an invalid state in your " + clazz.getName() + " class, expected " + expectedState +
+                ", found " + currentState);
         if (solutions == null ||solutions.size() == 0) {
             info.append(". Maybe you should");
         }
