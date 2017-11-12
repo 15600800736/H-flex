@@ -6,7 +6,7 @@ import com.frame.enums.ConfigurationStringPool;
 import com.frame.exceptions.ScanException;
 import com.frame.execute.scan.action.ActionClassesScanner;
 import com.frame.execute.scan.execution.ExecutionScanner;
-import com.frame.flow.flows.ReusableTask;
+import com.frame.basic.flow.flows.ReusableTask;
 
 
 /**

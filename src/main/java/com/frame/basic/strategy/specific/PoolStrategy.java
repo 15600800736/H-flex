@@ -1,8 +1,8 @@
-package com.frame.util.structure.strategy.specific;
+package com.frame.basic.strategy.specific;
 
 import com.frame.traits.Addable;
-import com.frame.util.structure.pool.Pool;
-import com.frame.util.structure.strategy.Strategy;
+import com.frame.basic.pool.Pool;
+import com.frame.basic.strategy.Strategy;
 
 /**
  * Created by fdh on 2017/9/30.

@@ -1,6 +1,6 @@
-package com.frame.util.structure.pool;
+package com.frame.basic.pool;
 
-import com.frame.util.structure.strategy.specific.PoolStrategy;
+import com.frame.basic.strategy.specific.PoolStrategy;
 
 /**
  * Created by fdh on 2017/10/31.

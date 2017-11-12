@@ -1,8 +1,8 @@
-package com.frame.flow;
+package com.frame.basic.flow;
 
 import com.frame.execute.Executor;
-import com.frame.flow.flows.AppendableLine;
-import com.frame.flow.strategies.FactoryStrategy;
+import com.frame.basic.flow.flows.AppendableLine;
+import com.frame.basic.flow.strategies.FactoryStrategy;
 
 import java.util.HashMap;
 import java.util.Map;

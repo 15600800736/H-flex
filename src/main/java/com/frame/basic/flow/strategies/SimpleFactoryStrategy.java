@@ -1,8 +1,8 @@
-package com.frame.flow.strategies;
+package com.frame.basic.flow.strategies;
 
 import com.frame.execute.Executor;
-import com.frame.flow.flows.AppendableLine;
-import com.frame.flow.flows.ReusableTask;
+import com.frame.basic.flow.flows.AppendableLine;
+import com.frame.basic.flow.flows.ReusableTask;
 
 /**
  * Created by fdh on 2017/8/24.

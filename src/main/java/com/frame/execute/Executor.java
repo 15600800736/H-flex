@@ -1,6 +1,6 @@
 package com.frame.execute;
 
-import com.frame.flow.flows.AppendableTask;
+import com.frame.basic.flow.flows.AppendableTask;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;

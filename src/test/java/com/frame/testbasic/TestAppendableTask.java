@@ -1,7 +1,7 @@
 package com.frame.testbasic;
 
 import com.frame.annotations.ActionClass;
-import com.frame.flow.flows.AppendableTask;
+import com.frame.basic.flow.flows.AppendableTask;
 import com.frame.execute.Executor;
 import org.junit.Assert;
 import org.junit.Test;

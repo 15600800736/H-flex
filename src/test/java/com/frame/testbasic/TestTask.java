@@ -1,7 +1,7 @@
 package com.frame.testbasic;
 
 import com.frame.execute.Executor;
-import com.frame.flow.flows.AppendableTask;
+import com.frame.basic.flow.flows.AppendableTask;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;

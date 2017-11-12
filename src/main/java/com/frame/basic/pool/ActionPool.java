@@ -1,6 +1,6 @@
-package com.frame.util.structure.pool;
+package com.frame.basic.pool;
 
-import com.frame.util.structure.strategy.specific.PoolStrategy;
+import com.frame.basic.strategy.specific.PoolStrategy;
 
 import java.lang.reflect.Method;
 

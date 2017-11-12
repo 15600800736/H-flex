@@ -18,7 +18,7 @@ public class InvalidArgumentsException extends RuntimeException {
 
 
     public String getMessage() {
-        return "the argument " + argName + " can't be assigned by " + argValue + ", because " + description;
+        return "the argument '" + argName + "' can't be assigned by " + argValue + ", because " + description;
     }
 
 }

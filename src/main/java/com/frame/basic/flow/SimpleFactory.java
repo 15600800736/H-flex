@@ -1,6 +1,6 @@
-package com.frame.flow;
+package com.frame.basic.flow;
 
-import com.frame.flow.strategies.SimpleFactoryStrategy;
+import com.frame.basic.flow.strategies.SimpleFactoryStrategy;
 
 /**
  * Created by fdh on 2017/8/25.

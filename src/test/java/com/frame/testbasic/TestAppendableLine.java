@@ -1,7 +1,7 @@
 package com.frame.testbasic;
 
 import com.frame.execute.Executor;
-import com.frame.flow.flows.AppendableLine;
+import com.frame.basic.flow.flows.AppendableLine;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

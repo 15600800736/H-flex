@@ -25,8 +25,8 @@ public class InvalidStateException extends RuntimeException {
     public String getMessage() {
         StringBuilder info = new StringBuilder("You got an invalid state in your " + clazz.getName() + " class, expected " + expectedState +
                 ", found " + currentState);
-        if (solutions == null ||solutions.size() == 0) {
-            info.append(". Maybe you should");
+        if (solutions != null && !solutions.isEmpty()) {
+            info.append(". Maybe you should ");
         }
         solutions.forEach(s -> info.append("\n").append(s));
         return info.toString();

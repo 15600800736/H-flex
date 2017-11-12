@@ -1,8 +1,7 @@
-package com.frame.util.structure.strategy.common;
+package com.frame.basic.strategy.common;
 
-import com.frame.util.structure.strategy.Strategy;
+import com.frame.basic.strategy.Strategy;
 
-import java.security.Key;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
