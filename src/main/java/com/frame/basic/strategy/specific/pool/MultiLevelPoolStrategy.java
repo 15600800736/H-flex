@@ -1,4 +1,4 @@
-package com.frame.basic.strategy.specific;
+package com.frame.basic.strategy.specific.pool;
 
 /**
  * Created by fdh on 2017/10/31.

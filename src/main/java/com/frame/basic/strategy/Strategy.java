@@ -5,13 +5,12 @@ package com.frame.basic.strategy;
  */
 
 /**
- *
- * @param <O>
+ * @param <T> type of target of the strategy
  */
-public abstract class Strategy<O> {
+public abstract class Strategy<T> {
 
-    protected O target;
-    public abstract O getTarget();
-    public abstract void setTarget(O target);
+    protected T target;
+    public abstract T getTarget();
+    public abstract void setTarget(T target);
 
 }

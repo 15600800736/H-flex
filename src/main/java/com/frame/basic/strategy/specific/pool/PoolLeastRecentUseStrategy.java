@@ -1,9 +1,9 @@
-package com.frame.basic.strategy;
+package com.frame.basic.strategy.specific.pool;
 
 import com.frame.basic.state.State;
 import com.frame.basic.pool.Pool;
 import com.frame.basic.strategy.common.FirstLeastUseStrategy;
-import com.frame.basic.strategy.specific.MultiLevelPoolStrategy;
+import com.frame.basic.strategy.specific.pool.MultiLevelPoolStrategy;
 
 /**
  * Created by fdh on 2017/10/5.

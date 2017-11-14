@@ -1,4 +1,4 @@
-package com.frame.basic.strategy.specific;
+package com.frame.basic.strategy.specific.pool;
 
 import com.frame.traits.Addable;
 import com.frame.basic.pool.Pool;

@@ -2,12 +2,15 @@ package com.frame.basic.state;
 
 import com.frame.exceptions.invalid.InvalidArgumentsException;
 import com.frame.exceptions.invalid.InvalidStateException;
+import com.frame.exceptions.invalid.RepeatException;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * Created by fdh on 2017/11/4.
@@ -45,9 +48,9 @@ public class State<C, T> {
     private Iterator<C> itr;
 
     /**
-     * 0-for initial value
-     * 1-for starting initialization
-     * 2-for completing initialization
+     * 0-for default value
+     * 1-for starte create
+     * 2-for complete create
      * 3-for starting state registering
      * 4-for registering completely, starting initialization
      * 5-for initialization completely
@@ -56,9 +59,9 @@ public class State<C, T> {
 
     private final Map<Integer, String> stageDescription = new ConcurrentHashMap<>(16);
     {
-        stageDescription.put(0, "initial value, nothing done");
-        stageDescription.put(1, "starting initialization");
-        stageDescription.put(2, "complete initialization");
+        stageDescription.put(0, "default value, nothing done");
+        stageDescription.put(1, "start create");
+        stageDescription.put(2, "complete create");
         stageDescription.put(3, "starting state registering");
         stageDescription.put(4, "registering completely, starting initialization");
         stageDescription.put(5, "initialization completely");
@@ -79,7 +82,6 @@ public class State<C, T> {
         if (state.stage.compareAndSet(0, 1)) {
             if (state.getMode() == StateMode.SEQUENCE_MODE) {
                 state.stateChain = new LinkedList<>();
-                state.itr = state.stateChain.iterator();
             }
             state.instance = instance;
             if (state.states == null) {
@@ -90,12 +92,15 @@ public class State<C, T> {
         return state;
     }
 
-    public State<C, T> registerState(C code, String description) {
+    public State<C, T> registerState(C state, String description) throws RepeatException {
         this.stage.compareAndSet(2, 3);
         if (stage.get() == 3) {
-            String old = this.states.putIfAbsent(code, description);
+            String old = this.states.putIfAbsent(state, description);
             if (old != null) {
-                throw new InvalidArgumentsException("code", code.toString(), "repeated state code.");
+                throw new RepeatException("state", state.toString());
+            }
+            if (this.mode == StateMode.SEQUENCE_MODE) {
+                this.stateChain.add(state);
             }
             return this;
         } else {
@@ -111,26 +116,51 @@ public class State<C, T> {
                     throw new InvalidArgumentsException("state", state.toString(), "state " + state + " unregistered");
                 }
                 currentState.compareAndSet(null, state);
+                if (currentState != null) {
+                    this.stage.compareAndSet(4, 5);
+                }
             } else {
-                throw new InvalidArgumentsException("code", state.toString(), "initialState("
-                        + currentState != null && currentState.get() != null ? currentState.get().getClass().getName() : "C" + " code) can't be apply to a LINK mode state");
+                throw new InvalidArgumentsException("state", state.toString(), "initialState("
+                        + (currentState != null && currentState.get() != null ? currentState.get().getClass().getName() : "C") + " state) can't be apply to a SEQUENCE mode state");
             }
         } else  {
             List<String> solutions = new LinkedList<>();
-            solutions.add("invoke ");
-            //todo
-            throw new InvalidStateException(stageDescription.get(4), stageDescription.get(stage), this.instance.getClass(), null);
+            solutions.add("invoke register(" + (this.currentState != null && this.currentState.get() != null ?
+                                this.currentState.get().getClass() :
+                                "C") + " state)");
+            throw new InvalidStateException(stageDescription.get(4), stageDescription.get(stage.get()), this.instance.getClass(), solutions);
         }
         return this;
     }
 
 
     public State<C, T> initialState() {
-        if (this.mode == StateMode.SEQUENCE_MODE) {
-            if (this.states.isEmpty()) {
-
+        this.stage.compareAndSet(3,4);
+        if (stage.get() == 4) {
+            if (this.mode == StateMode.SEQUENCE_MODE) {
+                if (this.states.isEmpty()) {
+                    List<String> solutions = new LinkedList<>();
+                    solutions.add("invoke register(" + (this.currentState != null && this.currentState.get() != null ? this.currentState.get().getClass() : "C")
+                            + " state)");
+                    throw new InvalidStateException("At least one state registered", "no state registered", this.instance.getClass(), solutions);
+                }
+                if (itr == null) {
+                    itr = stateChain.iterator();
+                }
+                this.currentState.compareAndSet(null, itr.next());
+                if (currentState.get() != null) {
+                    this.stage.compareAndSet(4, 5);
+                }
+            } else {
+                throw new InvalidArgumentsException("empty argument", "empty", "initialState() can't be apply to RANDOM mode state");
             }
-            currentState.compareAndSet(null, itr.next());
+        } else {
+            List<String> solutions = new LinkedList<>();
+            solutions.add("invoke register(" + (this.currentState != null && this.currentState.get() != null ?
+                    this.currentState.get().getClass() :
+                    "C") + " state)");
+            //todo
+            throw new InvalidStateException(stageDescription.get(4), stageDescription.get(stage.get()), this.instance.getClass(), solutions);
         }
         return this;
     }
@@ -174,6 +204,13 @@ public class State<C, T> {
                             " code) need a RANDOM_MODE mode state, you should use transform())");
         }
         currentState.compareAndSet(cs, nextState);
+    }
+
+    public void transform(C from, C to) {
+
+    }
+    public AtomicReference<C> getRawCurrentState() {
+        return currentState;
     }
 
     public C getCurrentState() {

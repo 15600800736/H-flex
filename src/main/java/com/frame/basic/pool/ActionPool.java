@@ -1,6 +1,6 @@
 package com.frame.basic.pool;
 
-import com.frame.basic.strategy.specific.PoolStrategy;
+import com.frame.basic.strategy.specific.pool.PoolStrategy;
 
 import java.lang.reflect.Method;
 
