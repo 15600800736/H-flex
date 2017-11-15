@@ -10,7 +10,7 @@ import org.dom4j.io.SAXReader;
 
 import java.io.File;
 
-public class ConfigurationReader implements Reader{
+public class ConfigurationReader implements Reader {
     private Document document;
 
     public ConfigurationReader(String path) throws ScanException {

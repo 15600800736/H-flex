@@ -9,3 +9,4 @@ import com.frame.context.info.Node;
 public interface Reader {
     Node getRoot();
 }
+    

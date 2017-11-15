@@ -1,21 +1,25 @@
 package com.frame.basic.strategy.specific.state;
 
 import com.frame.basic.state.State;
+import com.frame.basic.state.role.Monitor;
 
 /**
  * Created by fdh on 2017/11/14.
  */
-public class BlockingTransformationStrategy<C, T> extends ConcurrentTransformationStrategy<C, T> {
+public class BlockingTransformationStrategy<C> extends ConcurrentTransformationStrategy<C> {
 
 
-    public BlockingTransformationStrategy(State<C, T> state) {
-        super(state);
+    public BlockingTransformationStrategy(Monitor<C> monitor) {
+        super(monitor);
     }
 
     @Override
-    public void transFailStrategy(C from, C to) {
-        if (!this.target.getRawCurrentState().compareAndSet(from, to)) {
+    public void transFailStrategy(C from) {
 
-        }
+    }
+
+    @Override
+    public void notificationStrategy(C expectState) {
+
     }
 }

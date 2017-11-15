@@ -1,5 +1,6 @@
 package com.frame.basic.state;
 
+import com.frame.basic.state.role.Monitor;
 import com.frame.exceptions.invalid.InvalidArgumentsException;
 import com.frame.exceptions.invalid.InvalidStateException;
 import com.frame.exceptions.invalid.RepeatException;
@@ -21,7 +22,6 @@ public class State<C, T> {
     public enum StateMode {
         SEQUENCE_MODE, RANDOM_MODE;
     }
-
     /**
      * the current state, update atomically
      */
@@ -56,6 +56,8 @@ public class State<C, T> {
      * 5-for initialization completely
      */
     private AtomicInteger stage = new AtomicInteger();
+
+    private Monitor<C> monitor;
 
     private final Map<Integer, String> stageDescription = new ConcurrentHashMap<>(16);
     {
@@ -207,10 +209,9 @@ public class State<C, T> {
     }
 
     public void transform(C from, C to) {
+        if (!this.currentState.compareAndSet(from, to)) {
 
-    }
-    public AtomicReference<C> getRawCurrentState() {
-        return currentState;
+        }
     }
 
     public C getCurrentState() {

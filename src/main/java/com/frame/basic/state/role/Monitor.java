@@ -1,5 +1,7 @@
 package com.frame.basic.state.role;
 
+import com.frame.basic.strategy.specific.state.ConcurrentTransformationStrategy;
+
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,22 +12,27 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class Monitor<C> extends Role {
 
-    public Monitor() {
+    private ConcurrentTransformationStrategy<C> strategy;
+
+    public Monitor(ConcurrentTransformationStrategy strategy) {
         super("monitor");
+        this.strategy = strategy;
     }
 
     Map<C, BlockingQueue<Thread>> waitingList = new ConcurrentHashMap<>(/*todo how many*/);
 
-    public void registerThread(C state, Thread t) {
-        BlockingQueue<Thread> tQueue = this.waitingList.get(state);
+    public void registerThread(C expectState, Thread t) {
+        BlockingQueue<Thread> tQueue = this.waitingList.get(expectState);
         if (tQueue == null) {
             tQueue = new LinkedBlockingQueue<>();
-            waitingList.put(state, tQueue);
+            waitingList.put(expectState, tQueue);
         }
         // make sure that the thread is put into the queue
         while (true) {
             try {
                 tQueue.put(t);
+                // deal with failure of transformation
+                this.strategy.transFailStrategy(expectState);
                 break;
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -33,9 +40,7 @@ public class Monitor<C> extends Role {
         }
     }
 
-    public static void main(String[] args) {
-        Monitor<Integer> m = new Monitor<>();
-        m.registerThread(1, Thread.currentThread());
-        System.out.println(m.waitingList.get(1));
+    public void notificationThread(C expectState) {
+        
     }
 }

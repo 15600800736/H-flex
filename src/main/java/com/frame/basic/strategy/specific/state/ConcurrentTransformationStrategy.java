@@ -1,28 +1,33 @@
 package com.frame.basic.strategy.specific.state;
 
 import com.frame.basic.state.State;
+import com.frame.basic.state.role.Monitor;
 import com.frame.basic.strategy.Strategy;
 
 /**
  * Created by fdh on 2017/11/14.
  */
-public abstract class ConcurrentTransformationStrategy<C, T> extends Strategy<State<C, T>> {
+public abstract class ConcurrentTransformationStrategy<C> extends Strategy<Monitor<C>> {
 
-    private State<C, T> state;
+    private Monitor<C> monitor;
 
-    public ConcurrentTransformationStrategy(State<C, T> state) {
-        this.state = state;
-    }
+    public abstract void transFailStrategy(C expectState);
 
-    public abstract void transFailStrategy(C from, C to);
+    public abstract void notificationStrategy(C expectState);
 
-    @Override
-    public State<C, T> getTarget() {
-        return null;
+    public ConcurrentTransformationStrategy(Monitor<C> monitor) {
+        this.monitor = monitor;
     }
 
     @Override
-    public void setTarget(State<C, T> target) {
-
+    public Monitor<C> getTarget() {
+        return monitor;
     }
+
+    @Override
+    public void setTarget(Monitor<C> target) {
+        this.monitor = target;
+    }
+
+
 }
