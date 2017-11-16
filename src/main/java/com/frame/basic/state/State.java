@@ -57,8 +57,6 @@ public class State<C, T> {
      */
     private AtomicInteger stage = new AtomicInteger();
 
-    private Monitor<C> monitor;
-
     private final Map<Integer, String> stageDescription = new ConcurrentHashMap<>(16);
     {
         stageDescription.put(0, "default value, nothing done");

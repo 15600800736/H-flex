@@ -7,25 +7,25 @@ import com.frame.basic.strategy.Strategy;
 /**
  * Created by fdh on 2017/11/14.
  */
-public abstract class ConcurrentTransformationStrategy<C> extends Strategy<Monitor<C>> {
+public abstract class ConcurrentTransformationStrategy<C> extends Strategy<Monitor> {
 
-    private Monitor<C> monitor;
+    private Monitor monitor;
 
     public abstract void transFailStrategy(C expectState);
 
-    public abstract void notificationStrategy(C expectState);
+    public abstract void notificationStrategy(C expectState, Thread t);
 
-    public ConcurrentTransformationStrategy(Monitor<C> monitor) {
+    public ConcurrentTransformationStrategy(Monitor monitor) {
         this.monitor = monitor;
     }
 
     @Override
-    public Monitor<C> getTarget() {
+    public Monitor getTarget() {
         return monitor;
     }
 
     @Override
-    public void setTarget(Monitor<C> target) {
+    public void setTarget(Monitor target) {
         this.monitor = target;
     }
 

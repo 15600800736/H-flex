@@ -9,7 +9,7 @@ import com.frame.basic.state.role.Monitor;
 public class BlockingTransformationStrategy<C> extends ConcurrentTransformationStrategy<C> {
 
 
-    public BlockingTransformationStrategy(Monitor<C> monitor) {
+    public BlockingTransformationStrategy(Monitor monitor) {
         super(monitor);
     }
 
@@ -19,7 +19,7 @@ public class BlockingTransformationStrategy<C> extends ConcurrentTransformationS
     }
 
     @Override
-    public void notificationStrategy(C expectState) {
+    public void notificationStrategy(C expectState, Thread t) {
 
     }
 }
