@@ -1,6 +1,5 @@
 package com.frame.testbasic;
 
-import com.frame.annotations.ActionClass;
 import com.frame.basic.flow.flows.AppendableTask;
 import com.frame.execute.Executor;
 import org.junit.Assert;
@@ -16,7 +15,6 @@ import java.util.Map;
  * Created by fdh on 2017/7/27.
  */
 
-@ActionClass
 public class TestAppendableTask {
     Logger logger = LoggerFactory.getLogger(this.getClass());
     @Test

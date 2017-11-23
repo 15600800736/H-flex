@@ -127,7 +127,8 @@ public class ConfigurationNode extends Node {
     }
 
     private List<ConfigurationNode> decorate(List<Element> original) throws Exception {
-        Transformer<List<Element>,List<ConfigurationNode>> transformer = new ElementTransformer(original);
-        return transformer.execute();
+//        Transformer<List<Element>,List<ConfigurationNode>> transformer = new ElementTransformer(original);
+//        return transformer.execute();
+        return null;
     }
 }
