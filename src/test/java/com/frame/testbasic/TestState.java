@@ -1,8 +1,8 @@
 package com.frame.testbasic;
 
 
-import com.frame.basic.flow.flows.AppendableLine;
-import com.frame.basic.state.State;
+import com.frame.flow.flows.AppendableLine;
+import com.frame.state.State;
 import com.frame.exceptions.invalid.RepeatException;
 import org.junit.Test;
 import org.slf4j.Logger;
