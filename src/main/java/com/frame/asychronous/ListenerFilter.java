@@ -10,15 +10,15 @@ public abstract class ListenerFilter implements Filter {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private Filter next;
+    private volatile ListenerFilter next;
 
-    private Listener listener;
+    private volatile Listener listener;
 
-    public Filter getNext() {
+    public ListenerFilter getNext() {
         return next;
     }
 
-    public void setNext(Filter next) {
+    public void setNext(ListenerFilter next) {
         this.next = next;
     }
 
@@ -38,8 +38,4 @@ public abstract class ListenerFilter implements Filter {
         execFilter();
         return next;
     }
-
-
-
-
 }
