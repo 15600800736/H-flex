@@ -28,11 +28,6 @@ public abstract class Executor<P, T>
         implements Callable<T>, Executable<T> {
 
     /**
-     * <p>The barrier which let other partners wait, threads will wait at the end of execute()</p>
-     */
-    protected CyclicBarrier barrier;
-
-    /**
      * <p>The production that is passed into the executor, its the basic or target of what the executors do</p>
      */
     protected P production;
