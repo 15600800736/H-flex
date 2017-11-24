@@ -88,7 +88,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
          */
 
         private void initItr(int nextIndex) {
-            this.nextIndex = nextIndex;
+            this.nextIndex = getRealIndex(nextIndex);
 
         }
         /**
@@ -124,6 +124,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         }
 
         private Node<E> nodeOf(int i) {
+            i = getRealIndex(i);
             Node<E> n = header;
             if (nextIndex < (size >> 1)) {
                 for (int index = 0; index < i; index++) {
@@ -138,7 +139,10 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         }
 
         private int getRealIndex(int index) {
-
+            if (index < size) {
+                return index;
+            }
+            return index % size;
         }
         /**
          * check if the list has been modified after the iterator had been created.
