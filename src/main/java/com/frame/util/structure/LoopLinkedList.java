@@ -65,15 +65,32 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         private int expectedCount = modCount;
 
         public LoopIterator(Node<E> next) {
-            this.next = next;
-
+            initItr(next);
         }
 
         public LoopIterator(int nextIndex) {
-            this.nextIndex = nextIndex;
+            initItr(nextIndex);
         }
 
 
+        /**
+         * called in constructor, pack the construction logic
+         * @param next the initial node, the {@code nextIndex} also should be initialized.
+         */
+        private void initItr(Node<E> next) {
+            this.next = next;
+            this.nextIndex = indexOf(next);
+        }
+
+        /**
+         * called in constructor, pack the construction logic
+         * @param nextIndex the initial node's index
+         */
+
+        private void initItr(int nextIndex) {
+            this.nextIndex = nextIndex;
+
+        }
         /**
          * return the index of the specific node, if the node is not in the list, return -1
          *
@@ -95,10 +112,34 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             }
 
             Node<E> n = header.next;
-            // todo
-            return 0;
+            int index = 1;
+            while (n != header) {
+                if (n == node) {
+                    return index;
+                }
+                n = n.next;
+                index++;
+            }
+            return -1;
         }
 
+        private Node<E> nodeOf(int i) {
+            Node<E> n = header;
+            if (nextIndex < (size >> 1)) {
+                for (int index = 0; index < i; index++) {
+                    n = n.next;
+                }
+            } else {
+                for (int index = 0; index < (size - i); index++) {
+                    n = n.prev;
+                }
+            }
+            return n;
+        }
+
+        private int getRealIndex(int index) {
+
+        }
         /**
          * check if the list has been modified after the iterator had been created.
          * @return true if the list has been modified, otherwise, false.
