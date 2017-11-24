@@ -95,7 +95,8 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             }
 
             Node<E> n = header.next;
-
+            // todo
+            return 0;
         }
 
         /**

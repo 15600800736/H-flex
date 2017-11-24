@@ -1,7 +1,5 @@
 package com.frame.context.info.StringInformation;
 
-import com.frame.execute.transform.ElementTransformer;
-import com.frame.execute.transform.Transformer;
 import com.frame.context.info.Node;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
