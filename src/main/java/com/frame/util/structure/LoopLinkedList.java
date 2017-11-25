@@ -60,6 +60,10 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         private int nextIndex;
 
         /**
+         * used for removing
+         */
+        private Node<E> lastReturned;
+        /**
          * check if the list has been modified after the iterator had been created.
          */
         private int expectedCount = modCount;
@@ -92,10 +96,10 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
 
         }
         /**
-         * return the index of the specific node, if the node is not in the list, return -1
+         * return the index of the specific node, if the node is not in the list, return null
          *
          * @param node the specific node
-         * @return index of the specific node, if the node is not in the list, -1
+         * @return index of the specific node, if the node is not in the list, null
          */
         private Integer indexOf(Node<E> node) {
             if (checkModification()) {
@@ -106,7 +110,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             }
             if (node == header) {
                 if (header.item == null) {
-                    return -1;
+                    return null;
                 }
                 return 0;
             }
@@ -120,7 +124,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
                 n = n.next;
                 index++;
             }
-            return -1;
+            return null;
         }
 
         private Node<E> nodeOf(int i) {
@@ -138,7 +142,15 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             return n;
         }
 
-        private int getRealIndex(int index) {
+        private int getRealIndex(Integer index) {
+            if (index == null) {
+                throw new NullPointerException("index is null");
+            }
+
+            if (index < 0) {
+                return size - index;
+            }
+
             if (index < size) {
                 return index;
             }
@@ -168,31 +180,85 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
          */
         @Override
         public E next() {
-            return null;
+            if (checkModification()) {
+                throw new ConcurrentModificationException();
+            }
+            if (next == null) {
+                throw new NullPointerException("the next node in the list is null");
+            }
+
+            if (next.item == null) {
+                throw new NullPointerException("null value is not allowed in the list");
+            }
+
+            E item = next.item;
+
+            next = next.next;
+            nextIndex = getRealIndex(nextIndex + 1);
+
+            return item;
         }
 
+        /**
+         * loop list always has previous element
+         * @return true, because the loop list always has previous element.
+         */
         @Override
         public boolean hasPrevious() {
-            return false;
+            return true;
         }
 
         @Override
         public E previous() {
-            return null;
+            if (checkModification()) {
+                throw new ConcurrentModificationException();
+            }
+            if (next == null) {
+                throw new NullPointerException("the current node in the list is null");
+            }
+
+            next = next.prev;
+            nextIndex = getRealIndex(nextIndex - 1);
+
+            if (next.item == null) {
+                throw new NullPointerException("null value is not allowed in the list");
+            }
+            return next.item;
         }
 
         @Override
         public int nextIndex() {
-            return 0;
+            return this.nextIndex;
         }
 
         @Override
         public int previousIndex() {
-            return 0;
+            return this.nextIndex - 1;
         }
 
         @Override
         public void remove() {
+            if (checkModification()) {
+                throw new ConcurrentModificationException();
+            }
+            if (next == null) {
+                throw new NullPointerException("the removed node in the list is null");
+            }
+
+            Node<E> n = next.next;
+
+            if (n == null) {
+                throw new NullPointerException("the next of the removed node in the list is null");
+            }
+
+            Node<E> p = next.prev;
+
+            if (p == null) {
+                throw new NullPointerException("the previous of the removed node in the list is null");
+            }
+
+            p.next = n;
+            n.prev = p;
 
         }
 
