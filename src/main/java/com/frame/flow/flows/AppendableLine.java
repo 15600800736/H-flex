@@ -345,7 +345,7 @@ public class AppendableLine<P> extends Flow<BlockingQueue<P>, List<P>> {
                         compareAndSetDone(false, true);
                     }
                 } else {
-                    // this just a compromise for the missing interrupt
+                    // todo this just a compromise for the missing interrupt
                     LockSupport.parkNanos(1000000000L);
                 }
             }
