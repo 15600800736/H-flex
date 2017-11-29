@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -81,5 +82,10 @@ public class TestLoopLinkedList {
     }
 
 
+    @Test
+    public void testRemove() {
+        List<Integer> list = new LoopLinkedList<>();
+        list.add(1);
+    }
 
 }
