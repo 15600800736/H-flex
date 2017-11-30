@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -13,22 +14,22 @@ import java.util.Random;
 /**
  * Created by fdh on 2017/11/27.
  */
-public class TestLoopLinkedList {
+public class TestLoopLinkedListWithLoopOpen {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     @Test
     public void testInitialization() {
         List<Integer> list = new LoopLinkedList<>();
-        Assert.assertTrue(list.size() == 1);
-        logger.info(list.toString());
+        Assert.assertTrue(list.size() == 0);
     }
 
     @Test
     public void testAddAndGet() {
         List<Integer> list = new LoopLinkedList<>();
+        ((LoopLinkedList)list).openLoop();
         list.add(2);
         Assert.assertTrue(list.size() == 1);
-        Assert.assertTrue(list.get(0) == 1);
+        Assert.assertTrue(list.get(0) == 2);
     }
 
     @Test
@@ -40,6 +41,7 @@ public class TestLoopLinkedList {
 
         Assert.assertTrue(list.size() == 1000);
 
+        ((LoopLinkedList)list).openLoop();
         for (int i = 0; i < 100; i++) {
             int j = new Random().nextInt(1000);
             Assert.assertTrue(j == list.get(j));
@@ -54,6 +56,7 @@ public class TestLoopLinkedList {
             list.add(i);
         }
 
+        ((LoopLinkedList)list).openLoop();
         LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
 
         int i = 0;
@@ -83,9 +86,53 @@ public class TestLoopLinkedList {
 
 
     @Test
-    public void testRemove() {
+    public void testIteratorRemove() {
         List<Integer> list = new LoopLinkedList<>();
-        list.add(1);
-    }
+        for (int i = 0; i < 10; i++) {
+            list.add(i);
+        }
+//        LoopLinkedList.LinkedLoopItr itr = (LoopLinkedList.LinkedLoopItr) list.iterator();
+//        while (itr.hasNext()) {
+//            System.out.println(itr.next());
+//        }
 
+        list.forEach(System.out::println);
+
+        LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
+
+
+        Integer i = itr.next();
+        itr.remove();
+        System.out.println("delete " + i);
+        i = itr.next();
+        itr.remove();
+        System.out.println("delete " + i);
+        i = itr.next();
+        System.out.println("jump " + i);
+        i = itr.next();
+        System.out.println("jump " + i);
+        i = itr.next();
+        itr.remove();
+        System.out.println("delete " + i);
+
+        i = itr.previous();
+        itr.remove();
+        System.out.println("delete " + i);
+
+        i = itr.previous();
+        itr.remove();
+        System.out.println("delete " + i);
+        list.forEach(System.out::println);
+    }
+    @Test
+    public void testAdd() {
+        List<Integer> list = new LoopLinkedList<>();
+        boolean a = list.add(1);
+        System.out.println(a);
+        ((LoopLinkedList)list).openLoop();
+        LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
+        while (itr.hasNext() && itr.limitNextLoop(1)) {
+            System.out.println(itr.next());
+        }
+    }
 }
