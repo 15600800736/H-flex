@@ -60,14 +60,14 @@ public class TestLoopLinkedListWithLoopOpen {
         LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
 
         int i = 0;
-        while (itr.hasNext() && itr.limitNextLoop(1)) {
+        while (itr.hasNextWithLoop(1)) {
             Integer element = itr.next();
             logger.info((i % list.size()) + " = " + element);
             Assert.assertTrue(element == (i % list.size()));
             i++;
         }
 
-        while (itr.hasNext() && itr.limitNextLoop(2)) {
+        while (itr.hasNextWithLoop(2)) {
             Integer element = itr.next();
             logger.info((i % list.size()) + " = " + element);
             Assert.assertTrue(element == (i % list.size()));
@@ -76,7 +76,7 @@ public class TestLoopLinkedListWithLoopOpen {
 
         i = 999;
         itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
-        while (itr.hasPrevious() && itr.limitPreviousLoop(1)) {
+        while (itr.hasPreviousWithLoop(1)) {
             Integer element = itr.previous();
             logger.info((i % list.size()) + " = " + element);
             Assert.assertTrue(element == (i % list.size()));
@@ -131,8 +131,16 @@ public class TestLoopLinkedListWithLoopOpen {
         System.out.println(a);
         ((LoopLinkedList)list).openLoop();
         LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
-        while (itr.hasNext() && itr.limitNextLoop(1)) {
+        while (itr.hasNextWithLoop(1)) {
             System.out.println(itr.next());
         }
+    }
+
+    private <E>boolean LoopListCompareToArray(LoopLinkedList<E> list, E[] arr) {
+        if (list.size() != arr.length) {
+            return false;
+        }
+
+
     }
 }

@@ -203,41 +203,6 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         }
 
         /**
-         * limit the loop visit times when call {@code next()}
-         * You can use like this,
-         * {@code
-         * while(itr.hasNext() && itr.limitNextLoop(1)) {
-         * ...
-         * }
-         * }
-         * Then, the iterator will loop only once.
-         *
-         * @param nextLoop the time of loop visit
-         * @return
-         */
-        public boolean limitNextLoop(int nextLoop) {
-            return !(this.nextLoop >= nextLoop);
-        }
-
-
-        /**
-         * limit the loop visit times when call {@code previous()}
-         * You can use like this,
-         * {@code
-         * while(itr.hasPrevious() && itr.limitPreviousLoop(1)) {
-         * ...
-         * }
-         * }
-         * Then, the iterator will loop only once.
-         *
-         * @param previousLoop the time of loop visit
-         * @return
-         */
-        public boolean limitPreviousLoop(int previousLoop) {
-            return !(this.previousLoop >= previousLoop);
-        }
-
-        /**
          * Loop list always has next element except there ain't any elements
          *
          * @return true, because the loop list always has next element.
@@ -251,6 +216,13 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             }
         }
 
+        public boolean hasNextWithLoop(int nextLoop) {
+            return hasNext() && !(this.nextLoop >= nextLoop);
+        }
+
+        public boolean hasPreviousWithLoop(int previousLoop) {
+            return hasPrevious() && !(this.previousLoop >= previousLoop);
+        }
         /**
          * Query the next element
          *
@@ -482,8 +454,5 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
 //        return true;
 //    }
 
-    /**
-     * Test {@code connectNode(...)}
-     */
 
 }
