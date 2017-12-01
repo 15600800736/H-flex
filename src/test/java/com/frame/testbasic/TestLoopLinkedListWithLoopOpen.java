@@ -53,7 +53,7 @@ public class TestLoopLinkedListWithLoopOpen {
     @Test
     public void testMultiAddAndIteratorVisitAndLimit() {
         List<Integer> list = new LoopLinkedList<>();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10; i++) {
             list.add(i);
         }
 
@@ -68,6 +68,7 @@ public class TestLoopLinkedListWithLoopOpen {
             i++;
         }
 
+        itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
         while (itr.hasNextWithLoop(2)) {
             Integer element = itr.next();
             logger.info((i % list.size()) + " = " + element);
@@ -75,7 +76,7 @@ public class TestLoopLinkedListWithLoopOpen {
             i++;
         }
 
-        i = 999;
+        i = 9;
         itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
         while (itr.hasPreviousWithLoop(1)) {
             Integer element = itr.previous();
@@ -83,12 +84,37 @@ public class TestLoopLinkedListWithLoopOpen {
             Assert.assertTrue(element == (i % list.size()));
             i--;
         }
-        i = 999 * 2;
+        i = 9;
+        itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
         while (itr.hasPreviousWithLoop(2)) {
             Integer element = itr.previous();
             logger.info(i % list.size() + " = " + element);
             Assert.assertTrue(element == (i % list.size()));
             i--;
+            if (i == -1) {
+                i = 9;
+            }
+        }
+        list.add(10);
+        itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
+        i = 10;
+        while (itr.hasPreviousWithLoop(100)) {
+            Integer element = itr.previous();
+            logger.info(i % list.size() + " = " + element);
+            Assert.assertTrue(element == (i % list.size()));
+            i--;
+            if (i == -1) {
+                i = 10;
+            }
+        }
+        list.add(11);
+        itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
+        i = 0;
+        while (itr.hasNextWithLoop(100)) {
+            Integer element = itr.next();
+            logger.info(i % list.size() + " = " + element);
+            Assert.assertTrue(element == (i % list.size()));
+            i++;
         }
     }
 
@@ -151,13 +177,4 @@ public class TestLoopLinkedListWithLoopOpen {
 
         return true;
     }
-
-    // closeLoop
-
-    public static void main(String[] args) {
-        System.out.println(-19 % 10);
-    }
-
-
-
 }

@@ -210,11 +210,15 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         @Override
         public boolean hasNext() {
             return !isEmpty() && !(!nextFirstVisitFlag && cursor == header);
+
         }
 
         public boolean hasNextWithLoop(int nextLoop) {
-            return hasNext() &&
-                    (!isLoop() || !(this.nextLoop >= nextLoop));
+            boolean res = !isEmpty() && (!isLoop() || !(this.nextLoop >= nextLoop));
+            if (!res) {
+                this.nextLoop = 0;
+            }
+            return res;
         }
 
 
@@ -268,8 +272,12 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         }
 
         public boolean hasPreviousWithLoop(int previousLoop) {
-            return hasPrevious() &&
+            boolean res = !isEmpty() &&
                     (!isLoop() || !(this.previousLoop >= previousLoop));
+            if (!res) {
+                this.nextLoop = 0;
+            }
+            return res;
         }
 
         @Override
@@ -448,6 +456,10 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
     }
 
 
+    //todo temporary method, remove
+    public int temporyGetRealIndex(int index) {
+        return getRealIndex(index);
+    }
 //    @Override
 //    public boolean add(E e) {
 //        LinkedLoopItr itr = new LinkedLoopItr(header);
