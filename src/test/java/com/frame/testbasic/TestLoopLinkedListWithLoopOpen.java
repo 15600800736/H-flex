@@ -158,6 +158,28 @@ public class TestLoopLinkedListWithLoopOpen {
         System.out.println("delete " + i);
         list.forEach(System.out::println);
     }
+
+    @Test
+    public void testHasNextAndHasPrevious() {
+        List<Integer> list = new LoopLinkedList<>();
+        for (int i = 0; i < (12); i++) {
+            list.add(i);
+        }
+        Iterator<Integer> itr = list.iterator();
+        while (itr.hasNext()) {
+            Integer element = itr.next();
+            System.out.println(element);
+        }
+
+        ((LoopLinkedList)list).openLoop();
+        itr = list.iterator();
+        while (itr.hasNext()) {
+            Integer element = itr.next();
+            System.out.println(element);
+        }
+        // todo test previous
+    }
+
     @Test
     public void testAdd() {
         List<Integer> list = new LoopLinkedList<>();
@@ -170,11 +192,5 @@ public class TestLoopLinkedListWithLoopOpen {
         }
     }
 
-    private <E>boolean LoopListCompareToArray(LoopLinkedList<E> list, E[] arr) {
-        if (list.size() != arr.length) {
-            return false;
-        }
 
-        return true;
-    }
 }
