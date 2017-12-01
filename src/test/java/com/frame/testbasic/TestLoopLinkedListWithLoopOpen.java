@@ -23,7 +23,6 @@ public class TestLoopLinkedListWithLoopOpen {
         Assert.assertTrue(list.size() == 0);
     }
 
-    // openLoop
     @Test
     public void testAddAndGet() {
         List<Integer> list = new LoopLinkedList<>();
@@ -48,6 +47,19 @@ public class TestLoopLinkedListWithLoopOpen {
             Assert.assertTrue(j == list.get(j));
         }
 //        System.out.println(list.get(6));
+
+
+        // one element
+        List<Integer> l = new LoopLinkedList<>();
+        l.add(0);
+
+        Assert.assertTrue(list.size() == 1);
+
+        ((LoopLinkedList)l).openLoop();
+        for (int i = 0; i < 1; i++) {
+            int j = new Random().nextInt(1);
+            Assert.assertTrue(j == l.get(j));
+        }
     }
 
     @Test
@@ -157,10 +169,18 @@ public class TestLoopLinkedListWithLoopOpen {
         itr.remove();
         System.out.println("delete " + i);
         list.forEach(System.out::println);
+
+        List<Integer> l = new LoopLinkedList<>();
+        l.add(0);
+        System.out.println(l.get(0));
+        Iterator<Integer> iterator = l.iterator();
+        iterator.next();
+        iterator.remove();
+        System.out.println(l.get(0));
     }
 
     @Test
-    public void testHasNextAndHasPrevious() {
+    public void testHasNext() {
         List<Integer> list = new LoopLinkedList<>();
         for (int i = 0; i < (12); i++) {
             list.add(i);
@@ -177,7 +197,24 @@ public class TestLoopLinkedListWithLoopOpen {
             Integer element = itr.next();
             System.out.println(element);
         }
-        // todo test previous
+        ((LoopLinkedList)list).closeLoop();
+        itr = list.iterator();
+        while (itr.hasNext()) {
+            Integer element = itr.next();
+            System.out.println(element);
+        }
+    }
+
+    @Test
+    public void testToArray() {
+        List<Integer> list = new LoopLinkedList<>();
+        for (int i = 0; i < (10); i++) {
+            list.add(i);
+        }
+        Integer[] arr = list.toArray(new Integer[0]);
+        for (Integer a : arr) {
+            logger.info(String.valueOf(a));
+        }
     }
 
     @Test
@@ -192,5 +229,9 @@ public class TestLoopLinkedListWithLoopOpen {
         }
     }
 
+
+    private <E>boolean loopListCompareToArray(LoopLinkedList<E> list, E[] arr) {
+        return false;
+    }
 
 }
