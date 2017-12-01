@@ -57,7 +57,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
     /**
      *
      */
-    private volatile AtomicBoolean openLoop = new AtomicBoolean();
+    private volatile AtomicBoolean loop = new AtomicBoolean();
     /**
      * <p>The guard node in the list, it's also a normal node with data
      * the header will never be null, also, null is an invalid value in the list.
@@ -72,7 +72,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
     }
 
     public LoopLinkedList(boolean openLoop) {
-        this.openLoop.set(openLoop);
+        this.loop.set(openLoop);
     }
 
     public class LinkedLoopItr implements ListIterator<E> {
@@ -209,20 +209,15 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
          */
         @Override
         public boolean hasNext() {
-            if (openLoop.get()) {
-                return !isEmpty();
-            } else {
-                return !(!nextFirstVisitFlag && cursor == header);
-            }
+            return !isEmpty() && !(!nextFirstVisitFlag && cursor == header);
         }
 
         public boolean hasNextWithLoop(int nextLoop) {
-            return hasNext() && !(this.nextLoop >= nextLoop);
+            return hasNext() &&
+                    (!isLoop() || !(this.nextLoop >= nextLoop));
         }
 
-        public boolean hasPreviousWithLoop(int previousLoop) {
-            return hasPrevious() && !(this.previousLoop >= previousLoop);
-        }
+
         /**
          * Query the next element
          *
@@ -269,11 +264,12 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
          */
         @Override
         public boolean hasPrevious() {
-            if (openLoop.get()) {
-                return !isEmpty();
-            } else {
-                return cursor != header.prev;
-            }
+            return !isEmpty() && cursor != header.prev;
+        }
+
+        public boolean hasPreviousWithLoop(int previousLoop) {
+            return hasPrevious() &&
+                    (!isLoop() || !(this.previousLoop >= previousLoop));
         }
 
         @Override
@@ -389,11 +385,15 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
     }
 
     public boolean openLoop() {
-        return this.openLoop.compareAndSet(false, true);
+        return this.loop.compareAndSet(false, true);
     }
 
     public boolean closeLoop() {
-        return this.openLoop.compareAndSet(true, false);
+        return this.loop.compareAndSet(true, false);
+    }
+
+    public boolean isLoop() {
+        return loop.get();
     }
 
     @SafeVarargs
@@ -424,7 +424,8 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         }
 
         if (index < 0) {
-            return size - index;
+            Integer tmp = -index % size;
+            return size - (tmp == 0 ? size : tmp);
         }
 
         if (index < size) {
@@ -454,5 +455,18 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
 //        return true;
 //    }
 
+    // test getRealIndex
+    public static void main(String[] args) {
+        LoopLinkedList<Integer> list = new LoopLinkedList<>();
+        list.size = 10;
+        for (int i = -100000; i < 100000; i++) {
+            int tmp = list.getRealIndex(i);
+            if (tmp < 0 || tmp >= 10) {
+                System.out.println("error");
+                return;
+            }
+        }
+        System.out.println("success!");
+    }
 
 }

@@ -23,6 +23,7 @@ public class TestLoopLinkedListWithLoopOpen {
         Assert.assertTrue(list.size() == 0);
     }
 
+    // openLoop
     @Test
     public void testAddAndGet() {
         List<Integer> list = new LoopLinkedList<>();
@@ -79,6 +80,13 @@ public class TestLoopLinkedListWithLoopOpen {
         while (itr.hasPreviousWithLoop(1)) {
             Integer element = itr.previous();
             logger.info((i % list.size()) + " = " + element);
+            Assert.assertTrue(element == (i % list.size()));
+            i--;
+        }
+        i = 999 * 2;
+        while (itr.hasPreviousWithLoop(2)) {
+            Integer element = itr.previous();
+            logger.info(i % list.size() + " = " + element);
             Assert.assertTrue(element == (i % list.size()));
             i--;
         }
@@ -141,6 +149,15 @@ public class TestLoopLinkedListWithLoopOpen {
             return false;
         }
 
-
+        return true;
     }
+
+    // closeLoop
+
+    public static void main(String[] args) {
+        System.out.println(-19 % 10);
+    }
+
+
+
 }
