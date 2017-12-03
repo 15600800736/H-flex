@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by fdh on 2017/11/23.
  */
 // todo check the documents to make sure my implementations is reasonable.
+// todo override to add modcount
 public class LoopLinkedList<E> extends AbstractSequentialList<E>
         implements List<E>, Cloneable, java.io.Serializable {
 
@@ -151,6 +152,10 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             this.cursor = nodeOf(nextIndex);
         }
 
+//        private boolean checkBound(int index) {
+//            return index >=0 && index < size;
+//        }
+
         /**
          * Return the index of the specific node, if the node is not in the list, return null
          *
@@ -229,6 +234,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
          */
         @Override
         public E next() {
+
             if (checkModification()) {
                 throw new ConcurrentModificationException();
             }
@@ -246,10 +252,15 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             if (cursor == header) {
                 if (nextFirstVisitFlag) {
                     nextFirstVisitFlag = false;
+                } else {
+                    if (!isLoop()) {
+                        throw new NoSuchElementException("element 0");
+                    }
                 }
             }
             lastReturned = cursor;
             cursor = cursor.next;
+
             // record loop time
             if (cursor == header) {
                 if (!nextFirstVisitFlag) {
@@ -298,7 +309,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
                 previousLoop++;
             }
             if (cursor.item == null) {
-                throw new NullPointerException("null value is not allowed in the list");
+                throw new NoSuchElementException("element 0");
             }
             return cursor.item;
         }
@@ -324,6 +335,14 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
 
             if (lastReturned == null) {
                 throw new NullPointerException("the removed node in the list is null");
+            }
+            // delete header and make it empty
+            if (size == 1) {
+                if (lastReturned == header && header.item != null) {
+                    header.item = null;
+                    size--;
+                    return;
+                }
             }
             // means just call next(), and the iterator should stay where it is
             if (lastReturned == cursor.prev) {
@@ -453,6 +472,28 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
     @Override
     public int size() {
         return size;
+    }
+
+    @Override
+    public E remove(int index) {
+        if (!isLoop()) {
+            if (!checkBound(index)) {
+                throw new IndexOutOfBoundsException("element " + index);
+            }
+        }
+        E e = super.remove(index);
+        modCount++;
+        return e;
+    }
+
+    @Override
+    public void add(int index, E element) {
+        super.add(index, element);
+        modCount++;
+    }
+
+    private boolean checkBound(int index) {
+        return index > -1 && index < size;
     }
 
 

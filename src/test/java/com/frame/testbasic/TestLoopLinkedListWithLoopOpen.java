@@ -6,10 +6,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by fdh on 2017/11/27.
@@ -17,6 +14,7 @@ import java.util.Random;
 public class TestLoopLinkedListWithLoopOpen {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void testInitialization() {
         List<Integer> list = new LoopLinkedList<>();
@@ -26,7 +24,7 @@ public class TestLoopLinkedListWithLoopOpen {
     @Test
     public void testAddAndGet() {
         List<Integer> list = new LoopLinkedList<>();
-        ((LoopLinkedList)list).openLoop();
+        ((LoopLinkedList) list).openLoop();
         list.add(2);
         Assert.assertTrue(list.size() == 1);
         Assert.assertTrue(list.get(0) == 2);
@@ -41,21 +39,20 @@ public class TestLoopLinkedListWithLoopOpen {
 
         Assert.assertTrue(list.size() == 1000);
 
-        ((LoopLinkedList)list).openLoop();
+        ((LoopLinkedList) list).openLoop();
         for (int i = 0; i < 100; i++) {
             int j = new Random().nextInt(1000);
             Assert.assertTrue(j == list.get(j));
         }
-//        System.out.println(list.get(6));
 
 
         // one element
         List<Integer> l = new LoopLinkedList<>();
         l.add(0);
 
-        Assert.assertTrue(list.size() == 1);
+        Assert.assertTrue(l.size() == 1);
 
-        ((LoopLinkedList)l).openLoop();
+        ((LoopLinkedList) l).openLoop();
         for (int i = 0; i < 1; i++) {
             int j = new Random().nextInt(1);
             Assert.assertTrue(j == l.get(j));
@@ -69,7 +66,7 @@ public class TestLoopLinkedListWithLoopOpen {
             list.add(i);
         }
 
-        ((LoopLinkedList)list).openLoop();
+        ((LoopLinkedList) list).openLoop();
         LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
 
         int i = 0;
@@ -131,52 +128,78 @@ public class TestLoopLinkedListWithLoopOpen {
     }
 
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void testIteratorRemove() {
         List<Integer> list = new LoopLinkedList<>();
         for (int i = 0; i < 10; i++) {
             list.add(i);
         }
-//        LoopLinkedList.LinkedLoopItr itr = (LoopLinkedList.LinkedLoopItr) list.iterator();
-//        while (itr.hasNext()) {
-//            System.out.println(itr.next());
-//        }
 
         list.forEach(System.out::println);
 
         LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
 
-
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+        // remove specific element
+        // 0
         Integer i = itr.next();
         itr.remove();
         System.out.println("delete " + i);
+        list.forEach(System.out::print);
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}));
+        System.out.println();
+        // 1
         i = itr.next();
         itr.remove();
         System.out.println("delete " + i);
+        list.forEach(System.out::print);
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{2, 3, 4, 5, 6, 7, 8, 9}));
+        System.out.println();
+        // 2
         i = itr.next();
         System.out.println("jump " + i);
+        // 3
         i = itr.next();
         System.out.println("jump " + i);
+        // 4
         i = itr.next();
         itr.remove();
         System.out.println("delete " + i);
-
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{2, 3, 5, 6, 7, 8, 9}));
+        list.forEach(System.out::print);
+        System.out.println();
+        // 3
         i = itr.previous();
         itr.remove();
         System.out.println("delete " + i);
-
+        list.forEach(System.out::print);
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{2, 5, 6, 7, 8, 9}));
+        System.out.println();
+        // 2
         i = itr.previous();
         itr.remove();
         System.out.println("delete " + i);
-        list.forEach(System.out::println);
+        list.forEach(System.out::print);
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{5, 6, 7, 8, 9}));
+        System.out.println();
+        // previous remove and called next
+        // 5
+        i = itr.next();
+        itr.remove();
+        System.out.println("delete " + i);
+        list.forEach(System.out::print);
+        System.out.println();
+        Assert.assertTrue(itr.previous() == 9);
+
 
         List<Integer> l = new LoopLinkedList<>();
         l.add(0);
-        System.out.println(l.get(0));
-        Iterator<Integer> iterator = l.iterator();
+        Assert.assertTrue(l.get(0) == 0);
+        ListIterator<Integer> iterator = (ListIterator<Integer>) l.iterator();
         iterator.next();
         iterator.remove();
-        System.out.println(l.get(0));
+
+        iterator.previous();
     }
 
     @Test
@@ -186,23 +209,28 @@ public class TestLoopLinkedListWithLoopOpen {
             list.add(i);
         }
         Iterator<Integer> itr = list.iterator();
-        while (itr.hasNext()) {
-            Integer element = itr.next();
-            System.out.println(element);
-        }
 
-        ((LoopLinkedList)list).openLoop();
+        List<Integer> result = new LinkedList<>();
+        while (itr.hasNext()) {
+            Integer element = itr.next();
+            result.add(element);
+        }
+        Assert.assertTrue(listCompareToArray(result, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+
+        ((LoopLinkedList) list).openLoop();
         itr = list.iterator();
         while (itr.hasNext()) {
             Integer element = itr.next();
             System.out.println(element);
         }
-        ((LoopLinkedList)list).closeLoop();
+        Assert.assertTrue(listCompareToArray(result, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+        ((LoopLinkedList) list).closeLoop();
         itr = list.iterator();
         while (itr.hasNext()) {
             Integer element = itr.next();
             System.out.println(element);
         }
+        Assert.assertTrue(listCompareToArray(result, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
     }
 
     @Test
@@ -212,9 +240,7 @@ public class TestLoopLinkedListWithLoopOpen {
             list.add(i);
         }
         Integer[] arr = list.toArray(new Integer[0]);
-        for (Integer a : arr) {
-            logger.info(String.valueOf(a));
-        }
+        Assert.assertTrue(Arrays.equals(arr, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
     }
 
     @Test
@@ -222,16 +248,38 @@ public class TestLoopLinkedListWithLoopOpen {
         List<Integer> list = new LoopLinkedList<>();
         boolean a = list.add(1);
         System.out.println(a);
-        ((LoopLinkedList)list).openLoop();
+        ((LoopLinkedList) list).openLoop();
         LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList<Integer>.LinkedLoopItr) list.iterator();
+
+        List<Integer> result = new LinkedList<>();
         while (itr.hasNextWithLoop(1)) {
-            System.out.println(itr.next());
+            result.add(itr.next());
         }
+        Assert.assertTrue(listCompareToArray(result, new Integer[]{1}));
     }
 
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testRemove() {
+        List<Integer> list = new LoopLinkedList<>();
+        for (int i = 0; i < (10); i++) {
+            list.add(i);
+        }
+        ((LoopLinkedList)list).openLoop();
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}));
+        list.remove(0);
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}));
+        list.remove(6);
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{1, 2, 3, 4, 5, 6, 8, 9}));
+        list.remove(2);
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{1, 2, 4, 5, 6, 8, 9}));
+        list.remove(20);
+        Assert.assertTrue(listCompareToArray(list, new Integer[]{1, 2, 4, 5, 6, 8}));
 
-    private <E>boolean loopListCompareToArray(LoopLinkedList<E> list, E[] arr) {
-        return false;
+        ((LoopLinkedList)list).closeLoop();
+        list.remove(30);
     }
 
+    private <E> boolean listCompareToArray(List<E> list, E[] arr) {
+        return Arrays.equals(list.toArray(), arr);
+    }
 }
