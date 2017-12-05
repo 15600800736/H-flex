@@ -2,10 +2,9 @@ package com.frame.util.structure;
 
 import com.frame.exceptions.invalid.InvalidStateException;
 import com.frame.util.lambda.Condition;
-import sun.nio.ch.ThreadPool;
+import com.sun.xml.internal.ws.server.sei.MessageFiller;
 
 import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -20,10 +19,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>Every time you call the list's operation directly, the modCount will increase, so all of the iterators created before this operation will be invalid,
  * if you don't want this case, you should do like follow:
  * {@code
- *      Iterator<Integer> itr = list.iterator();
- *      itr.add(...);}
+ * Iterator<Integer> itr = list.iterator();
+ * itr.add(...);}
  * </p>
- * <p>The LoopList has two mode: Loop and non-loop, the default</p>
+ * <p>The LoopList has two mode: Loop and non-loop, the default mode is non-loop, this means when you </p>
  *
  * @param <E>
  */
@@ -101,6 +100,19 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         private Node<E> cursor;
 
         /**
+         * Value of the cursor position when the list is non-loop mode
+         */
+        private final int AT_HEADER = 0;
+
+        private final int AT_MIDDLE = 1;
+
+        private final int AT_TAIL = 2;
+
+        /**
+         * The state of the cursor, used when the list is non-loop mode to ensure where the cursor is, default header.
+         */
+        private int cursorPosition;
+        /**
          * The index of the element returned when calling {@code next()}
          */
         private int cursorIndex;
@@ -128,6 +140,11 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
          * Flag represents if the iterator visit the list for the first time with {@code next()}
          */
         private boolean nextFirstVisitFlag = true;
+
+        /**
+         * Flag represents if the iterator visit the list for the first time with {@code previous()}
+         */
+        private boolean previousFirstVisitFlag = true;
 
         /**
          * Constructor with specific node
@@ -169,10 +186,22 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             this.cursor = nodeOf(nextIndex);
         }
 
-//        private boolean checkBound(int index) {
-//            return index >=0 && index < size;
-//        }
+        // ensure cursor's position
+        private boolean cursorAtHeader() {
+            return cursorPosition == AT_HEADER;
+        }
 
+        private boolean cursorAtTail() {
+            return cursorPosition == AT_TAIL;
+        }
+
+        private boolean cursorAtMiddle() {
+            return cursorPosition == AT_MIDDLE;
+        }
+
+        private void moveCursorTo(int position) {
+            cursorPosition = position;
+        }
         /**
          * Return the index of the specific node, if the node is not in the list, return null
          *
@@ -231,12 +260,17 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
          */
         @Override
         public boolean hasNext() {
-            return !isEmpty() && !(!nextFirstVisitFlag && cursor == header);
+            return !isEmpty() && !cursorAtTail();
 
         }
 
         public boolean hasNextWithLoop(int nextLoop) {
-            boolean res = !isEmpty() && (!isLoop() || !(this.nextLoop >= nextLoop));
+            boolean res;
+            if (isLoop()) {
+                res = !isEmpty() && (this.nextLoop < nextLoop);
+            } else {
+                res = hasNext();
+            }
             if (!res) {
                 this.nextLoop = 0;
             }
@@ -246,7 +280,6 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
         public boolean hasNextWhile(Condition condition) {
             return !isEmpty() && condition.condition();
         }
-
 
 
         /**
@@ -268,26 +301,31 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             if (cursor.item == null) {
                 throw new NoSuchElementException("element 0");
             }
-
             E item = cursor.item;
             // sign that we already visit the header
             if (cursor == header) {
+                // the position of the cursor must be at the tail when you using next() to make it at header
+
                 if (nextFirstVisitFlag) {
                     nextFirstVisitFlag = false;
-                } else {
-                    if (!isLoop()) {
-                        throw new NoSuchElementException("element 0");
+                }
+                if (!isLoop()) {
+                    if (cursorAtTail()) {
+                        throw new NoSuchElementException("element " + size);
                     }
                 }
             }
             lastReturned = cursor;
             cursor = cursor.next;
 
-            // record loop time
+            // record loop time, need pre-check
             if (cursor == header) {
+                moveCursorTo(AT_TAIL);
                 if (!nextFirstVisitFlag) {
                     nextLoop++;
                 }
+            } else {
+                cursorPosition = AT_MIDDLE;
             }
             cursorIndex = getRealIndex(cursorIndex + 1);
 
@@ -301,12 +339,16 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
          */
         @Override
         public boolean hasPrevious() {
-            return !isEmpty() && cursor != header.prev;
+            return !isEmpty() && !cursorAtHeader();
         }
 
         public boolean hasPreviousWithLoop(int previousLoop) {
-            boolean res = !isEmpty() &&
-                    (!isLoop() || !(this.previousLoop >= previousLoop));
+            boolean res;
+            if (isLoop()) {
+                res = !isEmpty() && this.previousLoop < previousLoop;
+            } else {
+                res = hasPrevious();
+            }
             if (!res) {
                 this.nextLoop = 0;
             }
@@ -325,7 +367,15 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             if (cursor == null) {
                 throw new NullPointerException("the current node in the list is null");
             }
+            if (cursor == header) {
+                if (!isLoop()) {
+                    if (cursorAtHeader()) {
+                        throw new NoSuchElementException("element 0");
+                    }
+                }
+            }
 
+            previousFirstVisitFlag = false;
             cursor = cursor.prev;
             lastReturned = cursor;
             cursorIndex = getRealIndex(cursorIndex - 1);
@@ -333,6 +383,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
                 // the first element gotten by previous isn't header, so when the cursor meets header for the first time,
                 // it's already loop once.
                 previousLoop++;
+                moveCursorTo(AT_HEADER);
             }
             if (cursor.item == null) {
                 throw new NoSuchElementException("element 0");
