@@ -279,6 +279,20 @@ public class TestLoopLinkedListWithLoopOpen {
         list.remove(30);
     }
 
+    @Test
+    public void testHasNextWhile() {
+        LoopLinkedList<Integer> list = new LoopLinkedList<>();
+        for (int i = 0; i < (10); i++) {
+            list.add(i);
+        }
+        list.openLoop();
+        LoopLinkedList<Integer>.LinkedLoopItr itr = (LoopLinkedList.LinkedLoopItr) list.iterator();
+        while (itr.hasNextWhile(() -> true)) {
+            Integer e = itr.next();
+            System.out.println(e);
+        }
+
+    }
     private <E> boolean listCompareToArray(List<E> list, E[] arr) {
         return Arrays.equals(list.toArray(), arr);
     }

@@ -1,15 +1,32 @@
 package com.frame.util.structure;
 
 import com.frame.exceptions.invalid.InvalidStateException;
+import com.frame.util.lambda.Condition;
+import sun.nio.ch.ThreadPool;
 
 import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by fdh on 2017/11/23.
  */
-// todo check the documents to make sure my implementations is reasonable.
-// todo override to add modcount
+
+/**
+ * <p>LoopLinkedList is a implementation of {@link List}, this implementation extends the abstract class
+ * {@link AbstractSequentialList}, the intern implementation of the list will invoking internal iterator's operation,
+ * like add, remove.</p>
+ * <p>There is a Loop iterator in the list which extends {@link ListIterator}</p>
+ * <p>Every time you call the list's operation directly, the modCount will increase, so all of the iterators created before this operation will be invalid,
+ * if you don't want this case, you should do like follow:
+ * {@code
+ *      Iterator<Integer> itr = list.iterator();
+ *      itr.add(...);}
+ * </p>
+ * <p>The LoopList has two mode: Loop and non-loop, the default</p>
+ *
+ * @param <E>
+ */
 public class LoopLinkedList<E> extends AbstractSequentialList<E>
         implements List<E>, Cloneable, java.io.Serializable {
 
@@ -51,7 +68,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
     private volatile int size;
 
     /**
-     *
+     * the count of modification
      */
     private volatile int modCount;
 
@@ -226,6 +243,11 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
             return res;
         }
 
+        public boolean hasNextWhile(Condition condition) {
+            return !isEmpty() && condition.condition();
+        }
+
+
 
         /**
          * Query the next element
@@ -289,6 +311,10 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
                 this.nextLoop = 0;
             }
             return res;
+        }
+
+        public boolean hasPreviousWhile(Condition condition) {
+            return !isEmpty() && condition.condition();
         }
 
         @Override
@@ -519,6 +545,7 @@ public class LoopLinkedList<E> extends AbstractSequentialList<E>
                 return;
             }
         }
+
         System.out.println("success!");
     }
 
