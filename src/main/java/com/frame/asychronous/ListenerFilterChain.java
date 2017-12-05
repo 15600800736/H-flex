@@ -9,9 +9,9 @@ public class ListenerFilterChain extends ListenerFilter {
 
     private String chainName;
 
+    private final HeadFilter head = new HeadFilter();
+
     class HeadFilter extends ListenerFilter {
-
-
         @Override
         public void execFilter() {
             // do nothing
