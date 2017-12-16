@@ -7,7 +7,7 @@ import java.util.concurrent.FutureTask;
 /**
  * Created by fdh on 2017/11/23.
  */
-public interface Future<V> extends java.util.concurrent.Future<V> {
+public interface Future<V, K extends Comparable<K>> extends java.util.concurrent.Future<V> {
 
     Callable<V> callable();
 
@@ -17,9 +17,12 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
 
     Error error();
 
-    <K, T> void addListener(Listener<K, T> listener);
+    K addListener(FutureListener<K,?> listener);
 
-    List<Listener<?,?>> listeners();
+    List<FutureListener<?,?>> listeners();
 
+    void waitUntilDone();
+
+    void waitUntil(long sec);
 
 }

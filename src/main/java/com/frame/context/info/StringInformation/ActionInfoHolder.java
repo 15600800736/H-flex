@@ -18,12 +18,15 @@ public class ActionInfoHolder {
     private Lock actionMapperLock = new ReentrantLock();
     public void addAction(String id, ActionInfo actionInfo) throws ScanException {
         actionMapperLock.lock();
-        ActionInfo exitAction = actionMapper.get(id);
-        if (exitAction == null) {
-            actionMapper.put(id, actionInfo);
-        } else {
-            throw new ScanException("<action id='" + id + "'></action>", "id为" + id + "的action重复定义，请检查配置");
+        try {
+            ActionInfo exitAction = actionMapper.get(id);
+            if (exitAction == null) {
+                actionMapper.put(id, actionInfo);
+            } else {
+                throw new ScanException("<action id='" + id + "'></action>", "id为" + id + "的action重复定义，请检查配置");
+            }
+        } finally {
+            actionMapperLock.unlock();
         }
-        actionMapperLock.unlock();
     }
 }

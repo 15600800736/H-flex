@@ -30,13 +30,8 @@ public class TestLog {
 
         listenerFilter.setListener(new Listener() {
             @Override
-            public void registerFilter(Filter... filters) {
-
-            }
-
-            @Override
-            public Listener registerFilter(Filter filter) {
-                return null;
+            public void registerFilter(Filter filter) {
+                return;
             }
 
             @Override

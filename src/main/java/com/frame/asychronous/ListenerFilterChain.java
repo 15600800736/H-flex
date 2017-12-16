@@ -20,6 +20,10 @@ public class ListenerFilterChain extends ListenerFilter {
 
     @Override
     public void execFilter() {
-
+        ListenerFilter filter = head;
+        while (head != null && head.getNext() != null) {
+            filter = filter.getNext();
+            filter.execFilter();
+        }
     }
 }

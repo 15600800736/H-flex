@@ -9,12 +9,10 @@ package com.frame.asychronous;
  */
 public interface Error {
 
-    Future<?> getFuture();
+    Future<?,? extends Comparable> getFuture();
 
     Throwable getCause();
 
     String getDescription();
-
-
 
 }
