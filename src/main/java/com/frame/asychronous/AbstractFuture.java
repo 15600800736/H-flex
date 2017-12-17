@@ -3,10 +3,7 @@ package com.frame.asychronous;
 
 import com.frame.enums.asynchronous.FutureEvent;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -19,15 +16,38 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public abstract class AbstractFuture<V, K extends Comparable<K>> implements Future<V, K> {
 
-    protected Callable<V> callable;
+    /**
+     * The main task of this future represents.
+     */
+    private Callable<V> callable;
 
-    protected Boolean success;
+    /**
+     * Represents if the task has been done successfully
+     */
+    private boolean success = false;
 
-    protected Boolean failed = !success;
+    /**
+     * Represents if the task has failed, should be opposite of the {@code success}
+     */
+    private boolean failed = !success;
 
-    protected Error error;
+    /**
+     * Represents if the task has done, no matter it's successful or failed
+     */
+    private boolean done = false;
 
-    protected final Map<FutureEvent, Map<K,FutureListener<?,?>>> listeners = new HashMap<>(256);
+    /**
+     * Represents if the task has been cancelled, when the task has been cancelled,
+     * the {@code done, success, failed} will all be false while the {@code cancelled} is true.
+     */
+    private boolean cancelled = false;
+
+    
+    private Error error;
+
+    private final Map<FutureEvent, Map<K,FutureListener<K,?>>> listeners = new HashMap<>(256);
+
+    private final List<FutureListener<K,?>> allEventListener = new LinkedList<>();
 
     private Lock addListenerLock = new ReentrantLock();
 
@@ -37,15 +57,6 @@ public abstract class AbstractFuture<V, K extends Comparable<K>> implements Futu
         return callable;
     }
 
-    @Override
-    public boolean isSuccess() {
-        return success;
-    }
-
-    @Override
-    public boolean isFailed() {
-        return failed;
-    }
 
     @Override
     public Error error() {
@@ -64,7 +75,10 @@ public abstract class AbstractFuture<V, K extends Comparable<K>> implements Futu
             if (key == null) {
                 key = makeKey(listener);
             }
-            Map<K,  FutureListener<?,?>> orderedListeners = listeners.get(event);
+            if (key == null) {
+                throw new NullPointerException("key is null");
+            }
+            Map<K,  FutureListener<K,?>> orderedListeners = listeners.get(event);
             if (orderedListeners == null) {
                 orderedListeners = new TreeMap<>();
             }
@@ -76,19 +90,11 @@ public abstract class AbstractFuture<V, K extends Comparable<K>> implements Futu
     }
 
     private K registerListenerToAllEvents(FutureListener<K, ?> listener) {
-
-    }
-
-    private K makeKey(FutureListener<K, ?> listener) {
-        FutureEvent event = listener.getEvent();
-        if (event == null) {
-            throw new NullPointerException("event is null");
-        }
-        Map<K, FutureListener<?,?>> orderedListeners = this.listeners.get(event);
-        
-        // todo make key
+        allEventListener.add(listener);
         return null;
     }
+
+    protected abstract K makeKey(FutureListener<K, ?> listener);
     @Override
     public List<FutureListener<?, ?>> listeners() {
         return null;
@@ -117,6 +123,15 @@ public abstract class AbstractFuture<V, K extends Comparable<K>> implements Futu
     @Override
     public boolean isDone() {
         return false;
+    }
+    @Override
+    public boolean isSuccess() {
+        return success;
+    }
+
+    @Override
+    public boolean isFailed() {
+        return failed;
     }
 
     @Override
