@@ -42,13 +42,26 @@ public abstract class AbstractFuture<V, K extends Comparable<K>> implements Futu
      */
     private boolean cancelled = false;
 
-    
+    /**
+     * The error that the task throws when being executed.If the {@code success == true}, then
+     * the {@code error} will be null
+     */
     private Error error;
 
+    /**
+     * The listeners registered into the future, divided by event, and the key is for the ordered of listeners
+     */
     private final Map<FutureEvent, Map<K,FutureListener<K,?>>> listeners = new HashMap<>(256);
 
+    /**
+     * The listeners of all events, it will be noticed after each event in {@link FutureEvent} complete, and the
+     * all-event-listener will be noticed after all of the specific event listener invoked.
+     */
     private final List<FutureListener<K,?>> allEventListener = new LinkedList<>();
 
+    /**
+     * The lock is used for synchronize the add operation.
+     */
     private Lock addListenerLock = new ReentrantLock();
 
 
